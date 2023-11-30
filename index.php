@@ -78,10 +78,6 @@ if ($totalCustomers != 0) {
       </a>
     </li><!-- End Dashboard Nav -->
 
-    <li class="nav-item d-block d-md-none">
-      <button class="btn btn-primary"> <a href="become_a_technician.php" class="text-decoration-none text-light"> Become a Technician</a> </button>
-    </li>
-
     <li class="nav-item">
       <a class="nav-link collapsed" href="profile.php">
         <i class="bi bi-person"></i>
@@ -142,192 +138,146 @@ if ($totalCustomers != 0) {
   </div><!-- End Page Title -->
 
   <section class="section dashboard">
-    <div class="row">
-      <div class="col">
-        <h5>Top Suggestions</h5>
-        <div class="row d-flex justify-content-evenly">
-          <?php foreach ($top_technicians as $suggestion) { ?>
-            <div class="col-3">
-              <div class="card">
-                <div class="row g-0">
-                  <div class=" col-md-4">
-                    <img src="assets/images/<?php echo $suggestion->image; ?>" class="img-fluid rounded-start h-100" onerror="this.src='assets/img/profile-img.jpg'">
-                  </div>
-                  <div class="col-md-8 ">
-                    <div class="card-body px-0 text-center">
-                      <h5 class=" my-1 " style="font-size:15px;"><?php echo $suggestion->name; ?></h5>
-                      <h6><span style="color: #012970;margin-bottom:0;margin-top:-20px;font-weight:bolder;font-size:12px;"></span> <?php echo $suggestion->job; ?></h6>
-                      <!-- <h6 style="line-height:1.3rem;"><span style="color: #012970;font-weight:bolder;">Address:</span> <?php # echo $suggestion->address; 
-                                                                                                                            ?></h6> -->
-                      <h6><span style="color: #012970;font-weight:bolder;margin-bottom:0;font-size:15px;"></span> <?php
-                                                                                                                  $rate = $suggestion->rating;
-
-                                                                                                                  if ($rate == 0) {
-                                                                                                                    echo 'No reviews yet';
-                                                                                                                  } elseif ($rate == 1) {
-                                                                                                                    echo '
-                                                        <i class="bi bi-star-fill"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                    ';
-                                                                                                                  } elseif (
-                                                                                                                    $rate >= 1.5 && $rate  < 2
-                                                                                                                  ) {
-                                                                                                                    echo
-                                                                                                                    '
-                                                        <i class="bi bi-star-fill"></i>
-                                                        <i class="bi bi-star-half"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                    ';
-                                                                                                                  } elseif (
-                                                                                                                    $rate == 2
-                                                                                                                  ) {
-                                                                                                                    echo '
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                                                                                                                  } elseif (
-                                                                                                                    $rate >= 2.5 && $rate < 3
-                                                                                                                  ) {
-                                                                                                                    echo
-                                                                                                                    '
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-half"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                                                                                                                  } elseif (
-                                                                                                                    $rate == 3
-                                                                                                                  ) {
-                                                                                                                    echo '
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                                                                                                                  } elseif (
-                                                                                                                    $rate >= 3.5 && $rate < 4
-                                                                                                                  ) {
-                                                                                                                    echo
-                                                                                                                    '
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-half"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                                                                                                                  } elseif (
-                                                                                                                    $rate == 4
-                                                                                                                  ) {
-                                                                                                                    echo '  
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i> 
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                                                                                                                  } elseif (
-                                                                                                                    $rate >= 4.5 && $rate < 5
-                                                                                                                  ) {
-                                                                                                                    echo '
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-half"></i>
-                                                    ';
-                                                                                                                  } else {
-                                                                                                                    echo '  
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>';
-                                                                                                                  } ?></h6>
-                      <a href="view_profile.php?username=<?php echo $suggestion->username; ?>">View Profile</a>
-                    </div>
-                  </div>
-                </div>
-              </div><!-- End Card with an image on left -->
-            </div>
-          <?php } ?>
-
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-7">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo iste velit molestiae eligendi esse eos mollitia adipisci quisquam ea nihil, voluptate reprehenderit, sapiente ex suscipit ipsum itaque incidunt! Fugiat alias doloribus aliquid nam dicta dignissimos inventore ea sint non libero rem veniam eum tenetur rerum, nesciunt ratione vero aliquam veritatis.
-      </div>
-      <div class="col-5 technician_testimonial text-center border mt-200px " style=" margin:auto;border-radius:5px; overflow:hidden">
-
-        <div id="carouselExampleAutoplaying" class="row carousel slide p-0 m-0 " data-bs-ride="carousel" style="width:100%;margin:auto;border-radius:5px;">
-          <div class="carousel-inner p-0 m-0" style="width:100%;">
-            <div class="carousel-item active bg-primary " style="width:100%;">
-              <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Saepe amet suscipit enim
-                ipsam
-                laudantium sequi odio vero non voluptate consequatur.</p>
-              <div class="avatar_details" style="display:flex;width:80%;margin:auto;">
-                <img src="" alt="avatar_image">
-                <div class="avatar_info align-text-center" style="width:85%;">
-                  <h6 class="mb-0">John Doe</h6>
-                  <smal>mechanic</small>
-                </div>
-              </div>
-            </div>
-            <div class="carousel-item bg-secondary">
-              <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Saepe amet suscipit enim
-                ipsam
-                laudantium sequi odio vero non voluptate consequatur.</p>
-              <div class="avatar_details" style="display:flex;width:80%;margin:auto;">
-                <img src="" alt="avatar_image">
-                <div class="avatar_info align-text-center" style="width:85%;">
-                  <h6 class="mb-0">Kyle Peter</h6>
-                  <smal>electrician</small>
-                </div>
-              </div>
-            </div>
-            <div class="carousel-item bg-warning">
-              <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Saepe amet suscipit enim
-                ipsam
-                laudantium sequi odio vero non voluptate consequatur.</p>
-              <div class="avatar_details" style="display:flex;width:80%;margin:auto;">
-                <img src="" alt="avatar_image">
-                <div class="avatar_info align-text-center" style="width:85%;">
-                  <h6 class="mb-0">Samuel Jason</h6>
-                  <smal>carpenter</small>
-                </div>
-              </div>
-            </div>
+    <div class="row mt-5">
+      <div class="col-lg-3 column-lg-half responsive-column">
+        <div class="overview-item">
+          <div class="icon-box bg-1 mb-0 d-flex align-items-center">
+            <div class="icon-element flex-shrink-0">
+              <i class="la la-briefcase"></i>
+            </div><!-- end icon-element-->
+            <div class="info-content">
+              <span class="info__count">5</span>
+              <h4 class="info__title font-size-16 mt-2">Total Job Applied</h4>
+            </div><!-- end info-content -->
           </div>
-          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
         </div>
-
-
-      </div>
-    </div>
-
-
-
-
-
-    </div>
+      </div><!-- end col-lg-3 -->
+      <div class="col-lg-3 column-lg-half responsive-column">
+        <div class="overview-item">
+          <div class="icon-box bg-2 mb-0 d-flex align-items-center">
+            <div class="icon-element flex-shrink-0">
+              <i class="la la-comment"></i>
+            </div><!-- end icon-element-->
+            <div class="info-content">
+              <span class="info__count">20</span>
+              <h4 class="info__title font-size-16 mt-2">Reviews</h4>
+            </div><!-- end info-content -->
+          </div>
+        </div>
+      </div><!-- end col-lg-3 -->
+      <div class="col-lg-3 column-lg-half responsive-column">
+        <div class="overview-item">
+          <div class="icon-box bg-3 mb-0 d-flex align-items-center">
+            <div class="icon-element flex-shrink-0">
+              <i class="la la-eye"></i>
+            </div><!-- end icon-element-->
+            <div class="info-content">
+              <span class="info__count">504</span>
+              <h4 class="info__title font-size-16 mt-2">This Month Views</h4>
+            </div><!-- end info-content -->
+          </div>
+        </div>
+      </div><!-- end col-lg-3 -->
+      <div class="col-lg-3 column-lg-half responsive-column">
+        <div class="overview-item">
+          <div class="icon-box bg-4 mb-0 d-flex align-items-center">
+            <div class="icon-element flex-shrink-0">
+              <i class="la la-phone"></i>
+            </div><!-- end icon-element-->
+            <div class="info-content">
+              <span class="info__count">10</span>
+              <h4 class="info__title font-size-16 mt-2">Call for interview</h4>
+            </div><!-- end info-content -->
+          </div>
+        </div>
+      </div><!-- end col-lg-3 -->
+    </div><!-- end row -->
+    <div class="row mt-2">
+      <div class="col-lg-7 column-lg-full">
+        <div class="chart-box chart-item">
+          <div class="chart-headline d-flex align-items-center justify-content-between mb-4">
+            <h3 class="widget-title font-size-16 pb-0"><i class="font-size-20 la la-bar-chart mr-1"></i>Profile Views</h3>
+            <div class="user-chosen-select-container">
+              <select class="user-chosen-select">
+                <option value="this-week">This Week</option>
+                <option value="this-month">This Month</option>
+                <option value="last-months">Last 6 Months</option>
+                <option value="this-year">This Year</option>
+              </select>
+            </div><!-- end  -->
+          </div>
+          <canvas id="line-chart"></canvas>
+          <div class="chart-legend mt-4">
+            <ul>
+              <li><span class="legend__item legend__one"></span>Green</li>
+            </ul>
+          </div>
+        </div><!-- end chart-box -->
+      </div><!-- end col-lg-7 -->
+      <div class="col-lg-5 column-lg-full">
+        <div class="dashboard-shared note-dashboard">
+          <div class="mess-dropdown">
+            <div class="mess__title">
+              <img src="images/bg-title-1.jpg" alt="" class="img-fluid">
+              <div class="mess__title-inner padding-top-30px pr-4 pl-4 pb-4">
+                <h4 class="widget-title font-size-16 pb-0">
+                  <i class="font-size-20 la la-file-text-o mr-1"></i> Notes
+                </h4>
+              </div>
+            </div><!-- end mess__title -->
+            <div class="timeline-body">
+              <div class="mess__body">
+                <div class="mess__item">
+                  <div class="note-badge-wrap d-flex align-items-center justify-content-between">
+                    <span class="badge badge-primary note-badge note-badge-bg-2 p-2">High Priority</span>
+                    <ul class="info-list">
+                      <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
+                      <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
+                    </ul>
+                  </div>
+                  <div class="content mt-2">
+                    <p class="line-height-24 font-size-13">Medecins du Monde Jane Addams reduce child
+                      mortality challenges Ford Foundation.Diversification shifting
+                      landscape advocate pathway to a better life rights international</p>
+                  </div>
+                </div><!-- end mess__item -->
+                <div class="mess__item">
+                  <div class="note-badge-wrap d-flex align-items-center justify-content-between">
+                    <span class="badge badge-success note-badge note-badge-bg-2 p-2">Low Priority</span>
+                    <ul class="info-list">
+                      <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
+                      <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
+                    </ul>
+                  </div>
+                  <div class="content mt-2">
+                    <p class="line-height-24 font-size-13">Medecins du Monde Jane Addams reduce child
+                      mortality challenges Ford Foundation.Diversification shifting
+                      landscape advocate pathway to a better life rights international</p>
+                  </div>
+                </div><!-- end mess__item -->
+                <div class="mess__item">
+                  <div class="note-badge-wrap d-flex align-items-center justify-content-between">
+                    <span class="badge badge-warning text-white note-badge note-badge-bg-2 p-2">Medium Priority</span>
+                    <ul class="info-list">
+                      <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
+                      <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
+                    </ul>
+                  </div>
+                  <div class="content mt-2">
+                    <p class="line-height-24 font-size-13">Medecins du Monde Jane Addams reduce child
+                      mortality challenges Ford Foundation.Diversification shifting
+                      landscape advocate pathway to a better life rights international</p>
+                  </div>
+                </div><!-- end mess__item -->
+              </div><!-- end mess__body -->
+            </div>
+            <div class="mess__item border-bottom-0 text-center">
+              <button type="button" class="theme-btn border-0 w-100">Add Note</button>
+            </div><!-- end mess__item -->
+          </div><!-- end mess-dropdown -->
+        </div><!-- end dashboard-shared -->
+      </div><!-- end col-lg-5 -->
+    </div><!-- end row -->
   </section>
 
 </main><!-- End #main -->

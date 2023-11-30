@@ -202,7 +202,7 @@ if (isset($_POST['changePassword'])) {
               </li>
 
               <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Reviews</button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Create CV</button>
               </li>
 
               <li class="nav-item">
@@ -224,109 +224,19 @@ if (isset($_POST['changePassword'])) {
                 </div>
 
                 <div class="row">
-                  <div class="col-lg-3 col-md-4 label">Company</div>
-                  <div class="col-lg-9 col-md-8"><?php echo $detail->company ?></div>
-                </div>
-
-                <div class="row">
                   <div class="col-lg-3 col-md-4 label">Job</div>
                   <div class="col-lg-9 col-md-8"><?php echo $detail->job ?></div>
                 </div>
 
                 <div class="row">
-                  <div class="col-lg-3 col-md-4 label">Rating</div>
-                  <div class="col-lg-9 col-md-8"><?php
-                                                  $detail->rating;
-                                                  $rate = $detail->rating;
-
-                                                  if ($rate == 0) {
-                                                    echo 'No reviews yet';
-                                                  } elseif ($rate == 1) {
-                                                    echo '
-                                                        <i class="bi bi-star-fill"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                    ';
-                                                  } elseif ($rate >= 1.5 && $rate  < 2) {
-                                                    echo
-                                                    '
-                                                        <i class="bi bi-star-fill"></i>
-                                                        <i class="bi bi-star-half"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                    ';
-                                                  } elseif ($rate == 2) {
-                                                    echo '
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                                                  } elseif ($rate >= 2.5 && $rate < 3) {
-                                                    echo
-                                                    '
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-half"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                                                  } elseif ($rate == 3) {
-                                                    echo '
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                                                  } elseif ($rate >= 3.5 && $rate < 4) {
-                                                    echo
-                                                    '
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-half"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                                                  } elseif ($rate == 4) {
-                                                    echo '  
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i> 
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                                                  } elseif ($rate >= 4.5 && $rate < 5) {
-                                                    echo '
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-half"></i>
-                                                    ';
-                                                  } else {
-                                                    echo '  
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>';
-                                                  }
-                                                  ?></div>
+                  <div class="col-lg-3 col-md-4 label">Skills</div>
+                  <div class="col-lg-9 col-md-8"></div>
                 </div>
 
                 <div class="row">
-                  <div class="col-lg-3 col-md-4 label">Country</div>
-                  <div class="col-lg-9 col-md-8"><?php echo $detail->country ?></div>
-                </div>
-
-                <div class="row">
-                  <div class="col-lg-3 col-md-4 label">Address</div>
-                  <div class="col-lg-9 col-md-8"><?php echo $detail->address ?></div>
+                  <div class="col-lg-3 col-md-4 label">Experience</div>
+                  <div class="col-lg-9 col-md-8">
+                  </div>
                 </div>
 
                 <div class="row">
@@ -338,6 +248,17 @@ if (isset($_POST['changePassword'])) {
                   <div class="col-lg-3 col-md-4 label">Email</div>
                   <div class="col-lg-9 col-md-8"><?php echo $detail->email ?></div>
                 </div>
+                <div class="row">
+                  <div class="col-lg-3 col-md-4 label">Country</div>
+                  <div class="col-lg-9 col-md-8"><?php echo $detail->country ?></div>
+                </div>
+
+                <div class="row">
+                  <div class="col-lg-3 col-md-4 label">Address</div>
+                  <div class="col-lg-9 col-md-8"><?php echo $detail->address ?></div>
+                </div>
+
+
 
               </div>
 
@@ -378,9 +299,24 @@ if (isset($_POST['changePassword'])) {
                   </div>
 
                   <div class="row mb-3">
-                    <label for="company" class="col-md-4 col-lg-3 col-form-label">Company</label>
+                    <label for="Skills" class="col-md-4 col-lg-3 col-form-label">Skills</label>
                     <div class="col-md-8 col-lg-9">
-                      <input name="company" type="text" class="form-control" id="company" value="<?php echo $detail->company ?>">
+                      <input name="skills" type="text" class="form-control" id="company" value="" placeholder="List your skills seperating them with a comma">
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="experience" class="col-md-4 col-lg-3 col-form-label">Experience</label>
+                    <div class="col-md-8 col-lg-9">
+                      <select name="" id="">
+                        <option value="less than 1 year">Less than 1 year</option>
+                        <option value="1 year">1 year</option>
+                        <option value="2 years">2 years</option>
+                        <option value="3 years">3 years</option>
+                        <option value="3 years">4 years</option>
+                        <option value="3 years">5 years</option>
+                        <option value="3 years">3 years</option>
+                      </select>
                     </div>
                   </div>
 
@@ -388,13 +324,6 @@ if (isset($_POST['changePassword'])) {
                     <label for="Job" class="col-md-4 col-lg-3 col-form-label">Job</label>
                     <div class="col-md-8 col-lg-9">
                       <input name="job" type="text" class="form-control" id="Job" value="<?php echo $detail->job ?>">
-                    </div>
-                  </div>
-
-                  <div class="row mb-3">
-                    <label for="Country" class="col-md-4 col-lg-3 col-form-label">Country</label>
-                    <div class="col-md-8 col-lg-9">
-                      <input name="country" type="text" class="form-control" id="Country" value="<?php echo $detail->country ?>">
                     </div>
                   </div>
 
@@ -422,21 +351,21 @@ if (isset($_POST['changePassword'])) {
                   <div class="row mb-3">
                     <label for="Twitter" class="col-md-4 col-lg-3 col-form-label">Twitter Profile</label>
                     <div class="col-md-8 col-lg-9">
-                      <input name="twitter" type="text" class="form-control" id="Twitter" value="<?php echo $detail->twitter ?>">
+                      <input name="twitter" type="url" class="form-control" id="Twitter" value="<?php echo $detail->twitter ?>" placeholder="Enter your twitter profile link">
                     </div>
                   </div>
 
                   <div class="row mb-3">
                     <label for="Facebook" class="col-md-4 col-lg-3 col-form-label">Facebook Profile</label>
                     <div class="col-md-8 col-lg-9">
-                      <input name="facebook" type="text" class="form-control" id="Facebook" value="<?php echo $detail->facebook ?>">
+                      <input name="facebook" type="url" class="form-control" id="Facebook" placeholder="Enter your facebook profile link" value="<?php echo $detail->facebook ?>">
                     </div>
                   </div>
 
                   <div class="row mb-3">
                     <label for="Instagram" class="col-md-4 col-lg-3 col-form-label">Instagram Profile</label>
                     <div class="col-md-8 col-lg-9">
-                      <input name="instagram" type="text" class="form-control" id="Instagram" value="<?php echo $detail->instagram ?>">
+                      <input name="instagram" type="url" class="form-control" id="Instagram" placeholder="Enter your instagram profile link" value="<?php echo $detail->instagram ?>">
                     </div>
                   </div>
 
@@ -448,79 +377,6 @@ if (isset($_POST['changePassword'])) {
               </div>
 
               <div class="tab-pane fade pt-3" id="profile-settings">
-
-                <?php
-                $sql = "SELECT * FROM reviews WHERE technician_id=? ";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([$userId]);
-                $review_count = $stmt->rowCount();
-                if ($review_count == 0) { ?>
-                  <div class="text-center m-auto">No Reviews yet!</div>
-                <?php } else {
-                  $review = $stmt->fetchAll(); ?>
-                  <div>
-                    <?php foreach ($review as $comment) : ?>
-                      <div class="row border p-2">
-                        <div class="col-2 justify-content-center ">
-                          <img src="assets/images/<?= $comment->client_image ?>" alt="" style="height:70px;width:70px;" onerror="this.src='assets/img/profile-img.jpg'" class="rounded-circle">
-                        </div>
-                        <div class="col-10 justify-content-between">
-                          <h5><?= $comment->client_name ?></h5>
-                          <small><?= $comment->created ?></small>
-                        </div>
-                        <div class="col-12"><?= $comment->message ?></div>
-                        <div class="col-12 text-center">
-                          <?php
-                          $rate = $comment->rating;
-
-                          if ($rate == 1) {
-                            echo '
-                                                        <i class="bi bi-star-fill"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                        <i class="bi bi-star"></i>
-                                                    ';
-                          } elseif ($rate == 2) {
-                            echo '
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                          } elseif ($rate == 3) {
-                            echo '
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                          } elseif ($rate == 4) {
-                            echo '  
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i> 
-                                                    <i class="bi bi-star"></i>
-                                                    ';
-                          } else {
-                            echo '  
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>
-                                                    <i class="bi bi-star-fill"></i>';
-                          } ?>
-                        </div>
-
-                      </div>
-                    <?php endforeach ?>
-                  </div>
-
-                <?php } ?>
-
 
               </div>
 

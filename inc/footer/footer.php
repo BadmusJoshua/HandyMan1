@@ -17,6 +17,21 @@
   <script src="assets/vendor/tinymce/tinymce.min.js"></script>
   <script src="assets/vendor/php-email-form/validate.js"></script>
 
+  <!-- Template JS Files -->
+  <script src="js/jquery-3.4.1.min.js"></script>
+  <script src="js/jquery-ui.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/owl.carousel.min.js"></script>
+  <script src="js/jquery.magnific-popup.min.js"></script>
+  <script src="js/isotope-3.0.6.min.js"></script>
+  <script src="js/chosen.min.js"></script>
+  <script src="js/moment.min.js"></script>
+  <script src="js/daterangepicker.js"></script>
+  <script src="js/purecounter.js"></script>
+  <script src="js/progresscircle.js"></script>
+  <script src="js/main.js"></script>
+
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
 

@@ -25,7 +25,7 @@ if (isset($_POST['submit'])) {
     if ($usernameCheck > 0) {
       $username = 1;
     } else {
-      $sql = "insert into users (name, email, username, phone, password) values (?,?,?,?,?)";
+      $sql = "insert into users (name, email, username, phoneNumber, password) values (?,?,?,?,?)";
       $stmt = $pdo->prepare($sql);
       $stmt->execute([$name, $email, $username, $phone, (string) $hashed_password]);
 
@@ -87,7 +87,7 @@ if (isset($_POST['submit'])) {
               <div class="d-flex justify-content-center py-4">
                 <a href="index.html" class="logo d-flex align-items-center w-auto">
                   <img src="assets/img/logo.png" alt="">
-                  <span class="d-none d-lg-block">Handyman</span>
+                  <span class="d-none d-lg-block">JobCrest</span>
                 </a>
               </div><!-- End Logo -->
 
@@ -97,7 +97,7 @@ if (isset($_POST['submit'])) {
 
                   <div class="pt-4 pb-2">
                     <h5 class="card-title text-center pb-0 fs-4">Create an Account</h5>
-                    <p class="text-center small">Enter your personal details to create account</p>
+                    <p class="text-center small">Enter your information to create account</p>
                   </div>
 
                   <form class="row g-3 needs-validation" action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" novalidate>
@@ -127,7 +127,7 @@ if (isset($_POST['submit'])) {
                     <div class="col-12">
                       <label for="yourEmail" class="form-label">Your Email</label>
                       <input type="email" name="email" class="form-control" id="yourEmail" required>
-                      <div class="invalid-feedback">Please enter a valid Email adddress!</div>
+                      <div class="invalid-feedback">Please enter a valid Email address!</div>
                     </div>
 
                     <div class="col-12">

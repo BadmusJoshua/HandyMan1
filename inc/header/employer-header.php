@@ -1,51 +1,3 @@
-<?php include 'inc/config/database.php';
-// include_once 'reminder.php';
-session_start();
-if (isset($_SESSION['id'])) {
-    $userId = $_SESSION['id'];
-}
-
-$sql = "SELECT * FROM users WHERE id = ?";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([$userId]);
-$detail = $stmt->fetch();
-$technician = $detail->is_technician;
-if ($technician == 1) {
-    $job = $detail->job;
-}
-$name = ucwords($detail->name);
-$name_array = explode(' ', $name);
-$last_name = end($name_array);
-$first_name = $name_array[0];
-$initial = substr($first_name, 0, 1);
-$official_name = "$initial . $last_name";
-
-$sql = "SELECT * FROM notifications WHERE is_read=0 && user_id=$userId";
-$stmt = $pdo->prepare($sql);
-$stmt->execute();
-$content = $stmt->fetchAll();
-$notification_count = $stmt->rowCount();
-
-
-if (isset($_POST['view_all'])) {
-    $sql = "UPDATE notifications SET is_read=1 WHERE user_id = $userId";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute();
-}
-$job = $company = $address = $country = $about = '';
-if (isset($_POST['submit'])) {
-    $job = filter_input(INPUT_POST, 'job', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $country = filter_input(INPUT_POST, 'country', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $about = filter_input(INPUT_POST, 'about', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-    $sql = "UPDATE users SET job = ? ,company = ?, address = ?, country = ?,about = ? , is_technician = 1 WHERE id = ?";
-    $stmt = $pdo->prepare("$sql");
-    $stmt->execute([$job, $company, $address, $country, $about, $userId]);
-    header("Location:technician_index.php");
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -161,14 +113,15 @@ if (isset($_POST['submit'])) {
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="assets/images/<?php echo $detail->image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="rounded-circle" style="height:30px;width:30px;">
-                        <span class="d-none d-md-block dropdown-toggle ps-2"><?php echo $official_name; ?></span>
+                        <img src="assets/img/profile-img.jpg" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="rounded-circle" style="height:30px;width:30px;">
+                        <span class="d-none d-md-block dropdown-toggle ps-2"></span>
+
                     </a><!-- End Profile Iamge Icon -->
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                         <li class="dropdown-header">
-                            <h6><?php echo $name ?></h6>
-                            <span><?php echo $job ?></span>
+                            {# <h6><?php echo $name ?></h6>
+                            <span><?php echo $job ?></span> #}
                         </li>
                         <li>
                             <hr class="dropdown-divider">
