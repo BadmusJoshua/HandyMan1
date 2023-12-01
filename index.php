@@ -100,6 +100,20 @@ if ($totalCustomers != 0) {
     </li><!-- End Jobs Page Nav -->
 
     <li class="nav-item">
+      <div class="dropdown-center nav-link collapsed" style=" margin:0; padding:0; ">
+        <button class="btn dropdown-toggle nav-link collapsed" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="outline: none;
+      box-shadow: none;" onfocus="this.blur()">
+          <i class="bi bi-patch-check"></i>&nbsp;Resumes
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item nav-link collapsed" href="upload-cv-and-coverletter.php">Upload CV and Cover letter</a></li>
+          <li><a class="dropdown-item nav-link collapsed" href="create-resume.php">Create Resume</a></li>
+        </ul>
+      </div>
+
+    </li><!-- End Resumes Page Nav -->
+
+    <li class="nav-item">
       <a class="nav-link collapsed" href="faq.php">
         <i class="bi bi-question-circle"></i>
         <span>F.A.Q</span>
