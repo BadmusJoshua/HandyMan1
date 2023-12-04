@@ -1,4 +1,6 @@
-<?php include 'inc/header/employer-header.php'; ?>
+<?php include 'inc/header/employer-header.php';
+
+?>
 <!-- ======= Sidebar ======= -->
 <aside id="sidebar" class="sidebar">
 

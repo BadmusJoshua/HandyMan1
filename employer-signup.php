@@ -1,66 +1,91 @@
 <?php
 include 'inc/config/database.php';
-$user = $username = $unhashed_password = $passwordErr = "";
+$user = $name = $email = $phone = $unhashed_password = $passwordErr = $jobErr = $nameErr = $phoneErr = $nameExist = $emailErr = $job_category =  "";
+
+
 
 if (isset($_POST['submit'])) {
 
+    //checking if name isn't empty
+
     $name = filter_input(INPUT_POST, 'company_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+
     $email = filter_input(INPUT_POST, 'company_email', FILTER_SANITIZE_EMAIL);
+
+    //checking if job category isn't empty
+
+    $job_category = $_POST['job_category'];
+    // Process $job_category here
+    echo "Selected job category: " . $job_category;
+
+
+    //checking if phone isn't empty
+
     $phone = filter_input(INPUT_POST, 'company_phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $unhashed_password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $hashed_password = password_hash($unhashed_password, PASSWORD_DEFAULT);
 
-    function validatePassword($unhashed_password)
-    {
-        // Check if password length is between 8 to 15 characters
-        $passwordLength = strlen($unhashed_password);
-        if ($passwordLength < 8 || $passwordLength > 15) {
-            return false;
+
+    if (!empty($_POST['unhashed_password'])) {
+        $unhashed_password = filter_input(INPUT_POST, 'unhashed_password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        function validatePassword($assumed_password)
+        {
+            // Check if password length is between 8 to 15 characters
+            $passwordLength = strlen($assumed_password);
+            if ($passwordLength < 8) {
+                return false;
+            } else {
+                // Check for at least one number, one alphabet character or symbol
+                if (!preg_match('/^(?=.*[0-9])(?=.*[a-zA-Z!@#$%^&*()\-_=+{};:,<.>])[a-zA-Z0-9!@#$%^&*()\-_=+{};:,<.>]+$/', $assumed_password)) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
         }
 
-        // Check if the password contains at least one number or symbol
-        if (!preg_match('/[0-9!@#$%^&*()]/', $unhashed_password)) {
-            return false;
-        }
 
-        return true;
-    }
+        // Example usage:
+        if (validatePassword($unhashed_password)) {
+            $hashed_password = password_hash($unhashed_password, PASSWORD_DEFAULT);
 
-    // Example usage:
-    if (validatePassword($unhashed_password)) {
-
-        $sql = "select * FROM employers WHERE email = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$email]);
-        $userCount = $stmt->rowCount();
-        if ($userCount > 0) {
-            $user = 1;
-        } else {
-            $sql = "select * FROM employers WHERE name = ?";
+            $sql = "select * FROM employers WHERE email = ?";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$name]);
-            $nameCheck = $stmt->rowCount();
-            if ($nameCheck > 0) {
+            $stmt->execute([$email]);
+            //check if email is available
+            $userCount = $stmt->rowCount();
+            if ($userCount > 0) {
                 $user = 1;
             } else {
-                $sql = "insert into employers (name, email, job_category, phone, password) values (?,?,?,?,?)";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([$name, $email, $phone, $hashed_password]);
-
-                $sql = "SELECT * FROM employers WHERE name = ?";
+                $sql = "select * FROM employers WHERE name = ?";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([$name]);
-                $detail = $stmt->fetch();
-                $userId = $detail->id;
-                session_start();
-                $_SESSION['id'] = $userId;
-                header("Location:employer-index.php");
+                //check if the name is available
+                $nameCheck = $stmt->rowCount();
+                if ($nameCheck > 0) {
+                    echo $nameCheck;
+                    $nameExist = 1;
+                } else {
+                    $sql = "insert into employers (name, email, job_category, phone, password) values (?,?,?,?,?)";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([$name, $email, $job_category, $phone, $hashed_password]);
+                    $sql = "SELECT * FROM employers WHERE name = ?";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([$name]);
+                    $detail = $stmt->fetch();
+                    $userId = $detail->id;
+                    session_start();
+                    $_SESSION['id'] = $userId;
+                    header("Location:employer-index.php");
+                }
             }
+        } else {
+            $passwordErr = 1;
         }
     } else {
         $passwordErr = 1;
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -89,69 +114,12 @@ if (isset($_POST['submit'])) {
     <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
     <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP:100,300,400,500,700,900&amp;display=swap" rel="stylesheet" />
-
-    <!-- Template CSS Files -->
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/line-awesome.css" />
-    <link rel="stylesheet" href="css/owl.carousel.min.css" />
-    <link rel="stylesheet" href="css/owl.theme.default.min.css" />
-    <link rel="stylesheet" href="css/magnific-popup.css" />
-    <link rel="stylesheet" href="css/daterangepicker.css" />
-    <link rel="stylesheet" href="css/jquery-ui.css" />
-    <link rel="stylesheet" href="css/chosen.min.css" />
-    <link rel="stylesheet" href="css/style.css" />
 
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
     <title> JobCrest || The best job openings</title>
 
-    <!-- Vendor JS Files -->
-    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
-    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/vendor/chart.js/chart.umd.js"></script>
-    <script src="assets/vendor/echarts/echarts.min.js"></script>
-    <script src="assets/vendor/quill/quill.min.js"></script>
-    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
-    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
-    <script src="assets/vendor/php-email-form/validate.js"></script>
 
-    <!-- Template JS Files -->
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/jquery-ui.js"></script>
-    <script src="js/popper.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/owl.carousel.min.js"></script>
-    <script src="js/jquery.magnific-popup.min.js"></script>
-    <script src="js/isotope-3.0.6.min.js"></script>
-    <script src="js/chosen.min.js"></script>
-    <script src="js/moment.min.js"></script>
-    <script src="js/daterangepicker.js"></script>
-    <script src="js/purecounter.js"></script>
-    <script src="js/progresscircle.js"></script>
-    <script src="js/main.js"></script>
-
-    <!-- Template Main JS File -->
-    <script src="assets/js/main.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#toggle-password').on('click', function() {
-                console.log("click");
-                const passwordField = $('#password');
-                const icon = $('#toggle-icon');
-
-                // Toggle password visibility
-                if (passwordField.attr('type') === 'password') {
-                    passwordField.attr('type', 'text');
-                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
-                } else {
-                    passwordField.attr('type', 'password');
-                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
-                }
-            });
-        });
-    </script>
 </head>
 
 
@@ -184,9 +152,39 @@ if (isset($_POST['submit'])) {
                                     <form class="row g-3 needs-validation" action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" novalidate>
                                         <?php
 
+                                        if ($nameExist) {
+                                            echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                          A company already exists with that name
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
+                                        }
+                                        if ($nameErr) {
+                                            echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                          Your company must have a name!
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
+                                        }
                                         if ($user) {
                                             echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
                           Account already exists!
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
+                                        }
+                                        if ($jobErr) {
+                                            echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                          Job category field can\'t be blank
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
+                                        }
+                                        if ($phoneErr) {
+                                            echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                          Phone field can\'t be blank
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
+                                        }
+                                        if ($emailErr) {
+                                            echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                          Email field can\'t be blank
                           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>';
                                         }
@@ -201,67 +199,74 @@ if (isset($_POST['submit'])) {
 
                                         <div class="col-12">
                                             <label for="yourName" class="form-label">Company Name</label>
-                                            <div class="input-group has-validation">
+                                            <div class="input-group">
                                                 <span class="input-group-text" id="basic-addon1"><i class="bi bi-file-person"></i></span>
-                                                <input type="text" name="company_name" class="form-control" id="yourName" required>
-                                                <div class="invalid-feedback">Please, enter your company's name!</div>
+                                                <input type="text" name="company_name" class="form-control" id="yourName" required value="<?= $name ?>">
+                                                <div class="invalid-feedback">Please, enter your name!</div>
                                             </div>
                                         </div>
+
                                         <div class="col-12">
                                             <label for="jobCategory" class="form-label">Job Category</label>
-                                            <select class="form-select form-control" name="job_categories">
-                                                <option value=""></option>
-                                                <option value="Healthcare">Healthcare</option>
-                                                <option value="Education">Education</option>
-                                                <option value="Information Technology">Information Technology</option>
-                                                <option value="Business Management">Business Management</option>
-                                                <option value="Sales and Marketing">Sales and Marketing</option>
-                                                <option value="Finance">Finance</option>
-                                                <option value="Engineering">Engineering</option>
-                                                <option value="Customer Service">Customer Service</option>
-                                                <option value="Human Resources">Human Resources</option>
-                                                <option value="Construction and Skilled Trades">Construction and Skilled Trades</option>
-                                                <option value="Hospitality and Tourism">Hospitality and Tourism</option>
-                                                <option value="Retail">Retail</option>
-                                                <option value="Manufacture and Production">Manufacture and Production</option>
-                                                <option value="Legal">Legal</option>
-                                                <option value="Media and Communication">Media and Communication</option>
-                                                <option value="Science and Research">Science and Research</option>
-                                                <option value="Art and Design">Art and Design</option>
-                                                <option value="Agriculture and Farming">Agriculture and Farming</option>
-                                                <option value="Government and Public Administration">Government and Public Administration</option>
-                                                <option value="Transportation and Logistics">Transportation and Logistics</option>
-                                                <option value="Real Estate">Real Estate</option>
-                                                <option value="NonProfit and Social Services">NonProfit and Social Services</option>
-                                                <option value="Insurance">Insurance</option>
-                                                <option value="Fitness and Wellness">Fitness and Wellness</option>
-                                                <option value="Energy">Energy</option>
-                                                <option value="Consulting">Consulting</option>
-                                                <option value="Security and Law Enforcement">Security and Law Enforcement</option>
-                                                <option value="Writing and Editing">Writing and Editing</option>
-                                                <option value="Performing Arts">Performing Arts</option>
-                                                <option value="Sports">Sports</option>
-                                                <option value="Telecommunications">Telecommunications</option>
-                                                <option value="Personal Care and Beauty Services">Personal Care and Beauty Services</option>
-                                                <option value="Digital Marketing">Digital Marketing</option>
-                                            </select>
+                                            <div class="input-group">
+                                                <select name="job_category" class="form-select form-control" required>
+                                                    <option value=""></option>
+                                                    <option value="Healthcare" <?php if ($job_category === 'Healthcare') echo 'selected'; ?>>Healthcare</option>
+                                                    <option value="Education" <?php if ($job_category === 'Education') echo 'selected'; ?>>Education</option>
+                                                    <option value="Information Technology" <?php if ($job_category === 'Information Technology') echo 'selected'; ?>>Information Technology</option>
+                                                    <option value="Business Management" <?php if ($job_category === 'Business Management') echo 'selected'; ?>>Business Management</option>
+                                                    <option value="Sales and Marketing" <?php if ($job_category === 'Sales and Marketing') echo 'selected'; ?>>Sales and Marketing</option>
+                                                    <option value="Banking and Finance" <?php if ($job_category === 'Banking and Finance') echo 'selected'; ?>>Banking and Finance</option>
+                                                    <option value="Engineering" <?php if ($job_category === 'Engineering') echo 'selected'; ?>>Engineering</option>
+                                                    <option value="Customer Service" <?php if ($job_category === 'Customer Service') echo 'selected'; ?>>Customer Service</option>
+                                                    <option value="Human Resources" <?php if ($job_category === 'Human Resources') echo 'selected'; ?>>Human Resources</option>
+                                                    <option value="Construction and Skilled Trades" <?php if ($job_category === 'Construction and Skilled Trades') echo 'selected'; ?>>Construction and Skilled Trades</option>
+                                                    <option value="Hospitality and Tourism" <?php if ($job_category === 'Hospitality and Tourism') echo 'selected'; ?>>Hospitality and Tourism</option>
+                                                    <option value="Retail" <?php if ($job_category === 'Retail') echo 'selected'; ?>>Retail</option>
+                                                    <option value="Manufacture and Production" <?php if ($job_category === 'Manufacture and Production') echo 'selected'; ?>>Manufacture and Production</option>
+                                                    <option value="Legal" <?php if ($job_category === 'Legal') echo 'selected'; ?>>Legal</option>
+                                                    <option value="Media and Communication" <?php if ($job_category === 'Media and Communication') echo 'selected'; ?>>Media and Communication</option>
+                                                    <option value="Science and Research" <?php if ($job_category === 'Science and Research') echo 'selected'; ?>>Science and Research</option>
+                                                    <option value="Art and Design" <?php if ($job_category === 'Art and Design') echo 'selected'; ?>>Art and Design</option>
+                                                    <option value="Agriculture and Farming" <?php if ($job_category === 'Agriculture and Farming') echo 'selected'; ?>>Agriculture and Farming</option>
+                                                    <option value="Government and Public Administration" <?php if ($job_category === 'Government and Public Administration') echo 'selected'; ?>>Government and Public Administration</option>
+                                                    <option value="Transportation and Logistics" <?php if ($job_category === 'Transportation and Logistics') echo 'selected'; ?>>Transportation and Logistics</option>
+                                                    <option value="Real Estate" <?php if ($job_category === 'Real Estate') echo 'selected'; ?>>Real Estate</option>
+                                                    <option value="NonProfit and Social Services" <?php if ($job_category === 'NonProfit and Social Services') echo 'selected'; ?>>NonProfit and Social Services</option>
+                                                    <option value="Insurance" <?php if ($job_category === 'Insurance') echo 'selected'; ?>>Insurance</option>
+                                                    <option value="Fitness and Wellness" <?php if ($job_category === 'Fitness and Wellness') echo 'selected'; ?>>Fitness and Wellness</option>
+                                                    <option value="Energy" <?php if ($job_category === 'Energy') echo 'selected'; ?>>Energy</option>
+                                                    <option value="Consulting" <?php if ($job_category === 'Consulting') echo 'selected'; ?>>Consulting</option>
+                                                    <option value="Security and Law Enforcement" <?php if ($job_category === 'Security and Law Enforcement') echo 'selected'; ?>>Security and Law Enforcement</option>
+                                                    <option value="Writing and Editing" <?php if ($job_category === 'Writing and Editing') echo 'selected'; ?>>Writing and Editing</option>
+                                                    <option value="Performing Arts" <?php if ($job_category === 'Performing Arts') echo 'selected'; ?>>Performing Arts</option>
+                                                    <option value="Sports" <?php if ($job_category === 'Sports') echo 'selected'; ?>>Sports</option>
+                                                    <option value="Telecommunications" <?php if ($job_category === 'Telecommunications') echo 'selected'; ?>>Telecommunications</option>
+                                                    <option value="Personal Care and Beauty Services" <?php if ($job_category === 'Personal Care and Beauty Services') echo 'selected'; ?>>Personal Care and Beauty Services</option>
+                                                    <option value="Digital Marketing" <?php if ($job_category === 'Digital Marketing') echo 'selected'; ?>>Digital Marketing</option>
+                                                    <option value="Journalism" <?php if ($job_category === 'Journalism') echo 'selected'; ?>>Journalism</option>
+                                                </select>
+                                                <div class="invalid-feedback">Please, pick a job category!</div>
+                                            </div>
                                         </div>
 
                                         <div class="col-12">
                                             <label for="yourEmail" class="form-label">Company Email</label>
-                                            <div class="input-group has-validation">
+                                            <div class="input-group ">
                                                 <span class="input-group-text" id="basic-addon1"><i class="bi bi-envelope-at"></i></span>
-                                                <input type="email" name="company_email" class="form-control" id="yourEmail" required>
-                                                <div class="invalid-feedback">Please enter a valid Email address!</div>
+                                                <input type="email" name="company_email" class="form-control" id="yourEmail" value="<?= $email ?>" required>
+                                                <div class="invalid-feedback">Please, enter your email!</div>
+
                                             </div>
                                         </div>
 
                                         <div class="col-12">
                                             <label for="yourPhoneNumber" class="form-label">Phone Number</label>
-                                            <div class="input-group has-validation">
+                                            <div class="input-group ">
                                                 <span class="input-group-text" id="basic-addon1"><i class="bi bi-telephone"></i></span>
-                                                <input type="tel" name="company_phone" class="form-control" id="yourphoneNumber" required>
-                                                <div class="invalid-feedback">Please enter your phone number.</div>
+                                                <input type="tel" name="company_phone" class="form-control" id="yourphoneNumber" value="<?= $phone ?>" required>
+                                                <div class="invalid-feedback">Please, enter your phone number!</div>
+
                                             </div>
                                         </div>
 
@@ -269,10 +274,12 @@ if (isset($_POST['submit'])) {
                                             <label class="label-text">Password</label>
                                             <div class="input-group">
                                                 <span class="input-group-text" id="basic-addon1"><i class="bi bi-lock"></i></span>
-                                                <input class="form-control" aria-describedby="toggle-password" type="password" name="unhashed_password" id="password" placeholder="password" value="<?= $unhashed_password ?>">
-                                                <span class="input-group-text" id="toggle-password basic-addon1">
+                                                <input class="form-control" type="password" aria-describedby="toggle-password " name="unhashed_password" placeholder="password" value="<?= $unhashed_password ?>" required>
+                                                <span class=" input-group-text" id="toggle-password basic-addon1">
                                                     <i class="bi bi-eye-slash" id="toggle-icon"></i>
                                                 </span>
+                                                <div class="invalid-feedback">Please, enter your password!</div>
+
                                             </div>
                                         </div>
 
@@ -299,6 +306,38 @@ if (isset($_POST['submit'])) {
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
 
+    <!-- Vendor JS Files -->
+    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="assets/vendor/echarts/echarts.min.js"></script>
+    <script src="assets/vendor/quill/quill.min.js"></script>
+    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="assets/vendor/php-email-form/validate.js"></script>
+
+
+
+    <!-- Template Main JS File -->
+    <script src="assets/js/main.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#toggle-password').on('click', function() {
+                console.log("click");
+                const passwordField = $('#password');
+                const icon = $('#toggle-icon');
+
+                // Toggle password visibility
+                if (passwordField.attr('type') === 'password') {
+                    passwordField.attr('type', 'text');
+                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
+                } else {
+                    passwordField.attr('type', 'password');
+                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
+                }
+            });
+        });
+    </script>
 
 </body>
 

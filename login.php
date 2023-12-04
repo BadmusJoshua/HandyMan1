@@ -4,65 +4,47 @@ $passwordErr = $userNotFound = "";
 
 //checking if cookie exists
 if (isset($_COOKIE['remember_me'])) {
-  echo "cookie";
-  list($userid, $token) = explode(':', $_COOKIE['remember_me']);
+  list($userId, $userCategory, $token) = explode(':', $_COOKIE['remember_me']);
 
-  $sql = "SELECT user_id, expires FROM remember_me_tokens WHERE user_id = ? AND token = ?";
+  $sql = "SELECT * FROM remember_me_tokens WHERE id = ?, category = ? AND token = ?";
   $stmt = $pdo->prepare($sql);
-  session_start();
-  $_SESSION['id'] = $userid;
-  if ($stmt->execute([
-    $userid, $token
-  ])) {
-    $row = $stmt->fetch();
-    $expire_date = strtotime($row->expires);
-    if ($row && (time() < $expire_date)) {
-      $sql = "SELECT * FROM users WHERE id = ? && is_technician = 0";
-      $stmt = $pdo->prepare($sql);
-      $stmt->execute([$row->user_id]);
-      $not_technician = ($stmt->rowCount() > 0);
+  $stmt->execute([$userId, $userCategory, $token]);
+  $row = $stmt->fetch();
+  $expire_date = strtotime($row->expires_at);
 
-      if ($not_technician) {
-
-        header("Location: index.php");
-      } else {
-        $sql = "SELECT id FROM users WHERE id = ? && is_technician = 1";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$row->user_id]);
-
-        if (
-          $stmt->rowCount() > 0
-        ) {
-          header("Location: technician_index.php");
-        }
-      }
-    } else {
-      echo "your token has expired, you need to sign in again";
-    }
+  //checking validity of token and if user is an applicant
+  if ($row && (time() < $expire_date) && ($userCategory === 1)) {
+    session_start();
+    $_SESSION['id'] = $userId;
+    header("Location: index.php");
+    //checking validity of token and if user is an employer
+  } elseif ($row && (time() < $expire_date) && ($userCategory === 2)) {
+    session_start();
+    $_SESSION['id'] = $userId;
+    header("Location: employer-index.php");
   } else {
-    // handle database error
+    echo "your token has expired, you need to sign in again";
   }
 }
 
 if (isset($_POST['login'])) {
-  $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
   $input_password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  //checks if the username belongs to a technician
-  $sql = "select * FROM users WHERE username = ?";
+  //checks if the username belongs to an applicant
+  $sql = "select * FROM applicants WHERE email = ?";
   $stmt = $pdo->prepare($sql);
-  $stmt->execute([$username]);
-  $userCount = $stmt->rowCount();
+  $stmt->execute([$email]);
+  $is_applicant = $stmt->rowCount();
   // if username belongs to a technician
-  if ($userCount > 0) {
+  if ($is_applicant > 0) {
     $detail = $stmt->fetch();
     $hashed_password = $detail->password;
     $userId = $detail->id;
+    $userCategory = $detail->category;
     //confirming password
     $confirm_password = password_verify($input_password, $hashed_password);
-
     //if password match
     if ($confirm_password) {
-
       //saving the id in a session
       session_start();
       $_SESSION['id'] = $userId;
@@ -73,27 +55,64 @@ if (isset($_POST['login'])) {
         $userId = $_SESSION['id']; // Get the user's ID from the database
 
         // Store the token and expiration time in a database table
-        $sql = "INSERT INTO remember_me_tokens (user_id, token, expires) VALUES (?, ?,?)";
+        $sql = "INSERT INTO remember_me_tokens (id, token, expires_at, category) VALUES (?, ?,?,?)";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$userId, $token, date('Y-m-d H:i:s', strtotime("+30 days"))]);
+        $stmt->execute([$userId, $token, date('Y-m-d H:i:s', strtotime("+30 days")), $userCategory]);
 
         //setting cookie on the user browser
-        $cookieValue = $userId . ':' . $token;
+        $cookieValue = $userId . ':' . $userCategory  . ':' . $token;
         //set cookie
         setcookie('remember_me', $cookieValue, time() + 86400 * 30);
       }
-      // redirects to technician dashboard
-      if ($detail->is_technician == 1) {
-        header("Location: technician_index.php");
-      } else {
-        header("Location: index.php");
-      }
+      // redirects to applicant dashboard
+      header("Location: applicant-index.php");
     } else {
       $passwordErr = 1;
     }
     // 
   } else {
-    $userNotFound = 1;
+    $sql = "select * FROM employers WHERE email = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$email]);
+    $is_employer = $stmt->rowCount();
+    // if username belongs to an
+    if ($is_employer > 0) {
+      $detail = $stmt->fetch();
+      $hashed_password = $detail->password;
+      $userId = $detail->id;
+      $userCategory = $detail->category;
+      //confirming password
+      $confirm_password = password_verify($input_password, $hashed_password);
+
+      //if password match
+      if ($confirm_password) {
+
+        //saving the id in a session
+        session_start();
+        $_SESSION['id'] = $userId;
+
+        //if user choses to be remembered
+        if (isset($_POST['remember'])) {
+          $token = bin2hex(random_bytes(16)); // Generate a random 16-byte token
+          $userId = $_SESSION['id']; // Get the user's ID from the database
+
+          // Store the token and expiration time in a database table
+          $sql = "INSERT INTO remember_me_tokens (id, token, expires_at, category) VALUES (?, ?,?, ?)";
+          $stmt = $pdo->prepare($sql);
+          $stmt->execute([$userId, $token, date('Y-m-d H:i:s', strtotime("+30 days")), $userCategory]);
+          //setting cookie on the user browser
+          $cookieValue = $userId . ':' . $userCategory . ':' . $userCategory . ':' . $token;
+          //set cookie
+          setcookie('remember_me', $cookieValue, time() + 86400 * 30);
+        }
+        // redirects to employer dashboard
+        header("Location: employer-index.php");
+      } else {
+        $passwordErr = 1;
+      }
+    } else {
+      $userNotFound = 1;
+    }
   }
 }
 
@@ -105,7 +124,7 @@ if (isset($_POST['login'])) {
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Pages / Login - NiceAdmin Bootstrap Template</title>
+  <title>Jobcrest || The best job openings</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -145,7 +164,7 @@ if (isset($_POST['login'])) {
               <div class="d-flex justify-content-center py-4">
                 <a href="index.html" class="logo d-flex align-items-center w-auto">
                   <img src="assets/img/logo.png" alt="">
-                  <span class=" d-lg-block">Handyman</span>
+                  <span class=" d-lg-block">Jobcrest</span>
                 </a>
               </div>
 
@@ -155,7 +174,7 @@ if (isset($_POST['login'])) {
 
                   <div class="pt-4 pb-2">
                     <h5 class="card-title text-center pb-0 fs-4">Login to Your Account</h5>
-                    <p class="text-center small">Enter your username & password to login</p>
+                    <p class="text-center small">Enter your email & password to login</p>
                   </div>
 
                   <form class="row g-3 needs-validation" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']) ?>" novalidate>
@@ -166,25 +185,28 @@ if (isset($_POST['login'])) {
                           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>';
                     }
+                    if ($passwordErr == 1) {
+                      echo ' <div class="invalid-feedback">Incorrect Password</div>';
+                    }
+
                     ?>
                     <div class="col-12">
-                      <label for="yourUsername" class="form-label">Username</label>
+                      <label for="yourUsername" class="form-label">Email</label>
                       <div class="input-group has-validation">
-                        <span class="input-group-text" id="inputGroupPrepend">@</span>
-                        <input type="text" name="username" class="form-control" id="yourUsername" required>
-                        <div class="invalid-feedback">Please enter your username.</div>
+                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-envelope-at"></i></span>
+                        <input type="text" name="email" class="form-control" id="yourEmail" required>
+                        <div class="invalid-feedback">Please enter your email.</div>
                       </div>
                     </div>
 
                     <div class="col-12">
                       <label for="yourPassword" class="form-label">Password</label>
-                      <input type="password" name="password" class="form-control" id="yourPassword" required>
-                      <div class="invalid-feedback">Please enter your password!</div>
-                      <?php
-                      if ($passwordErr == 1) {
-                        echo ' <div class="invalid-feedback">Please enter your password!</div>';
-                      }
-                      ?>
+                      <div class="input-group has-validation">
+                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password" class="form-control" id="yourPassword" required>
+                        <div class="invalid-feedback">Please enter your password!</div>
+                      </div>
+
 
                       <div class="col-12">
                         <div class="form-check">
@@ -199,7 +221,9 @@ if (isset($_POST['login'])) {
                         <button class="btn btn-primary w-100" name="login" type="submit">Login</button>
                       </div>
                       <div class="col-12">
-                        <p class="small mb-0 text-center">Don't have account? <a href="register.php">Create an account</a></p>
+                        <p class="small mb-0 text-center">Don't have account? <a href="register.php">Create an applicant account</a>&nbsp;
+                          <a href="employer-signup.php">Create an employer's account</a>
+                        </p>
                       </div>
                   </form>
 

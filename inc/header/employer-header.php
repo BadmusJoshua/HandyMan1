@@ -1,3 +1,34 @@
+<?php require_once 'inc/config/database.php';
+session_start();
+if (isset($_SESSION['id'])) {
+    $userId = $_SESSION['id'];
+}
+
+$sql = "SELECT * FROM employers WHERE id = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$userId]);
+$detail = $stmt->fetch();
+$name = ucwords($detail->name);
+$userCategory = $detail->category;
+$job = $detail->job_category;
+$image = $detail->image;
+
+//fetching all notifications pertaining to this user
+$sql = "SELECT * FROM notifications WHERE is_read=0 && id=$userId && category = $userCategory";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$content = $stmt->fetchAll();
+$notification_count = $stmt->rowCount();
+
+//setting all notifications as read
+if (isset($_POST['view_all'])) {
+    $sql = "UPDATE notifications SET is_read=1 WHERE id = $userId && category = $userCategory";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+}
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -113,15 +144,15 @@
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="assets/img/profile-img.jpg" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="rounded-circle" style="height:30px;width:30px;">
+                        <img src="assets/uploads/companyLogo/<?= $image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="rounded-circle" style="height:30px;width:30px;">
                         <span class="d-none d-md-block dropdown-toggle ps-2"></span>
 
                     </a><!-- End Profile Iamge Icon -->
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                         <li class="dropdown-header">
-                            {# <h6><?php echo $name ?></h6>
-                            <span><?php echo $job ?></span> #}
+                            <h6><?php echo $name ?></h6>
+                            <span><?php echo $job ?></span>
                         </li>
                         <li>
                             <hr class="dropdown-divider">

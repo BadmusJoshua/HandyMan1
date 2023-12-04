@@ -1,43 +1,66 @@
 <?php
 include 'inc/config/database.php';
-$user = $username = "";
+$name = $email = $phone = $password = $user = $nameErr = $emailErr = $phoneErr = $passwordErr = "";
 
 if (isset($_POST['submit'])) {
 
-  $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-  $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $unhashed_password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $hashed_password = password_hash($unhashed_password, PASSWORD_DEFAULT);
+  if (!empty($_POST['name'])) {
+    $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  }
+  if (!empty($_POST['email'])) {
+    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+  }
+  if (!empty($_POST['phone'])) {
+    $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  }
 
-  $sql = "select * FROM users WHERE email = ?";
-  $stmt = $pdo->prepare($sql);
-  $stmt->execute([$email]);
-  $userCount = $stmt->rowCount();
-  if ($userCount > 0) {
-    $user = 1;
-  } else {
-    $sql = "select * FROM users WHERE username = ?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$username]);
-    $usernameCheck = $stmt->rowCount();
-    if ($usernameCheck > 0) {
-      $username = 1;
-    } else {
-      $sql = "insert into users (name, email, username, phoneNumber, password) values (?,?,?,?,?)";
-      $stmt = $pdo->prepare($sql);
-      $stmt->execute([$name, $email, $username, $phone, (string) $hashed_password]);
 
-      $sql = "SELECT * FROM users WHERE username = ?";
-      $stmt = $pdo->prepare($sql);
-      $stmt->execute([$username]);
-      $detail = $stmt->fetch();
-      $userId = $detail->id;
-      session_start();
-      $_SESSION['id'] = $userId;
-      header("Location:index.php");
+  if (!empty($_POST['password'])) {
+    $unhashed_password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    function validatePassword($assumed_password)
+    {
+      // Check if password length is between 8 to 15 characters
+      $passwordLength = strlen($assumed_password);
+      if ($passwordLength < 8) {
+        return false;
+      } else
+        // Check for at least one number, one alphabet character or symbol
+        if (!preg_match('/^(?=.*[0-9])(?=.*[a-zA-Z!@#$%^&*()\-_=+{};:,<.>])[a-zA-Z0-9!@#$%^&*()\-_=+{};:,<.>]+$/', $assumed_password)) {
+          return false;
+        } else {
+          return true;
+        }
     }
+
+    // Example usage:
+    if (validatePassword($unhashed_password)) {
+      $hashed_password = password_hash($unhashed_password, PASSWORD_DEFAULT);
+
+      $sql = "SELECT * FROM applicants WHERE email = ?";
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute([$email]);
+      //check if email is available
+      $userCount = $stmt->rowCount();
+      if ($userCount > 0) {
+        $user = 1;
+      } else {
+        $sql = "INSERT INTO applicants (name, email, phone, password) values (?,?,?,?)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$name, $email, $phone, $hashed_password]);
+        $sql = "SELECT * FROM applicants WHERE email = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$email]);
+        $detail = $stmt->fetch();
+        $userId = $detail->id;
+        session_start();
+        $_SESSION['id'] = $userId;
+        header("Location:index.php");
+      }
+    } else {
+      $passwordErr = 1;
+    }
+  } else {
+    $passwordErr = 1;
   }
 }
 ?>
@@ -109,57 +132,44 @@ if (isset($_POST['submit'])) {
                           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>';
                     }
-                    if ($username) {
-                      echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
-                          This username has already been used
-                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>';
-                    }
-
                     ?>
 
                     <div class="col-12">
                       <label for="yourName" class="form-label">Your Name</label>
-                      <input type="text" name="name" class="form-control" id="yourName" required>
-                      <div class="invalid-feedback">Please, enter your name!</div>
+                      <div class="input-group">
+                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-file-person"></i></span>
+                        <input type="text" name="name" class="form-control" id="yourName" value="<?= $name ?>" required>
+                        <div class="invalid-feedback">Please, enter your name!</div>
+                      </div>
                     </div>
 
                     <div class="col-12">
                       <label for="yourEmail" class="form-label">Your Email</label>
-                      <input type="email" name="email" class="form-control" id="yourEmail" required>
-                      <div class="invalid-feedback">Please enter a valid Email address!</div>
+                      <div class="input-group">
+                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-envelope-at"></i></span>
+                        <input type="email" name="email" class="form-control" id="yourEmail" value="<?= $email ?>" required>
+                        <div class="invalid-feedback">Please enter a valid Email address!</div>
+                      </div>
                     </div>
 
                     <div class="col-12">
                       <label for="yourPhoneNumber" class="form-label">Phone Number</label>
                       <div class="input-group has-validation">
-                        <input type="tel" name="phone" class="form-control" id="yourphoneNumber" required>
+                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-telephone"></i></span>
+                        <input type="tel" name="phone" class="form-control" id="yourphoneNumber" value="<?= $phone ?>" required>
                         <div class="invalid-feedback">Please enter your phone number.</div>
                       </div>
                     </div>
 
                     <div class="col-12">
-                      <label for="yourUsername" class="form-label">Username</label>
-                      <div class="input-group has-validation">
-                        <span class="input-group-text" id="inputGroupPrepend">@</span>
-                        <input type="text" name="username" class="form-control" id="yourUsername" required>
-                        <div class="invalid-feedback">Please choose a username.</div>
-                      </div>
-                    </div>
-
-                    <div class="col-12">
                       <label for="yourPassword" class="form-label">Password</label>
-                      <input type="password" name="password" class="form-control" id="yourPassword" required>
-                      <div class="invalid-feedback">Please enter your password!</div>
-                    </div>
-
-                    <div class="col-12">
-                      <div class="form-check">
-                        <input class="form-check-input" name="terms" type="checkbox" value="" id="acceptTerms" required>
-                        <label class="form-check-label" for="acceptTerms">I agree and accept the <a href="#">terms and conditions</a></label>
-                        <div class="invalid-feedback">You must agree before submitting.</div>
+                      <div class="input-group">
+                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password" class="form-control" id="yourPassword" value="<?= $password ?>" required>
+                        <div class="invalid-feedback">Please enter your password!</div>
                       </div>
                     </div>
+
                     <div class="col-12">
                       <button class="btn btn-primary w-100" name="submit" type="submit">Create Account</button>
                     </div>

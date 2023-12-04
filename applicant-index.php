@@ -1,69 +1,11 @@
 <?php
-
-include 'inc/header/header.php';
-//fetching top rated technicians
-$sql = "SELECT * FROM users WHERE is_technician = 1 ORDER BY rating DESC LIMIT 4 ";
-$stmt = $pdo->prepare($sql);
-$stmt->execute();
-$top_technicians = $stmt->fetchAll();
-
-
-//getting sales count
-$sql = "SELECT * FROM jobs WHERE seller_id = ?";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([$userId]);
-$salesCount = $stmt->rowCount();
-
-// getting percentage increase of sales
-$prevSalesCount = $salesCount - 1;
-if ($salesCount != 0) {
-  $salesIncrease = (($salesCount - $prevSalesCount) / $salesCount) * 100;
-} else {
-  $salesIncrease = 0;
-}
-// echo ;
-// echo ;
-
-// getting total revenue
-$sqli = "SELECT sum(price) FROM jobs WHERE seller_id =? AND completed =?";
-$stmt = $pdo->prepare($sqli);
-$stmt->execute([$userId, 4]);
-$totalSales = $stmt->fetch(PDO::FETCH_NUM);
-$balance = $totalSales[0];
-//complete id
-$num = 4;
+include 'inc/header/applicant-header.php';
 //getting prev revenue sum
 $sqlx = "SELECT sum(price) AS TOTAL_PRICE FROM jobs WHERE seller_id=? AND completed=? AND id != (SELECT MAX(id) FROM jobs WHERE seller_id=? AND completed=?)";
-$stmt = $pdo->prepare($sqlx);
-$stmt->bindParam(1, $userId, PDO::PARAM_INT);
-$stmt->bindParam(2, $num, PDO::PARAM_INT);
-$stmt->bindParam(3, $userId, PDO::PARAM_INT);
-$stmt->bindParam(4, $num, PDO::PARAM_INT);
-$stmt->execute();
-$totalPrevRevenue = $stmt->fetch(PDO::FETCH_NUM);
-$prevbalance = $totalPrevRevenue[0];
-//getting percentage increase in revenue
-if ($balance != 0) {
-  $revenueIncrease = (($balance - $prevbalance) / $balance) * 100;
-} else {
-  $revenueIncrease = 0;
-  $balance = 0;
-}
 
 
-//getting customer count
-$sqly = "SELECT DISTINCT customer FROM jobs WHERE seller_id = ?";
-$stmt = $pdo->prepare($sqly);
-$stmt->execute([$userId]);
-$totalCustomers = $stmt->rowCount();
 
-//getting percentage increase of customers
-$prevCustomers = $totalCustomers - 1;
-if ($totalCustomers != 0) {
-  $customerIncrease = (($totalCustomers - $prevCustomers) / $totalCustomers) * 100;
-} else {
-  $customerIncrease = 0;
-}
+
 ?>
 
 <!-- ======= Sidebar ======= -->
