@@ -1,4 +1,4 @@
-<?php require 'inc/header/header.php'; ?>
+<?php require 'inc/header/applicant-header.php'; ?>
 <!-- ======= Sidebar ======= -->
 <aside id="sidebar" class="sidebar">
 

@@ -1,7 +1,7 @@
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer text-center">
       <div class="copyright">
-          &copy; Copyright <strong><span>Handyman</span></strong>. All Rights Reserved
+          &copy; Copyright <strong><span>Jobcrest</span></strong>. All Rights Reserved
       </div>
   </footer><!-- End Footer -->
 

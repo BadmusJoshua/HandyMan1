@@ -181,7 +181,7 @@ if (isset($_POST['login'])) {
                     <?php
                     if ($userNotFound) {
                       echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
-                          Account doesn/t exist!
+                          Account doesn\'t exist!
                           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>';
                     }

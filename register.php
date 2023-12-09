@@ -1,5 +1,5 @@
 <?php
-include 'inc/config/database.php';
+require 'inc/config/database.php';
 $name = $email = $phone = $password = $user = $nameErr = $emailErr = $phoneErr = $passwordErr = "";
 
 if (isset($_POST['submit'])) {
@@ -13,7 +13,6 @@ if (isset($_POST['submit'])) {
   if (!empty($_POST['phone'])) {
     $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
   }
-
 
   if (!empty($_POST['password'])) {
     $unhashed_password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -32,18 +31,28 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    // Example usage:
-    if (validatePassword($unhashed_password)) {
-      $hashed_password = password_hash($unhashed_password, PASSWORD_DEFAULT);
 
-      $sql = "SELECT * FROM applicants WHERE email = ?";
-      $stmt = $pdo->prepare($sql);
+    // Example usage:
+    echo 'password check';
+    if (validatePassword($unhashed_password)) {
+      echo 'line 0';
+      $hashed_password = password_hash($unhashed_password, PASSWORD_DEFAULT);
+      echo 'line 1';
+      $sqli = "SELECT * FROM applicants WHERE email = ?";
+      echo 'line 2';
+      $stmt = $pdo->prepare($sqli);
+      echo 'line 3';
       $stmt->execute([$email]);
       //check if email is available
       $userCount = $stmt->rowCount();
       if ($userCount > 0) {
+        echo
+        'second';
+
         $user = 1;
       } else {
+        echo 'first';
+
         $sql = "INSERT INTO applicants (name, email, phone, password) values (?,?,?,?)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$name, $email, $phone, $hashed_password]);
@@ -52,9 +61,10 @@ if (isset($_POST['submit'])) {
         $stmt->execute([$email]);
         $detail = $stmt->fetch();
         $userId = $detail->id;
+        echo 'HERE';
         session_start();
         $_SESSION['id'] = $userId;
-        header("Location:index.php");
+        header("Location:applicant-index.php");
       }
     } else {
       $passwordErr = 1;

@@ -1,11 +1,11 @@
-<?php require 'inc/header/header.php'; ?>
+<?php require 'inc/header/applicant-header.php'; ?>
 <!-- ======= Sidebar ======= -->
 <aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
-            <a class="nav-link " href="index.php">
+            <a class="nav-link collapsed" href="index.php">
                 <i class="bi bi-grid"></i>
                 <span>Dashboard</span>
             </a>
@@ -34,13 +34,13 @@
 
         <li class="nav-item">
             <div class="dropdown-center nav-link collapsed" style=" margin:0; padding:0; ">
-                <button class="btn dropdown-toggle nav-link collapsed" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="outline: none;
+                <button class="btn dropdown-toggle nav-link" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="outline: none;
       box-shadow: none;" onfocus="this.blur()">
                     <i class="bi bi-patch-check"></i>&nbsp;Resumes
                 </button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item nav-link collapsed" href="upload-cv-and-coverletter.php">Upload CV and Cover letter</a></li>
-                    <li><a class="dropdown-item nav-link collapsed" href="create-resume.php">Create Resume</a></li>
+                    <li><a class="dropdown-item nav-link" href="create-resume.php">Create Resume</a></li>
                 </ul>
             </div>
 
@@ -75,7 +75,7 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-        <h1>Dashboard</h1>
+        <h1>Create Resume</h1>
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="index.php">Home</a></li>
@@ -89,8 +89,8 @@
         <!-- ================================
     START CANDIDATE RESUME
 ================================= -->
-        <section class="candidate-resume-area padding-top-100px padding-bottom-100px">
-            <div class="container">
+        <section class="candidate-resume-area p-0 m-0">
+            <div class="container p-0 m-0">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="candidate-resume-wrap">
@@ -108,7 +108,7 @@
                                                         <label class="label-text">What's Your Name</label>
                                                         <div class="form-group">
                                                             <span class="la la-user form-icon"></span>
-                                                            <input class="form-control" type="text" name="text" placeholder="Your name">
+                                                            <input class="form-control" type="text" name="name" placeholder="Your name" value="<?= $detail->name ?>">
                                                         </div>
                                                     </div>
                                                 </div><!-- end col-lg-6 -->
@@ -117,7 +117,7 @@
                                                         <label class="label-text">Profession Title</label>
                                                         <div class="form-group">
                                                             <span class="la la-pencil form-icon"></span>
-                                                            <input class="form-control" type="text" name="text" placeholder="Headline (e.g. Front-end developer)">
+                                                            <input class="form-control" type="text" name="job" placeholder="Headline (e.g. Front-end developer)" value="<?= $detail->job ?>">
                                                         </div>
                                                     </div>
                                                 </div><!-- end col-lg-6 -->
@@ -126,7 +126,7 @@
                                                         <label class="label-text">Your Email</label>
                                                         <div class="form-group">
                                                             <span class="la la-envelope-o form-icon"></span>
-                                                            <input class="form-control" type="text" name="text" placeholder="Email address">
+                                                            <input class="form-control" type="email" name="email" placeholder="Email address" value="<?= $detail->email ?>">
                                                         </div>
                                                     </div>
                                                 </div><!-- end col-lg-6 -->
@@ -141,7 +141,7 @@
                                                 </div><!-- end col-lg-6 -->
                                                 <div class="col-lg-6">
                                                     <div class="input-box">
-                                                        <label class="label-text">Where do you live?</label>
+                                                        <label class="label-text">Which country are you from?</label>
                                                         <div class="form-group user-chosen-select-container">
                                                             <select class="user-chosen-select">
                                                                 <option value>Select Location</option>
@@ -386,21 +386,7 @@
                                                         </div>
                                                     </div>
                                                 </div><!-- end col-lg-6 -->
-                                                <div class="col-lg-6">
-                                                    <div class="input-box">
-                                                        <label class="label-text">Category</label>
-                                                        <div class="form-group user-chosen-select-container">
-                                                            <select class="user-chosen-select">
-                                                                <option value>All Specialism</option>
-                                                                <option value="1">Category 1</option>
-                                                                <option value="2">Category 2</option>
-                                                                <option value="3">Category 3</option>
-                                                                <option value="4">Category 4</option>
-                                                                <option value="5">Category 5</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div><!-- end col-lg-6 -->
+
                                                 <div class="col-lg-6">
                                                     <div class="input-box">
                                                         <label class="label-text">Website <span class="text-muted ml-1">(optional)</span></label>

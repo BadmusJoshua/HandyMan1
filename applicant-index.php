@@ -1,8 +1,5 @@
 <?php
-include 'inc/header/applicant-header.php';
-//getting prev revenue sum
-$sqlx = "SELECT sum(price) AS TOTAL_PRICE FROM jobs WHERE seller_id=? AND completed=? AND id != (SELECT MAX(id) FROM jobs WHERE seller_id=? AND completed=?)";
-
+require_once 'inc/header/applicant-header.php';
 
 
 
@@ -21,7 +18,7 @@ $sqlx = "SELECT sum(price) AS TOTAL_PRICE FROM jobs WHERE seller_id=? AND comple
     </li><!-- End Dashboard Nav -->
 
     <li class="nav-item">
-      <a class="nav-link collapsed" href="profile.php">
+      <a class="nav-link collapsed" href="applicant-profile.php">
         <i class="bi bi-person"></i>
         <span>Profile</span>
       </a>

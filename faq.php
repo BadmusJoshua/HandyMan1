@@ -1,5 +1,5 @@
  <?php
-  include 'inc/header/header.php';
+  include 'inc/header/applicant-header.php';
   ?>
  <!-- ======= Sidebar ======= -->
  <aside id="sidebar" class="sidebar">
@@ -7,19 +7,12 @@
    <ul class="sidebar-nav" id="sidebar-nav">
 
      <li class="nav-item">
-       <?php
-        if ($technician == 1) { ?>
-         <a class="nav-link collapsed " href="technician_index.php">
-           <i class="bi bi-grid"></i>
-           <span>Dashboard</span>
-         </a>
-       <?php } else { ?>
-         <a class="nav-link collapsed " href="index.php">
-           <i class="bi bi-grid"></i>
-           <span>Dashboard</span>
-         </a>
-       <?php }
-        ?>
+
+       <a class="nav-link collapsed " href="applicant-index.php">
+         <i class="bi bi-grid"></i>
+         <span>Dashboard</span>
+       </a>
+
      </li><!-- End Dashboard Nav -->
 
      <li class="nav-item">

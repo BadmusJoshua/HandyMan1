@@ -1,38 +1,51 @@
 <?php
+require_once 'inc/header/employer-header.php';
 
-include 'inc/header/employer-header.php';
+//fetching other user details
+$twitter = $detail->twitter;
+$facebook = $detail->facebook;
+$instagram = $detail->instagram;
+$phone = $detail->phone;
+$email = $detail->email;
+$about = $detail->about;
+$website = $detail->website;
+$employee = $detail->employee_size;
+$state = $detail->state;
+$country = $detail->country;
+$address = $detail->address;
+
 $user = $passwordErr = $password_change = $userUpdate = $imageErr = '';
 $profileImage = $detail->image;
 if (isset($_POST['updateProfile'])) {
     $image = $_FILES['profileImage'];
-    $imageName = $image['name'];
+    $imageName = $image[$userId . '-' . $userCategory . '-' . 'name'];
     $imageTemp = $image['tmp_name'];
-    $imageDir = 'assets/images/' . $imageName;
+    $imageDir = 'assets/uploads/companyLogo/' . $imageName;
     $imageSplit = explode('.', $imageName);
     $imageExt = strtolower(end($imageSplit));
     $acceptedExt = array('jpeg', 'jpg', 'png');
     if (in_array($imageExt, $acceptedExt)) {
         move_uploaded_file($imageTemp, $imageDir);
-        $name = filter_input(INPUT_POST, 'fullName', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $name = filter_input(INPUT_POST, 'company_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $about = filter_input(INPUT_POST, 'about', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $job = filter_input(INPUT_POST, 'jobs', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $job = filter_input(INPUT_POST, 'job_category', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $country = filter_input(INPUT_POST, 'country', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $twitter = filter_input(INPUT_POST, 'twitter', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $facebook = filter_input(INPUT_POST, 'facebook', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $instagram = filter_input(INPUT_POST, 'instagram', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $phone = filter_input(INPUT_POST, 'company_phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $email = filter_input(INPUT_POST, 'company_email', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $twitter = filter_input(INPUT_POST, 'company_twitter', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $facebook = filter_input(INPUT_POST, 'company_facebook', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $instagram = filter_input(INPUT_POST, 'company_instagram', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-        $sql = "select * FROM technicians WHERE email = ?";
+        $sql = "select * FROM employers WHERE email = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$email]);
         $userCount = $stmt->rowCount();
         if ($userCount > 1) {
             $user = 1;
         } else {
-            $sql = "UPDATE technicians SET about=?,image = ?, company=?,job=?,country=?,address=?,phoneNumber=?,email=?,twitter=?,facebook=?,instagram=? WHERE id = ?";
+            $sql = "UPDATE employers SET about=?,image = ?, job_category=?,country=?,address=?,phone=?,email=?,twitter=?,facebook=?,instagram=? WHERE id = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$about, $imageName, $company, $job, $country, $address, $phone, $email, $twitter, $facebook, $instagram, $userId]);
             $userUpdate = 1;
@@ -77,16 +90,14 @@ if (isset($_POST['changePassword'])) {
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
-
             <a class="nav-link collapsed " href="employer-index.php">
                 <i class="bi bi-grid"></i>
                 <span>Dashboard</span>
             </a>
-
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link" href="profile.php">
+            <a class="nav-link" href="employer-profile.php">
                 <i class="bi bi-person"></i>
                 <span>Profile</span>
             </a>
@@ -139,7 +150,7 @@ if (isset($_POST['changePassword'])) {
         <h1>Profile</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                <li class="breadcrumb-item"><a href="employer-index.php">Home</a></li>
                 <li class="breadcrumb-item active">Profile</li>
             </ol>
         </nav>
@@ -167,12 +178,12 @@ if (isset($_POST['changePassword'])) {
                 <div class="card">
                     <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
                         <img src="assets/<?= "images/$profileImage" ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="" style="height:130px; width:130px;border-radius:50%;">
-                        <h2>BlueChip Corp.</h2>
-                        <h3>IT Solutions</h3>
+                        <h2><?= $name ?></h2>
+                        <h3><?= $job ?></h3>
                         <div class="social-links mt-2">
-                            <a href="" class="twitter"><i class="bi bi-twitter"></i></a>
-                            <a href="" class="facebook"><i class="bi bi-facebook"></i></a>
-                            <a href="" class="instagram"><i class="bi bi-instagram"></i></a>
+                            <a href="" class="twitter"><i class="bi bi-twitter"></i><?= $twitter ?></a>
+                            <a href="" class="facebook"><i class="bi bi-facebook"><?= $facebook ?></i></a>
+                            <a href="" class="instagram"><i class="bi bi-instagram"></i><?= $instagram ?></a>
                         </div>
                     </div>
                 </div>
@@ -195,7 +206,7 @@ if (isset($_POST['changePassword'])) {
                             </li>
 
                             <li class="nav-item">
-                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Create CV</button>
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Reviews</button>
                             </li>
 
                             <li class="nav-item">
@@ -211,25 +222,29 @@ if (isset($_POST['changePassword'])) {
 
                                 <div class="row">
                                     <div class="col-lg-3 col-md-4 label ">Company Name</div>
-                                    <div class="col-lg-9 col-md-8">BlueChip Corp.</div>
+                                    <div class="col-lg-9 col-md-8"><?= $name; ?></div>
                                 </div>
 
-                                <h5 class="card-title">About</h5>
-                                <p class="small fst-italic">Nemo ucxqui officia voluptatem accu santium doloremque laudantium, totam rem ape dicta sunt dose explicabo. Nemo enim ipsam voluptatem quia voluptas. Excepteur sint occaecat cupidatat non proident, sunt in culpa kequi officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusan tium dolorem que laudantium, totam rem aperiam the eaque ipsa quae abillo was inventore veritatis keret quasi aperiam architecto beatae vitae dicta sunt explicabo.</p>
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-4 label">About</div>
+                                    <div class="col-lg-9 col-md-8">
+                                        <p class="small fst-italic"><?= $about ?></p>
+                                    </div>
+                                </div>
 
                                 <div class="row">
                                     <div class="col-lg-3 col-md-4 label">Headquarters</div>
-                                    <div class="col-lg-9 col-md-8"></div>
+                                    <div class="col-lg-9 col-md-8"><?= $state . ',' . $country ?></div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-lg-3 col-md-4 label">Industry</div>
-                                    <div class="col-lg-9 col-md-8"></div>
+                                    <div class="col-lg-9 col-md-8"><?= $job ?></div>
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-lg-3 col-md-4 label">Employees</div>
-                                    <div class="col-lg-9 col-md-8">
+                                    <div class="col-lg-3 col-md-4 label">Employee Size</div>
+                                    <div class="col-lg-9 col-md-8"><?= $employee ?>
                                     </div>
                                 </div>
 
@@ -240,18 +255,18 @@ if (isset($_POST['changePassword'])) {
 
                                 <div class="row">
                                     <div class="col-lg-3 col-md-4 label">Phone</div>
-                                    <div class="col-lg-9 col-md-8"></div>
+                                    <div class="col-lg-9 col-md-8"><?= $phone ?></div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-lg-3 col-md-4 label">Email</div>
-                                    <div class="col-lg-9 col-md-8"></div>
+                                    <div class="col-lg-9 col-md-8"><?= $email ?></div>
                                 </div>
 
 
                                 <div class="row">
                                     <div class="col-lg-3 col-md-4 label">Website</div>
-                                    <div class="col-lg-9 col-md-8"></div>
+                                    <div class="col-lg-9 col-md-8"><?= $website ?></div>
                                 </div>
 
 
@@ -281,87 +296,65 @@ if (isset($_POST['changePassword'])) {
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Full Name</label>
+                                        <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Company Name</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="fullName" type="text" class="form-control" id="fullName" value="<?php echo $detail->name ?>">
+                                            <input name="name" type="text" class="form-control" id="name" value="<?= $name ?>">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <textarea name="about" class="form-control" id="about" style="height: 100px"><?php echo $detail->about ?></textarea>
+                                            <textarea name="about" class="form-control" id="about" style="height: 100px"><?= $about ?></textarea>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="Skills" class="col-md-4 col-lg-3 col-form-label">Skills</label>
+                                        <label for="Job" class="col-md-4 col-lg-3 col-form-label">Job Category</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="skills" type="text" class="form-control" id="company" value="" placeholder="List your skills seperating them with a comma">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="experience" class="col-md-4 col-lg-3 col-form-label">Experience</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <select name="" id="">
-                                                <option value="less than 1 year">Less than 1 year</option>
-                                                <option value="1 year">1 year</option>
-                                                <option value="2 years">2 years</option>
-                                                <option value="3 years">3 years</option>
-                                                <option value="3 years">4 years</option>
-                                                <option value="3 years">5 years</option>
-                                                <option value="3 years">3 years</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Job" class="col-md-4 col-lg-3 col-form-label">Job</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="job" type="text" class="form-control" id="Job" value="<?php echo $detail->job ?>">
+                                            <input name="job" type="text" class="form-control" id="Job" value="<?= $job ?>">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="address" type="text" class="form-control" id="Address" value="<?php echo $detail->address ?>">
+                                            <input name="address" type="text" class="form-control" id="Address" value="<?= $address ?>">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Phone</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="phone" type="text" class="form-control" id="Phone" value="<?php echo $detail->phoneNumber ?>">
+                                            <input name="phone" type="text" class="form-control" id="Phone" value="<?= $phone ?>">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="Email" class="col-md-4 col-lg-3 col-form-label">Email</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="email" type="email" class="form-control" id="Email" value="<?php echo $detail->email ?>">
+                                            <input name="email" type="email" class="form-control" id="Email" value="<?= $email ?>">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="Twitter" class="col-md-4 col-lg-3 col-form-label">Twitter Profile</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="twitter" type="url" class="form-control" id="Twitter" value="<?php echo $detail->twitter ?>" placeholder="Enter your twitter profile link">
+                                            <input name="twitter" type="url" class="form-control" id="Twitter" value="<?= $twitter ?>" placeholder="Enter your twitter profile link">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="Facebook" class="col-md-4 col-lg-3 col-form-label">Facebook Profile</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="facebook" type="url" class="form-control" id="Facebook" placeholder="Enter your facebook profile link" value="<?php echo $detail->facebook ?>">
+                                            <input name="facebook" type="url" class="form-control" id="Facebook" placeholder="Enter your facebook profile link" value="<?= $facebook ?>">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="Instagram" class="col-md-4 col-lg-3 col-form-label">Instagram Profile</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="instagram" type="url" class="form-control" id="Instagram" placeholder="Enter your instagram profile link" value="<?php echo $detail->instagram ?>">
+                                            <input name="instagram" type="url" class="form-control" id="Instagram" placeholder="Enter your instagram profile link" value="<?= $instagram ?>">
                                         </div>
                                     </div>
 
