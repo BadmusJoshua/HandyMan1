@@ -159,7 +159,7 @@ if (isset($_POST['login'])) {
       <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
         <div class="container">
           <div class="row justify-content-center">
-            <div class="col-lg-10 col-md-6 d-flex flex-column align-items-center justify-content-center">
+            <div class="col-lg-5 col-md-6 col-sm-12 d-flex flex-column align-items-center justify-content-center">
 
               <div class="d-flex justify-content-center py-4">
                 <a href="index.html" class="logo d-flex align-items-center w-auto">
@@ -206,25 +206,24 @@ if (isset($_POST['login'])) {
                         <input type="password" name="password" class="form-control" id="yourPassword" required>
                         <div class="invalid-feedback">Please enter your password!</div>
                       </div>
-
-
-                      <div class="col-12">
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe">
-                          <label class="form-check-label" for="rememberMe">Remember me</label>
-                        </div>
-                        <div class="align-content-right ">
-                          <a href="forgot_password.php" class="text-decoration-none">Forgot Password?</a>
-                        </div>
+                    </div>
+                    <div class="col-12 d-flex justify-content-between">
+                      <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="remember" value="true" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
                       </div>
-                      <div class="col-12">
-                        <button class="btn btn-primary w-100" name="login" type="submit">Login</button>
+                      <div class=" ">
+                        <a href="forgot_password.php" class="text-decoration-none">Forgot Password?</a>
                       </div>
-                      <div class="col-12">
-                        <p class="small mb-0 text-center">Don't have account? <a href="register.php">Create an applicant account</a>&nbsp;
-                          <a href="employer-signup.php">Create an employer's account</a>
-                        </p>
-                      </div>
+                    </div>
+                    <div class="col-12">
+                      <button class="btn btn-primary w-100" name="login" type="submit">Login</button>
+                    </div>
+                    <div class="col-12">
+                      <p class="small mb-0 text-center">Don't have account? <a href="register.php">Create an applicant account</a>&nbsp;
+                        <a href="employer-signup.php">Create an employer's account</a>
+                      </p>
+                    </div>
                   </form>
 
                 </div>

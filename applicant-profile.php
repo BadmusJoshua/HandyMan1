@@ -1,49 +1,58 @@
 <?php
-require_once 'inc/header/applicant-header.php';
+include 'inc/header/applicant-header.php';
 
 $user = $passwordErr = $password_change = $userUpdate = $imageErr = '';
-$profileImage = $detail->image;
+
 if (isset($_POST['updateProfile'])) {
+
+
   if (isset($_FILES['profileImage'])) {
+
+    $imagePath = "assets/uploads/images/$image"; // path to previous image
+    if (file_exists($imagePath)) { // if previous image exists
+      unlink($imagePath); // delete previous image and process new one
+    }
     $image = $_FILES['profileImage'];
-    $imageName = $image[$userId . '-' . $userCategory . '-' . $name];
     $imageTemp = $image['tmp_name'];
+    $imageExt = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION)); // Get the file extension
+
+    // Generate a unique name for the file using uniqid() and appending the extension
+    $imageName = uniqid('applicant_profile_image_') . '.' . $imageExt;
     $imageDir = 'assets/uploads/images/' . $imageName;
-    $imageSplit = explode('.', $imageName);
-    $imageExt = strtolower(end($imageSplit));
     $acceptedExt = array('jpeg', 'jpg', 'png');
+
     if (in_array($imageExt, $acceptedExt)) {
       move_uploaded_file($imageTemp, $imageDir);
+      $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $about = filter_input(INPUT_POST, 'about', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+      $job = filter_input(INPUT_POST, 'job', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $skill = filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $experience = filter_input(INPUT_POST, 'experience', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $country = filter_input(INPUT_POST, 'country', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $twitter = filter_input(INPUT_POST, 'twitter', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $facebook = filter_input(INPUT_POST, 'facebook', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $instagram = filter_input(INPUT_POST, 'instagram', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+      $sql = "select * FROM applicants WHERE email = ?";
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute([$email]);
+      $userCount = $stmt->rowCount();
+      if ($userCount > 1) {
+        $user = 1;
+      } else {
+        $sql = "UPDATE applicants SET about=?,image = ?,job=?,skill=?,experience=?,country=?,address=?,phone=?,email=?,twitter=?,facebook=?,instagram=? WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$about, $imageName, $job, $skill, $experience, $country, $address, $phone, $email, $twitter, $facebook, $instagram, $userId]);
+        $userUpdate = 1;
+      }
+    } else {
+      $imageErr = "invalid file type";
     }
   }
-  $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $about = filter_input(INPUT_POST, 'about', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-  $job = filter_input(INPUT_POST, 'job', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $skill = filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $experience = filter_input(INPUT_POST, 'experience', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $country = filter_input(INPUT_POST, 'country', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $twitter = filter_input(INPUT_POST, 'twitter', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $facebook = filter_input(INPUT_POST, 'facebook', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $instagram = filter_input(INPUT_POST, 'instagram', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-  $sql = "select * FROM applicants WHERE email = ?";
-  $stmt = $pdo->prepare($sql);
-  $stmt->execute([$email]);
-  $userCount = $stmt->rowCount();
-  if ($userCount > 1) {
-    $user = 1;
-  } else {
-    $sql = "UPDATE applicants SET about=?,image = ?,job=?,skill=?,experience=?,country=?,address=?,phone=?,email=?,twitter=?,facebook=?,instagram=? WHERE id = ?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$about, $imageName, $job, $skill, $experience, $country, $address, $phone, $email, $twitter, $facebook, $instagram, $userId]);
-    $userUpdate = 1;
-  }
-} else {
-  $imageErr = "invalid file type";
 }
 
 //Update Password
@@ -171,7 +180,7 @@ if (isset($_POST['changePassword'])) {
 
         <div class="card">
           <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-            <img src="assets/<?= "images/$profileImage" ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="" style="height:130px; width:130px;border-radius:50%;">
+            <img src="assets/uploads/images/<?php echo $image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="" style="height:130px; width:130px;border-radius:50%;">
             <h2><?php echo $detail->name ?></h2>
             <h3><?php echo $detail->job ?></h3>
             <div class="social-links mt-2">
@@ -275,7 +284,7 @@ if (isset($_POST['changePassword'])) {
                   <div class="row mb-3">
                     <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
                     <div class="col-md-8 col-lg-9">
-                      <img src="assets/images/<?php echo $profileImage ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile Photo" class="rounded-circle" style="height:130px; width:130px;border-radius:50%;">
+                      <img src="assets/uploads/images/<?php echo $detail->image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile Photo" class="rounded-circle" style="height:130px; width:130px;border-radius:50%;">
                       <div class="pt-2">
                         <input type="file" name="profileImage" class="form-control" id="">
                       </div>

@@ -32,8 +32,6 @@ if (isset($_POST['view_all'])) {
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
 }
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -150,7 +148,7 @@ if (isset($_POST['view_all'])) {
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="assets/uploads/images/<?php echo $detail->image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="rounded-circle" style="height:30px;width:30px;">
+                        <img src="assets/uploads/images/<?php echo $image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="rounded-circle" style="height:30px;width:30px;">
                         <span class="d-none d-md-block dropdown-toggle ps-2"><?php echo $official_name; ?></span>
                     </a><!-- End Profile Iamge Icon -->
 
