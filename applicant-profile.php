@@ -1,17 +1,19 @@
 <?php
 include 'inc/header/applicant-header.php';
 
+
 $user = $passwordErr = $password_change = $userUpdate = $imageErr = '';
 
 if (isset($_POST['updateProfile'])) {
 
 
   if (isset($_FILES['profileImage'])) {
+    $sql = "SELECT * FROM applicants WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$userId]);
+    $detail = $stmt->fetch();
+    $imagePath = "assets/uploads/images/$detail->image"; // path to previous image
 
-    $imagePath = "assets/uploads/images/$image"; // path to previous image
-    if (file_exists($imagePath)) { // if previous image exists
-      unlink($imagePath); // delete previous image and process new one
-    }
     $image = $_FILES['profileImage'];
     $imageTemp = $image['tmp_name'];
     $imageExt = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION)); // Get the file extension
@@ -25,7 +27,6 @@ if (isset($_POST['updateProfile'])) {
       move_uploaded_file($imageTemp, $imageDir);
       $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
       $about = filter_input(INPUT_POST, 'about', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
       $job = filter_input(INPUT_POST, 'job', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
       $skill = filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
       $experience = filter_input(INPUT_POST, 'experience', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -49,8 +50,11 @@ if (isset($_POST['updateProfile'])) {
         $stmt->execute([$about, $imageName, $job, $skill, $experience, $country, $address, $phone, $email, $twitter, $facebook, $instagram, $userId]);
         $userUpdate = 1;
       }
+      if (file_exists($imagePath)) { // if previous image exists
+        unlink($imagePath); // delete previous image and process new one
+      }
     } else {
-      $imageErr = "invalid file type";
+      $imageErr = 1;
     }
   }
 }
@@ -78,10 +82,9 @@ if (isset($_POST['changePassword'])) {
       $password_change = 1;
     }
   } else {
-    $passwordErr = "incorrect password";
+    $passwordErr = "1";
   }
 }
-
 
 
 ?>
@@ -168,6 +171,20 @@ if (isset($_POST['changePassword'])) {
                           
                         </div>  ';
     }
+    if ($passwordErr) {
+      echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                          Incorrect Password
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          
+                        </div>  ';
+    }
+    if ($imageErr) {
+      echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                          Unsupported Image type
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          
+                        </div>  ';
+    }
     if ($userUpdate) {
       echo '<div class="alert alert-success text-center alert-dismissible fade show" role="alert">
                           Your information has been updated
@@ -180,7 +197,7 @@ if (isset($_POST['changePassword'])) {
 
         <div class="card">
           <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-            <img src="assets/uploads/images/<?php echo $image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="" style="height:130px; width:130px;border-radius:50%;">
+            <img src="assets/uploads/images/<?php echo $detail->image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="" style="height:130px; width:130px;border-radius:50%;">
             <h2><?php echo $detail->name ?></h2>
             <h3><?php echo $detail->job ?></h3>
             <div class="social-links mt-2">
@@ -227,7 +244,7 @@ if (isset($_POST['changePassword'])) {
 
                 <div class="row">
                   <div class="col-lg-3 col-md-4 label ">Full Name</div>
-                  <div class="col-lg-9 col-md-8"><?php echo $name ?></div>
+                  <div class="col-lg-9 col-md-8"><?php echo $detail->name ?></div>
                 </div>
 
                 <div class="row">
