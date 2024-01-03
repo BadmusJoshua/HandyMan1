@@ -66,8 +66,6 @@ require_once 'inc/header/applicant-header.php';
       </a>
     </li><!-- End Contact Page Nav -->
 
-
-
     <li class="nav-item">
       <a class="nav-link collapsed" href="logout.php">
         <i class="bi bi-box-arrow-in-right"></i>
