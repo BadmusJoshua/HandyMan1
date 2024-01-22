@@ -7,11 +7,13 @@ include 'inc/config/database.php';
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>Job finder</title>
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="manifest" href="site.webmanifest" />
-    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico" />
+    <title>JobCrest</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="assets/img/favicon.png" rel="icon">
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- CSS here -->
     <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
@@ -26,6 +28,7 @@ include 'inc/config/database.php';
     <link rel="stylesheet" href="assets/css/slick.css" />
     <link rel="stylesheet" href="assets/css/nice-select.css" />
     <link rel="stylesheet" href="assets/css/style2.css" />
+    <!-- <link rel="stylesheet" href="assets/css/style.css" /> -->
 </head>
 
 <body>
@@ -35,7 +38,7 @@ include 'inc/config/database.php';
             <div class="preloader-inner position-relative">
                 <div class="preloader-circle"></div>
                 <div class="preloader-img pere-text">
-                    <img src="assets/img/logo/logo.png" alt="" />
+                    <img src="assets/img/apple-touch-icon.png" alt="" />
                 </div>
             </div>
         </div>
@@ -50,7 +53,7 @@ include 'inc/config/database.php';
                         <div class="col-lg-3 col-md-2">
                             <!-- Logo -->
                             <div class="logo">
-                                <a href="index.html"><img src="assets/img/logo/logo.png" alt="" /></a>
+                                <a href="index.php" class="text-lg" style="color:#28395a;font-weight:bold; font-size:25px;"><img src="assets/img/apple-touch-icon.png" alt="" style="height:40px; width:40px;" class="mx-2" />JobCrest</a>
                             </div>
                         </div>
                         <div class="col-lg-9 col-md-9">
@@ -59,7 +62,6 @@ include 'inc/config/database.php';
                                 <div class="main-menu">
                                     <nav class="d-none d-lg-block">
                                         <ul id="navigation">
-                                            <li><a href="index.html">Home</a></li>
                                             <li><a href="job_listing.html">Find Jobs </a></li>
                                             <li><a href="about.html">About</a></li>
                                             <li>
@@ -72,6 +74,8 @@ include 'inc/config/database.php';
                                                 </ul>
                                             </li>
                                             <li><a href="contact.html">Contact</a></li>
+                                            <li><a href="index.php">Admin</a></li>
+
                                         </ul>
                                     </nav>
                                 </div>

@@ -81,7 +81,7 @@ if (isset($_POST['submit'])) {
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Register</title>
+  <title>JobCrest</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -118,7 +118,7 @@ if (isset($_POST['submit'])) {
             <div class="col-lg-5 col-md-6 d-flex flex-column align-items-center justify-content-center">
 
               <div class="d-flex justify-content-center py-4">
-                <a href="index.html" class="logo d-flex align-items-center w-auto">
+                <a href="index.php" class="logo d-flex align-items-center w-auto">
                   <img src="assets/img/logo.png" alt="">
                   <span class="d-none d-lg-block">JobCrest</span>
                 </a>
@@ -129,7 +129,7 @@ if (isset($_POST['submit'])) {
                 <div class="card-body">
 
                   <div class="pt-4 pb-2">
-                    <h5 class="card-title text-center pb-0 fs-4">Create an Account</h5>
+                    <h5 class="card-title text-center pb-0 fs-4">Create an Applicant Account</h5>
                     <p class="text-center small">Enter your information to create account</p>
                   </div>
 
@@ -184,7 +184,8 @@ if (isset($_POST['submit'])) {
                       <button class="btn btn-primary w-100" name="submit" type="submit">Create Account</button>
                     </div>
                     <div class="col-12">
-                      <p class="small mb-0">Already have an account? <a href="login.php">Log in</a></p>
+                      <p class="small mb-0 text-center">Already have an account? <a href="login.php">Log in</a></p>
+                      <p class="small mb-0 text-center">Not an applicant? <a href="employer-signup.php">Create an employer's account</a></p>
                     </div>
                   </form>
                   <!--  -->

@@ -4,27 +4,29 @@ $passwordErr = $userNotFound = "";
 
 //checking if cookie exists
 if (isset($_COOKIE['remember_me'])) {
-  list($userId, $userCategory, $token) = explode(':', $_COOKIE['remember_me']);
+  setcookie('remember_me', '', time() - 86400);
 
-  $sql = "SELECT * FROM remember_me_tokens WHERE id = ?, category = ? AND token = ?";
-  $stmt = $pdo->prepare($sql);
-  $stmt->execute([$userId, $userCategory, $token]);
-  $row = $stmt->fetch();
-  $expire_date = strtotime($row->expires_at);
+  // list($userId, $userCategory, $token) = explode(':', $_COOKIE['remember_me']);
 
-  //checking validity of token and if user is an applicant
-  if ($row && (time() < $expire_date) && ($userCategory === 1)) {
-    session_start();
-    $_SESSION['id'] = $userId;
-    header("Location: index.php");
-    //checking validity of token and if user is an employer
-  } elseif ($row && (time() < $expire_date) && ($userCategory === 2)) {
-    session_start();
-    $_SESSION['id'] = $userId;
-    header("Location: employer-index.php");
-  } else {
-    echo "your token has expired, you need to sign in again";
-  }
+  // $sql = "SELECT * FROM remember_me_tokens WHERE id = ?, category = ? AND token = ?";
+  // $stmt = $pdo->prepare($sql);
+  // $stmt->execute([$userId, $userCategory, $token]);
+  // $row = $stmt->fetch();
+  // $expire_date = strtotime($row->expires_at);
+
+  // //checking validity of token and if user is an applicant
+  // if ($row && (time() < $expire_date) && ($userCategory === 1)) {
+  //   session_start();
+  //   $_SESSION['id'] = $userId;
+  //   header("Location: index.php");
+  //   //checking validity of token and if user is an employer
+  // } elseif ($row && (time() < $expire_date) && ($userCategory === 2)) {
+  //   session_start();
+  //   $_SESSION['id'] = $userId;
+  //   header("Location: employer-index.php");
+  // } else {
+  //   echo "your token has expired, you need to sign in again";
+  // }
 }
 
 if (isset($_POST['login'])) {
@@ -124,7 +126,7 @@ if (isset($_POST['login'])) {
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Jobcrest || The best job openings</title>
+  <title>JobCrest </title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -162,9 +164,9 @@ if (isset($_POST['login'])) {
             <div class="col-lg-5 col-md-6 col-sm-12 d-flex flex-column align-items-center justify-content-center">
 
               <div class="d-flex justify-content-center py-4">
-                <a href="index.html" class="logo d-flex align-items-center w-auto">
+                <a href="index.php" class="logo d-flex align-items-center w-auto">
                   <img src="assets/img/logo.png" alt="">
-                  <span class=" d-lg-block">Jobcrest</span>
+                  <span class=" d-lg-block">JobCrest</span>
                 </a>
               </div>
 
@@ -220,8 +222,8 @@ if (isset($_POST['login'])) {
                       <button class="btn btn-primary w-100" name="login" type="submit">Login</button>
                     </div>
                     <div class="col-12">
-                      <p class="small mb-0 text-center">Don't have account? <a href="register.php">Create an applicant account</a>&nbsp;
-                        <a href="employer-signup.php">Create an employer's account</a>
+                      <p class="small mb-0 d-flex flex-column justify-content-center align-items-center">Don't have account? <a href="register.php">Create an applicant account</a>
+                        <a href="employer-signup.php">Register as an Employer</a>
                       </p>
                     </div>
                   </form>
