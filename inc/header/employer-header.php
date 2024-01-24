@@ -210,7 +210,62 @@ if (isset($_POST['view_all'])) {
               ***********/ -->
 
     </header><!-- End Header -->
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
 
+        <ul class="sidebar-nav" id="sidebar-nav">
+
+            <li class="nav-item">
+                <a class="nav-link " href="index.php">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li><!-- End Dashboard Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="employer-profile.php">
+                    <i class="bi bi-person"></i>
+                    <span>Profile</span>
+                </a>
+            </li><!-- End Profile Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="employer-post-new-job.php">
+                    <i class="bi bi-journal-plus"></i>
+                    <span>Post New Job</span>
+                </a>
+            </li><!-- End Post New Job Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="employer-manage-jobs.php">
+                    <i class="bi bi-briefcase-fill"></i>
+                    <span>Manage Jobs</span>
+                </a>
+            </li><!-- End Manage Jobs Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="meetings.php">
+                    <i class="ri-building-4-line"></i>
+                    <span>Meetings</span>
+                </a>
+            </li><!-- End Meeting Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="employer-manage-applicants.php">
+                    <i class="bi bi-envelope"></i>
+                    <span>Manage Applicants</span>
+                </a>
+            </li><!-- End Contact Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="logout.php">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Sign Out</span>
+                </a>
+            </li><!-- End suggestion in Page Nav -->
+        </ul>
+
+    </aside><!-- End Sidebar-->
 
     <!-- /**********
               * HEADER *

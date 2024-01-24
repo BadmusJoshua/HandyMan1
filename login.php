@@ -1,32 +1,41 @@
 <?php
 include 'inc/config/database.php';
-$passwordErr = $userNotFound = "";
+$passwordErr = $userNotFound = $invalidToken = $tokenExpired = $tokenLost = "";
 
 //checking if cookie exists
 if (isset($_COOKIE['remember_me'])) {
-  setcookie('remember_me', '', time() - 86400);
+  // setcookie('remember_me', '', time() - 86400);
+  list($userId, $userCategory, $nothing, $token) = explode(
+    ':',
+    $_COOKIE['remember_me']
+  );
 
-  // list($userId, $userCategory, $token) = explode(':', $_COOKIE['remember_me']);
+  $sql = "SELECT * FROM remember_me_tokens WHERE  token = ?";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([$token]);
+  $row = $stmt->rowCount();
+  $details = $stmt->fetch();
+  $expire_date = $details->expires_at;
 
-  // $sql = "SELECT * FROM remember_me_tokens WHERE id = ?, category = ? AND token = ?";
-  // $stmt = $pdo->prepare($sql);
-  // $stmt->execute([$userId, $userCategory, $token]);
-  // $row = $stmt->fetch();
-  // $expire_date = strtotime($row->expires_at);
-
-  // //checking validity of token and if user is an applicant
-  // if ($row && (time() < $expire_date) && ($userCategory === 1)) {
-  //   session_start();
-  //   $_SESSION['id'] = $userId;
-  //   header("Location: index.php");
-  //   //checking validity of token and if user is an employer
-  // } elseif ($row && (time() < $expire_date) && ($userCategory === 2)) {
-  //   session_start();
-  //   $_SESSION['id'] = $userId;
-  //   header("Location: employer-index.php");
-  // } else {
-  //   echo "your token has expired, you need to sign in again";
-  // }
+  if ($row === 1) {
+    if (time() < strtotime($expire_date)) {
+      if ($userCategory === '1') {
+        session_start();
+        $_SESSION['id'] = $userId;
+        header("Location: index.php");
+      } elseif ($userCategory === '2') {
+        session_start();
+        $_SESSION['id'] = $userId;
+        header("Location: employer-index.php");
+      } else {
+        $invalidToken = 1;
+      }
+    } else {
+      $tokenExpired = 1;
+    }
+  } else {
+    $tokenLost = 1;
+  }
 }
 
 if (isset($_POST['login'])) {
@@ -103,7 +112,7 @@ if (isset($_POST['login'])) {
           $stmt = $pdo->prepare($sql);
           $stmt->execute([$userId, $token, date('Y-m-d H:i:s', strtotime("+30 days")), $userCategory]);
           //setting cookie on the user browser
-          $cookieValue = $userId . ':' . $userCategory . ':' . $userCategory . ':' . $token;
+          $cookieValue = $userId . ':' . $userCategory . ':' . $token;
           //set cookie
           setcookie('remember_me', $cookieValue, time() + 86400 * 30);
         }
@@ -187,9 +196,31 @@ if (isset($_POST['login'])) {
                           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>';
                     }
-                    if ($passwordErr == 1) {
-                      echo ' <div class="invalid-feedback">Incorrect Password</div>';
+                    if ($invalidToken) {
+                      echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                          Invalid token, you have to sign in again!
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
                     }
+                    if ($expiredToken) {
+                      echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                          Token expired, you have to sign in again!
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
+                    }
+                    if ($tokenLost) {
+                      echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                          Token leaked, you need to sign in again!
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
+                    }
+                    if ($passwordErr) {
+                      echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                          Incorrect Password!
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
+                    }
+
 
                     ?>
                     <div class="col-12">
