@@ -1,42 +1,67 @@
 <?php
 include 'inc/header/employer-header.php';
 if (isset($_POST['postJob'])) {
-    if (!empty($_POST['jobTitle'])) {
-        $jobTitle = filter_input(INPUT_POST, 'jobTitle', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    !empty($_POST['jobTitle']) ? $jobTitle = filter_input(INPUT_POST, 'jobTitle', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+
+    !empty($_POST['jobType']) ? $jobType = filter_input(INPUT_POST, 'jobType', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+
+    !empty($_POST['careerLevel']) ? $careerLevel = filter_input(INPUT_POST, 'careerLevel', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+
+    !empty($_POST['minOffer']) ? $minOffer = filter_input(INPUT_POST, 'minOffer', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+
+    !empty($_POST['maxOffer']) ? $maxOffer = filter_input(INPUT_POST, 'maxOffer', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+
+    !empty($_POST['deadlineDate']) ? $deadlineDate = filter_input(INPUT_POST, 'deadlineDate', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+
+    !empty($_POST['jobDescription']) ? $jobDescription = filter_input(INPUT_POST, 'jobDescription', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+
+    !empty($_POST['industry']) ? $industry = filter_input(INPUT_POST, 'industry', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+
+    !empty($_POST['gender']) ? $gender = filter_input(INPUT_POST, 'gender', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+
+    !empty($_POST['qualification']) ? $qualification = filter_input(INPUT_POST, 'qualification', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+
+    !empty($_POST['skill']) ? $skill = filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+
+    if (!empty($_FILES['logo']['tmp_name'])) {
+        // Extract file extension
+        $fileExt = strtolower(pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION));
+
+        // Generate a unique filename
+        $fileName = uniqid('company_logo') . '.' . $fileExt;
+
+        // Specify the upload directory
+        $uploadDirectory = 'uploads/companyLogos';
+
+        // Ensure upload directory exists, create it if not
+        if (!file_exists($uploadDirectory)) {
+            mkdir($uploadDirectory, 0777, true);
+        }
+
+        // Construct the full path to the uploaded file
+        $uploadFile = $uploadDirectory . '/' . $fileName;
+
+        // Define accepted file types
+        $acceptedExt = array('jpeg', 'jpg', 'png');
+
+        // Check if the file type is accepted
+        if (in_array($fileExt, $acceptedExt)) {
+            // Move the uploaded file to the upload directory
+            move_uploaded_file($_FILES['logo']['tmp_name'], $uploadFile);
+            // Store the path to the uploaded file
+            $logo = $uploadFile;
+        } else {
+            // Set error flag for unaccepted file type
+            $fileErr = 1;
+        }
+    } else {
+        // Set $logo to an empty string if no file was uploaded
+        $logo = '';
     }
-    if (!empty($_POST['jobType'])) {
-        $jobType = filter_input(INPUT_POST, 'jobType', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    }
-    if (!empty($_POST['careerLevel'])) {
-        $careerLevel = filter_input(INPUT_POST, 'careerLevel', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    }
-    if (!empty($_POST['minOffer'])) {
-        $minOffer = filter_input(INPUT_POST, 'minOffer', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    }
-    if (!empty($_POST['maxOffer'])) {
-        $maxOffer = filter_input(INPUT_POST, 'maxOffer', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    }
-    if (!empty($_POST['deadlineDate'])) {
-        $deadlineDate = filter_input(INPUT_POST, 'deadlineDate', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    }
-    if (!empty($_POST['jobDescription'])) {
-        $jobDescription = filter_input(INPUT_POST, 'jobDescription', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    }
-    if (!empty($_POST['industry'])) {
-        $industry = filter_input(INPUT_POST, 'industry', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    }
-    if (!empty($_POST['gender'])) {
-        $gender = filter_input(INPUT_POST, 'gender', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    }
-    if (!empty($_POST['qualification'])) {
-        $qualification = filter_input(INPUT_POST, 'qualification', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    }
-    if (!empty($_POST['skill'])) {
-        $skill = filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    }
-    $sql = "INSERT INTO jobs (skill, qualification,gender,industry,jobDescription,deadlineDate,maxOffer,minOffer,careerLevel, jobType, jobTitle, userId) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+
+    $sql = "INSERT INTO jobs (skill, qualification,gender,industry,jobDescription,deadlineDate,maxOffer,minOffer,careerLevel, jobType, jobTitle, userId, logo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$skill, $qualification, $gender, $industry, $jobDescription, $deadlineDate, $maxOffer, $minOffer, $careerLevel, $jobType, $jobTitle, $userId]);
+    $stmt->execute([$skill, $qualification, $gender, $industry, $jobDescription, $deadlineDate, $maxOffer, $minOffer, $careerLevel, $jobType, $jobTitle, $userId, $logo]);
 }
 ?>
 
@@ -62,14 +87,14 @@ if (isset($_POST['postJob'])) {
                     </div><!-- billing-title-wrap -->
                     <div class="billing-content">
                         <div class="contact-form-action">
-                            <form method="post">
+                            <form method="post" action="<?php htmlspecialchars($_SERVER['PHP_SELF']); ?>" multipart/form-data : "enctype">
                                 <div class="row">
                                     <div class="col-lg-6 column-lg-full">
                                         <div class="input-box company-logo-wrap">
                                             <label class="label-text">Company Logo</label>
                                             <div class="form-group">
                                                 <div class="file-upload-wrap file-upload-wrap-2">
-                                                    <input type="file" name="files[]" class="multi file-upload-input with-preview w-100" multiple maxlength="1">
+                                                    <input type="file" name="logo" class="multi file-upload-input with-preview w-100" multiple maxlength="1">
                                                     <span class="file-upload-text"><i class="la la-photo mr-2"></i>Upload a Photo</span>
                                                 </div>
                                             </div>
@@ -84,7 +109,8 @@ if (isset($_POST['postJob'])) {
                                             </div>
                                         </div>
                                     </div><!-- end col-lg-4 -->
-
+                                </div>
+                                <div class="row">
                                     <div class="col-lg-4 column-lg-full">
                                         <div class="input-box">
                                             <label class="label-text">Job Type</label>
@@ -116,46 +142,8 @@ if (isset($_POST['postJob'])) {
                                             </div><!-- end form-group -->
                                         </div>
                                     </div><!-- end col-lg-4 -->
-                                    <div class="col-lg-4 column-lg-full">
-                                        <div class="input-box">
-                                            <label class="label-text">category</label>
-                                            <div class="form-group user-chosen-select-container">
-                                                <select class="user-chosen-select">
-                                                    <option value>Select a category</option>
-                                                    <option value="1">All Category</option>
-                                                    <option value="2">Accounting / Finance</option>
-                                                    <option value="3">Education</option>
-                                                    <option value="4">Design & Creative</option>
-                                                    <option value="5">Health Care</option>
-                                                    <option value="6">Engineer & Architects</option>
-                                                    <option value="7">Marketing & Sales</option>
-                                                    <option value="8">Garments / Textile</option>
-                                                    <option value="9">Customer Support</option>
-                                                    <option value="10">Digital Media</option>
-                                                    <option value="11">Telecommunication</option>
-                                                </select>
-                                            </div><!-- end form-group -->
-                                        </div>
-                                    </div><!-- end col-lg-4 -->
-                                    <div class="col-lg-4 column-lg-full">
-                                        <div class="input-box">
-                                            <label class="label-text">Offered Salary</label>
-                                            <div class="row">
-                                                <div class="col-lg-6">
-                                                    <div class="form-group">
-                                                        <span class="la la-dollar-sign form-icon"></span>
-                                                        <input class="form-control" type="number" placeholder="Min" name="minOffer" required>
-                                                    </div>
-                                                </div><!-- end col-lg-6 -->
-                                                <div class="col-lg-6">
-                                                    <div class="form-group">
-                                                        <span class="la la-dollar-sign form-icon"></span>
-                                                        <input class="form-control" type="number" placeholder="Max" name="maxOffer" required>
-                                                    </div>
-                                                </div><!-- end col-lg-6 -->
-                                            </div><!-- end row -->
-                                        </div>
-                                    </div><!-- end col-lg-4 -->
+                                </div>
+                                <div class="row">
                                     <div class="col-lg-4 column-lg-full">
                                         <div class="input-box">
                                             <label class="label-text">Experience</label>
@@ -174,7 +162,7 @@ if (isset($_POST['postJob'])) {
                                                 </select>
                                             </div>
                                         </div>
-                                    </div><!-- end col-lg-4 -->
+                                    </div>end col-lg-4
                                     <div class="col-lg-4 column-lg-full">
                                         <div class="input-box">
                                             <label class="label-text">Qualification</label>
@@ -206,6 +194,26 @@ if (isset($_POST['postJob'])) {
                                                     <option value="Female">Female</option>
                                                 </select>
                                             </div>
+                                        </div>
+                                    </div><!-- end col-lg-4 -->
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 column-lg-full">
+                                        <div class="input-box">
+                                            <label class="label-text">Offered Salary</label>
+                                            <div class="d-flex flex-row gap-2">
+
+                                                <div class="form-group">
+                                                    <span class="la la-dollar-sign form-icon"></span>
+                                                    <input class="form-control" type="number" placeholder="Min" name="minOffer" required>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <span class="la la-dollar-sign form-icon"></span>
+                                                    <input class="form-control" type="number" placeholder="Max" name="maxOffer" required>
+                                                </div>
+
+                                            </div><!-- end row -->
                                         </div>
                                     </div><!-- end col-lg-4 -->
                                     <div class="col-lg-4 column-lg-full">
@@ -256,23 +264,14 @@ if (isset($_POST['postJob'])) {
                                     <div class="col-lg-4 column-lg-full">
                                         <div class="input-box">
                                             <label class="label-text">Skill Requirements</label>
-                                            <div class="form-group user-chosen-select-container">
-                                                <!-- <select class="user-chosen-select" multiple>
-                                                    <option>HTML5</option>
-                                                    <option>CSS3</option>
-                                                    <option>PHP</option>
-                                                    <option>Javascript</option>
-                                                    <option>Laravel</option>
-                                                    <option>Photoshop</option>
-                                                    <option>WordPress</option>
-                                                    <option>Vuejs</option>
-                                                    <option>React</option>
-                                                </select> -->
-                                                <input type="text" name="skill" id="" placeholder="skills" multiple>
+                                            <div class="form-group mb-0">
+                                                <textarea class="message-control form-control user-text-editor" name="skill" id="" cols="30" rows="5" placeholder="list skills separated with a comma" required></textarea>
                                             </div>
                                         </div>
                                     </div><!-- end col-lg-4 -->
-                                    <div class="col-lg-4 column-lg-full">
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-2 column-lg-full">
                                         <div class="input-box">
                                             <label class="label-text">No. Of Vacancy</label>
                                             <div class="form-group user-chosen-select-container">
@@ -300,7 +299,7 @@ if (isset($_POST['postJob'])) {
                                             </div>
                                         </div>
                                     </div><!-- end col-lg-4 -->
-                                    <div class="col-lg-12">
+                                    <div class="col-lg-6 column-lg-full">
                                         <div class="input-box">
                                             <label class="label-text">Job Description</label>
                                             <div class="form-group mb-0">
@@ -308,7 +307,8 @@ if (isset($_POST['postJob'])) {
                                             </div>
                                         </div>
                                     </div><!-- end col-lg-12 -->
-                                </div><!-- end row -->
+                                </div>
+
                                 <div class="row">
                                     <div class="col-12 justify-content-center align-items-center d-flex">
                                         <div class="btn-box mt-4 ">
@@ -323,8 +323,6 @@ if (isset($_POST['postJob'])) {
 
             </div><!-- end col-lg-12 -->
         </div><!-- end row -->
-        </div><!-- end container-fluid -->
-        </div>
     </section><!-- end dashboard-area -->
 </main>
 
