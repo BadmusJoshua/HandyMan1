@@ -1,4 +1,33 @@
-<?php include 'inc/header/employer-header.php'; ?>
+<?php include 'inc/header/employer-header.php';
+
+//sql to fetch total number of applications
+$sql = "SELECT * FROM applications WHERE employerId  = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$userId]);
+$row = $stmt->fetchAll();
+
+//sql to fetch job count
+$sql = "SELECT * FROM jobs WHERE userId = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$userId]);
+$jobCount = $stmt->rowCount();
+//fetching job details
+$jobDetails = $stmt->fetchAll();
+
+//sql to fetch amount of active jobs
+$sql = "SELECT * FROM jobs WHERE userId = ? && status = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$userId, '1']);
+$activeJobCount = $stmt->rowCount();
+
+if (isset($_POST['delete'])) {
+    $jobId = $_POST['id'];
+    $sql = "DELETE FROM jobs WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$jobId]);
+}
+
+?>
 <!-- ======= Sidebar ======= -->
 <aside id="sidebar" class="sidebar">
 
@@ -12,11 +41,25 @@
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="profile.php">
+            <a class="nav-link collapsed" href="employer-profile.php">
                 <i class="bi bi-person"></i>
                 <span>Profile</span>
             </a>
         </li><!-- End Profile Page Nav -->
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="employer-post-new-job.php">
+                <i class="bi bi-journal-plus"></i>
+                <span>Post New Job</span>
+            </a>
+        </li><!-- End Post New Job Page Nav -->
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="employer-manage-jobs.php">
+                <i class="bi bi-briefcase-fill"></i>
+                <span>Manage Jobs</span>
+            </a>
+        </li><!-- End Manage Jobs Page Nav -->
 
         <li class="nav-item">
             <a class="nav-link collapsed" href="meetings.php">
@@ -26,27 +69,11 @@
         </li><!-- End Meeting Page Nav -->
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="employer-manage-jobs.php">
-                <i class="bi bi-briefcase-fill"></i>
-                <span>Manage Jobs</span>
-            </a>
-        </li><!-- End Jobs Page Nav -->
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="faq.php">
-                <i class="bi bi-question-circle"></i>
-                <span>F.A.Q</span>
-            </a>
-        </li><!-- End F.A.Q Page Nav -->
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="contact.php">
+            <a class="nav-link collapsed" href="employer-manage-applicants.php">
                 <i class="bi bi-envelope"></i>
-                <span>Help Desk</span>
+                <span>Manage Applicants</span>
             </a>
         </li><!-- End Contact Page Nav -->
-
-
 
         <li class="nav-item">
             <a class="nav-link collapsed" href="logout.php">
@@ -79,7 +106,7 @@
                         <div class="manage-job-wrap">
                             <div class="manage-job-header mt-3 mb-5">
                                 <div class="manage-job-count">
-                                    <span class="font-weight-medium color-text-2 mr-1">12</span>
+                                    <span class="font-weight-medium color-text-2 mr-1"><?= $jobCount ?></span>
                                     <span class="font-weight-medium">job(s) Posted</span>
                                 </div>
                                 <div class="manage-job-count">
@@ -87,7 +114,7 @@
                                     <span class="font-weight-medium">Application(s)</span>
                                 </div>
                                 <div class="manage-job-count">
-                                    <span class="font-weight-medium color-text-2 mr-1">6</span>
+                                    <span class="font-weight-medium color-text-2 mr-1"><?= $activeJobCount ?></span>
                                     <span class="font-weight-medium">Active Job(s)</span>
                                 </div>
                             </div>
@@ -104,156 +131,67 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>
-                                                <div class="manage-candidate-wrap">
-                                                    <h2 class="widget-title pb-1"><a href="job-details.html" class="color-text-2">Land Development Marketer</a></h2>
-                                                    <p>
-                                                        <span><i class="la la-clock-o font-size-16"></i> Last Update: Jan 21, 2020 </span>
-                                                    </p>
-                                                </div><!-- end manage-candidate-wrap -->
-                                            </td>
-                                            <td>2 Application(s)</td>
-                                            <td>10 April, 2019</td>
-                                            <td>10 May, 2019</td>
-                                            <td><span class="badge badge-success p-1">Active</span></td>
-                                            <td class="text-center">
-                                                <div class="manage-candidate-wrap">
-                                                    <div class="bread-action pt-0">
-                                                        <ul class="info-list">
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-eye" data-toggle="tooltip" data-placement="top" title="Active"></i></a></li>
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="manage-candidate-wrap">
-                                                    <h2 class="widget-title pb-1"><a href="job-details.html" class="color-text-2">Regional Sales Manager South</a></h2>
-                                                    <p>
-                                                        <span><i class="la la-clock-o font-size-16"></i> Last Update: Jan 21, 2020 </span>
-                                                    </p>
-                                                </div><!-- end manage-candidate-wrap -->
-                                            </td>
-                                            <td>0 Application(s)</td>
-                                            <td>10 April, 2019</td>
-                                            <td>10 May, 2019</td>
-                                            <td><span class="badge badge-info p-1">Awaiting Activation</span></td>
-                                            <td class="text-center">
-                                                <div class="manage-candidate-wrap">
-                                                    <div class="bread-action pt-0">
-                                                        <ul class="info-list">
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-eye-slash" data-toggle="tooltip" data-placement="top" title="Awaiting"></i></a></li>
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="manage-candidate-wrap">
-                                                    <h2 class="widget-title pb-1"><a href="job-details.html" class="color-text-2">Restaurant Team Member - Crew</a></h2>
-                                                    <p>
-                                                        <span><i class="la la-clock-o font-size-16"></i> Last Update: Jan 21, 2020 </span>
-                                                    </p>
-                                                </div><!-- end manage-candidate-wrap -->
-                                            </td>
-                                            <td>1 Application(s)</td>
-                                            <td>10 April, 2019</td>
-                                            <td>10 May, 2019</td>
-                                            <td><span class="badge badge-success p-1">Active</span></td>
-                                            <td class="text-center">
-                                                <div class="manage-candidate-wrap">
-                                                    <div class="bread-action pt-0">
-                                                        <ul class="info-list">
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-eye" data-toggle="tooltip" data-placement="top" title="Active"></i></a></li>
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="manage-candidate-wrap">
-                                                    <h2 class="widget-title pb-1"><a href="job-details.html" class="color-text-2">Land Development Marketer</a></h2>
-                                                    <p>
-                                                        <span><i class="la la-clock-o font-size-16"></i> Last Update: Jan 21, 2020 </span>
-                                                    </p>
-                                                </div><!-- end manage-candidate-wrap -->
-                                            </td>
-                                            <td>1 Application(s)</td>
-                                            <td>10 April, 2019</td>
-                                            <td>10 May, 2019</td>
-                                            <td><span class="badge badge-secondary p-1">Inactive</span></td>
-                                            <td class="text-center">
-                                                <div class="manage-candidate-wrap">
-                                                    <div class="bread-action pt-0">
-                                                        <ul class="info-list">
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-eye-slash" data-toggle="tooltip" data-placement="top" title="Inactive"></i></a></li>
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="manage-candidate-wrap">
-                                                    <h2 class="widget-title pb-1"><a href="job-details.html" class="color-text-2">Node.js Developer</a></h2>
-                                                    <p>
-                                                        <span><i class="la la-clock-o font-size-16"></i> Last Update: Jan 21, 2020 </span>
-                                                    </p>
-                                                </div><!-- end manage-candidate-wrap -->
-                                            </td>
-                                            <td>1 Application(s)</td>
-                                            <td>10 April, 2019</td>
-                                            <td>10 May, 2019</td>
-                                            <td><span class="badge badge-secondary p-1">Inactive</span></td>
-                                            <td class="text-center">
-                                                <div class="manage-candidate-wrap">
-                                                    <div class="bread-action pt-0">
-                                                        <ul class="info-list">
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-eye-slash" data-toggle="tooltip" data-placement="top" title="Inactive"></i></a></li>
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="manage-candidate-wrap">
-                                                    <h2 class="widget-title pb-1"><a href="job-details.html" class="color-text-2">Graphic Design</a></h2>
-                                                    <p>
-                                                        <span><i class="la la-clock-o font-size-16"></i> Last Update: Jan 21, 2020 </span>
-                                                    </p>
-                                                </div><!-- end manage-candidate-wrap -->
-                                            </td>
-                                            <td>1 Application(s)</td>
-                                            <td>10 April, 2019</td>
-                                            <td>10 May, 2019</td>
-                                            <td><span class="badge badge-success p-1">Active</span></td>
-                                            <td class="text-center">
-                                                <div class="manage-candidate-wrap">
-                                                    <div class="bread-action pt-0">
-                                                        <ul class="info-list">
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-eye" data-toggle="tooltip" data-placement="top" title="Active"></i></a></li>
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
-                                                            <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                        <?php
+                                        if ($jobDetails) {
+                                            foreach ($jobDetails as $details) : ?>
+                                                <tr>
+                                                    <td>
+                                                        <div class="manage-candidate-wrap">
+                                                            <h2 class="widget-title pb-1"><a href="job-details.html" class="color-text-2"><?= $details->jobTitle ?></a></h2>
+                                                            <p>
+                                                                <span><i class="la la-clock-o font-size-16"></i><?php
+                                                                                                                function convert_date($fetched_date)
+                                                                                                                {
+                                                                                                                    $date = DateTime::createFromFormat('Y-m-d H:i:s', $fetched_date);
+                                                                                                                    echo "Last Updated" . ' ' . $date->format('M d, Y');
+                                                                                                                };
+                                                                                                                if ($details->updated_at) {
+                                                                                                                    convert_date($details->updated_at);
+                                                                                                                } else {
+                                                                                                                    convert_date($details->created_at);
+                                                                                                                }
+                                                                                                                ?></span>
+                                                            </p>
+                                                        </div><!-- end manage-candidate-wrap -->
+                                                    </td>
+                                                    <td> <?php
+                                                            $sqli = "SELECT * FROM applications WHERE jobId = ?";
+                                                            $stmti = $pdo->prepare($sqli);
+                                                            $stmti->execute([$details->id]);
+                                                            $jobApplicationCount = $stmt->rowCount();
+                                                            echo $jobApplicationCount; ?> Application(s)</td>
+                                                    <td><?php $date = DateTime::createFromFormat('Y-m-d H:i:s', ($details->created_at));
+                                                        echo $date->format('d F Y'); ?></td>
+                                                    <td><?php $date = DateTime::createFromFormat('Y-m-d', ($details->deadlineDate));
+                                                        echo $date->format('d F Y'); ?></td>
+                                                    <td><span class="badge badge-success p-1"><?php if (date('Y-m-d', strtotime($details->deadlineDate)) > date('Y-m-d')) {
+                                                                                                    echo "Open";
+                                                                                                } else {
+                                                                                                    echo "Closed";
+                                                                                                } ?></span></td>
+                                                    <td class="text-center">
+                                                        <div class="manage-candidate-wrap">
+                                                            <div class="bread-action pt-0">
+                                                                <ul class="info-list">
+                                                                    <form action="post" method="htmlspecialchars($_SERVER['PHP_SELF'])">
+                                                                        <input type="hidden" name="id" value=<?= $details->id ?>>
+                                                                        <li class="d-inline-block"><button class="btn btn-sm" name="edit"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></button></li>
+                                                                        <li class="d-inline-block"><button class="btn btn-sm" name="delete"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></button></li>
+                                                                    </form>
+
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                        <?php endforeach;
+                                        } else {
+                                            echo '<div class="alert alert-danger text-center" role="alert">
+                    You haven\t posted any job yet
+                  </div>';
+                                        }
+                                        ?>
+
                                     </tbody>
                                 </table>
                             </div>
