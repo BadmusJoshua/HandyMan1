@@ -1,5 +1,15 @@
 <?php include 'inc/header/employer-header.php';
+//sql to check number of jobs posted
+$sql = "SELECT * FROM jobs WHERE userId = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$userId]);
+$jobCount = $stmt->rowCount();
 
+//sql to check number of applications
+$sql = "SELECT * FROM applications WHERE employerId  = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$userId]);
+$applicationCount = $stmt->rowCount();
 ?>
 
 <!-- ======= Sidebar ======= -->
@@ -79,7 +89,7 @@
                             <i class="la la-cloud-upload"></i>
                         </div><!-- end icon-element-->
                         <div class="info-content">
-                            <span class="info__count">11</span>
+                            <span class="info__count"><?= $jobCount ?></span>
                             <h4 class="info__title font-size-16 mt-2">Total Job Posted</h4>
                         </div><!-- end info-content -->
                     </div>
@@ -92,7 +102,7 @@
                             <i class="la la-file-text-o"></i>
                         </div><!-- end icon-element-->
                         <div class="info-content">
-                            <span class="info__count">121</span>
+                            <span class="info__count"><?= $applicationCount ?></span>
                             <h4 class="info__title font-size-16 mt-2">Application Submit</h4>
                         </div><!-- end info-content -->
                     </div>

@@ -4,7 +4,7 @@
 $sql = "SELECT * FROM applications WHERE employerId  = ?";
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$userId]);
-$row = $stmt->fetchAll();
+$applicationCount = $stmt->rowCount();
 
 //sql to fetch job count
 $sql = "SELECT * FROM jobs WHERE userId = ?";
@@ -110,7 +110,7 @@ if (isset($_POST['delete'])) {
                                     <span class="font-weight-medium">job(s) Posted</span>
                                 </div>
                                 <div class="manage-job-count">
-                                    <span class="font-weight-medium color-text-2 mr-1">8</span>
+                                    <span class="font-weight-medium color-text-2 mr-1"><?= $applicationCount ?></span>
                                     <span class="font-weight-medium">Application(s)</span>
                                 </div>
                                 <div class="manage-job-count">
@@ -134,6 +134,193 @@ if (isset($_POST['delete'])) {
                                         <?php
                                         if ($jobDetails) {
                                             foreach ($jobDetails as $details) : ?>
+                                                <!-- Modal -->
+                                                <div class="modal fade" id="staticBackdrop<?= $details->id ?>" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h1 class="modal-title fs-5 text-center" id="staticBackdropLabel">Edit Job Detail</h1>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" enctype="multipart/form-data">
+                                                                    <div class="row">
+                                                                        <div class="col-lg-6 column-lg-full">
+                                                                            <div class="input-box">
+                                                                                <label class="label-text">Job Title</label>
+                                                                                <div class="form-group">
+                                                                                    <span class="la la-briefcase form-icon"></span>
+                                                                                    <input class="form-control" type="text" name="jobTitle" placeholder="Enter job title">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div><!-- end col-lg-6 -->
+                                                                        <div class="col-lg-6 column-lg-full">
+                                                                            <div class="input-box">
+                                                                                <label class="label-text">Job Description</label>
+                                                                                <div class="form-group mb-0">
+                                                                                    <textarea class="message-control form-control user-text-editor" name="jobDescription" id="jobDescription" cols="30" rows="5"></textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div><!-- end col-lg-12 -->
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-4 column-lg-full">
+                                                                            <div class="input-box">
+                                                                                <label class="label-text">Job Type</label>
+                                                                                <div class="form-group user-chosen-select-container">
+                                                                                    <select class="user-chosen-select" name="jobType" required>
+                                                                                        <option value="">Select Job Type</option>
+                                                                                        <option value="Full Time">Full Time</option>
+                                                                                        <option value="Part Time">Part Time</option>
+                                                                                        <option value="Contract">Contract</option>
+                                                                                        <option value="Internship">Internship</option>
+                                                                                        <option value="Freelance">Freelance</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div><!-- end col-lg-4 -->
+
+                                                                        <div class="col-lg-4 column-lg-full">
+                                                                            <div class="input-box">
+                                                                                <label class="label-text">Experience</label>
+                                                                                <div class="form-group user-chosen-select-container">
+                                                                                    <select class="user-chosen-select" name="experience" required>
+                                                                                        <option value="">Choose Experience</option>
+                                                                                        <option value="No Experience">No Experience</option>
+                                                                                        <option value="Less than 1 Year">Less than 1 Year</option>
+                                                                                        <option value="1 to 2 Year(s)">1 to 2 Year(s)</option>
+                                                                                        <option value="2 to 4 Year(s)">2 to 4 Year(s)</option>
+                                                                                        <option value="3 to 5 Year(s)">3 to 5 Year(s)</option>
+                                                                                        <option value="2 Years">2 Years</option>
+                                                                                        <option value="3 Years">3 Years</option>
+                                                                                        <option value="4 Years">4 Years</option>
+                                                                                        <option value="Over 5 Years">Over 5 Years</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-2 column-lg-full">
+                                                                            <div class="input-box">
+                                                                                <label class="label-text">No. Of Vacancy</label>
+                                                                                <div class="form-group user-chosen-select-container">
+                                                                                    <select class="user-chosen-select" name="vacancy" required>
+                                                                                        <option>1</option>
+                                                                                        <option>2</option>
+                                                                                        <option>3</option>
+                                                                                        <option>4</option>
+                                                                                        <option>5</option>
+                                                                                        <option>6</option>
+                                                                                        <option>7</option>
+                                                                                        <option>8</option>
+                                                                                        <option>9</option>
+                                                                                        <option>10</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div><!-- end col-lg-4 -->
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-4 column-lg-full">
+                                                                            <div class="input-box">
+                                                                                <label class="label-text">Career Level</label>
+                                                                                <div class="form-group user-chosen-select-container">
+                                                                                    <select class="user-chosen-select" name="careerLevel" required>
+                                                                                        <option value="">Choose One</option>
+                                                                                        <option value="Student">Student</option>
+                                                                                        <option value="Junior">Junior</option>
+                                                                                        <option value="Intermediate">Intermediate</option>
+                                                                                        <option value="Senior">Senior</option>
+                                                                                        <option value="Manager">Manager</option>
+                                                                                        <option value="Executive">Executive</option>
+                                                                                    </select>
+                                                                                </div><!-- end form-group -->
+                                                                            </div>
+                                                                        </div><!-- end col-lg-4 -->
+
+                                                                        <div class="col-lg-4 column-lg-full">
+                                                                            <div class="input-box">
+                                                                                <label class="label-text">Qualification</label>
+                                                                                <div class="form-group user-chosen-select-container">
+                                                                                    <select class="user-chosen-select" name="qualification" required>
+                                                                                        <option value="">Choose Qualification</option>
+                                                                                        <option value="None Required">None Required</option>
+                                                                                        <option value="SSCE">SSCE</option>
+                                                                                        <option value="OND">OND</option>
+                                                                                        <option value="HND">HND</option>
+                                                                                        <option value="Diploma">Diploma</option>
+                                                                                        <option value="Graduate">Graduate</option>
+                                                                                        <option value="Associate Degree">Associate Degree</option>
+                                                                                        <option value="Bachelor's Degree">Bachelor's Degree</option>
+                                                                                        <option value="Master's Degree">Master's Degree</option>
+                                                                                        <option value="Doctorate Degree">Doctorate Degree</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div><!-- end col-lg-4 -->
+                                                                        <div class="col-lg-4 column-lg-full">
+                                                                            <div class="input-box">
+                                                                                <label class="label-text">Gender</label>
+                                                                                <div class="form-group user-chosen-select-container">
+                                                                                    <select class="user-chosen-select" name="gender" required>
+                                                                                        <option value="">Choose Gender</option>
+                                                                                        <option value="Male or Female">Male or Female</option>
+                                                                                        <option value="Male">Male</option>
+                                                                                        <option value="Female">Female</option>
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div><!-- end col-lg-4 -->
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-6 column-lg-full">
+                                                                            <div class="input-box">
+                                                                                <label class="label-text">Offered Salary</label>
+                                                                                <div class="d-flex flex-row gap-2">
+                                                                                    <div class="form-group">
+                                                                                        <span class="la la-dollar-sign form-icon"></span>
+                                                                                        <input class="form-control" type="number" placeholder="Min" name="minOffer" required>
+                                                                                    </div>
+                                                                                    <div class="form-group">
+                                                                                        <span class="la la-dollar-sign form-icon"></span>
+                                                                                        <input class="form-control" type="number" placeholder="Max" name="maxOffer" required>
+                                                                                    </div>
+                                                                                </div><!-- end row -->
+                                                                            </div>
+                                                                        </div><!-- end col-lg-4 -->
+                                                                        <div class="col-lg-6 column-lg-full">
+                                                                            <div class="input-box">
+                                                                                <label class="label-text">Skill Requirements</label>
+                                                                                <div class="form-group mb-0">
+                                                                                    <textarea class="message-control form-control user-text-editor" name="skill" id="skill" cols="30" rows="5" placeholder="list skills separated with a comma" required></textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div><!-- end col-lg-4 -->
+                                                                    </div>
+                                                                    <div class="row">
+
+                                                                        <div class="col-lg-4 column-lg-full">
+                                                                            <div class="input-box">
+                                                                                <label class="label-text">Application Deadline Date</label>
+                                                                                <div class="form-group">
+                                                                                    <span class="la la-calendar form-icon"></span>
+                                                                                    <input type="date" name="deadlineDate" id="" class="date-range form-control" placeholder="YYYY-MM-DD">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div><!-- end col-lg-4 -->
+
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-12 justify-content-center align-items-center d-flex">
+                                                                            <div class="btn-box mt-4">
+                                                                                <button class="theme-btn border-0 align-self-center" type="submit" name="postJob"><i class="la la-plus"></i> Update Job Opening</button>
+                                                                            </div><!-- end btn-box -->
+                                                                        </div>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <tr>
                                                     <td>
                                                         <div class="manage-candidate-wrap">
@@ -158,7 +345,7 @@ if (isset($_POST['delete'])) {
                                                             $sqli = "SELECT * FROM applications WHERE jobId = ?";
                                                             $stmti = $pdo->prepare($sqli);
                                                             $stmti->execute([$details->id]);
-                                                            $jobApplicationCount = $stmt->rowCount();
+                                                            $jobApplicationCount = $stmti->rowCount();
                                                             echo $jobApplicationCount; ?> Application(s)</td>
                                                     <td><?php $date = DateTime::createFromFormat('Y-m-d H:i:s', ($details->created_at));
                                                         echo $date->format('d F Y'); ?></td>
@@ -172,55 +359,39 @@ if (isset($_POST['delete'])) {
                                                     <td class="text-center">
                                                         <div class="manage-candidate-wrap">
                                                             <div class="bread-action pt-0">
-                                                                <ul class="info-list">
-                                                                    <form action="post" method="htmlspecialchars($_SERVER['PHP_SELF'])">
+                                                                <ul class="info-list d-flex">
+                                                                    <!-- Button trigger modal -->
+                                                                    <li class="d-inline-block"><a href="edit-job.php?id=<?= $details->id; ?>"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit" data-bs-toggle="" data-bs-target=""></i></a></li>
+                                                                    <form action="post" method="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>">
                                                                         <input type="hidden" name="id" value=<?= $details->id ?>>
-                                                                        <li class="d-inline-block"><button class="btn btn-sm" name="edit"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></button></li>
-                                                                        <li class="d-inline-block"><button class="btn btn-sm" name="delete"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></button></li>
+                                                                        <li class=" d-inline-block"><button class="btn btn-sm" name="delete"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></button></li>
                                                                     </form>
-
                                                                 </ul>
+
                                                             </div>
+                                                            </li>
+
                                                         </div>
-                                                    </td>
-                                                </tr>
-                                        <?php endforeach;
+                            </div>
+                            </td>
+                            </tr>
+                    <?php endforeach;
                                         } else {
                                             echo '<div class="alert alert-danger text-center" role="alert">
                     You haven\t posted any job yet
                   </div>';
                                         }
-                                        ?>
+                    ?>
 
-                                    </tbody>
-                                </table>
-                            </div>
+                    </tbody>
+                    </table>
                         </div>
-                    </div><!-- end billing-content -->
-                </div><!-- end billing-form-item -->
-            </div><!-- end col-lg-12 -->
-        </div><!-- end row -->
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="page-navigation-wrap mt-4">
-                    <div class="page-navigation mx-auto">
-                        <a href="#" class="page-go page-prev">
-                            <i class="la la-arrow-left"></i>
-                        </a>
-                        <ul class="page-navigation-nav">
-                            <li><a href="#" class="page-go-link">1</a></li>
-                            <li class="active"><a href="#" class="page-go-link">2</a></li>
-                            <li><a href="#" class="page-go-link">3</a></li>
-                            <li><a href="#" class="page-go-link">4</a></li>
-                            <li><a href="#" class="page-go-link">5</a></li>
-                        </ul>
-                        <a href="#" class="page-go page-next">
-                            <i class="la la-arrow-right"></i>
-                        </a>
                     </div>
-                </div><!-- end page-navigation-wrap -->
-            </div><!-- end col-lg-12 -->
+                </div><!-- end billing-content -->
+            </div><!-- end billing-form-item -->
+        </div><!-- end col-lg-12 -->
         </div><!-- end row -->
+
     </section>
 </main>
 <?php include 'inc/footer/footer.php'; ?>
