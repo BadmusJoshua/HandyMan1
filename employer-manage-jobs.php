@@ -21,7 +21,7 @@ $stmt->execute([$userId, '1']);
 $activeJobCount = $stmt->rowCount();
 
 if (isset($_POST['delete'])) {
-    $jobId = $_POST['id'];
+    $jobId = $_POST['jid'];
     $sql = "DELETE FROM jobs WHERE id = ?";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$jobId]);
@@ -34,7 +34,7 @@ if (isset($_POST['delete'])) {
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
-            <a class="nav-link " href="index.php">
+            <a class="nav-link collapsed" href="index.php">
                 <i class="bi bi-grid"></i>
                 <span>Dashboard</span>
             </a>
@@ -55,7 +55,7 @@ if (isset($_POST['delete'])) {
         </li><!-- End Post New Job Page Nav -->
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="employer-manage-jobs.php">
+            <a class="nav-link" href="employer-manage-jobs.php">
                 <i class="bi bi-briefcase-fill"></i>
                 <span>Manage Jobs</span>
             </a>
@@ -327,15 +327,13 @@ if (isset($_POST['delete'])) {
                                                             <h2 class="widget-title pb-1"><a href="job-details.html" class="color-text-2"><?= $details->jobTitle ?></a></h2>
                                                             <p>
                                                                 <span><i class="la la-clock-o font-size-16"></i><?php
-                                                                                                                function convert_date($fetched_date)
-                                                                                                                {
-                                                                                                                    $date = DateTime::createFromFormat('Y-m-d H:i:s', $fetched_date);
-                                                                                                                    echo "Last Updated" . ' ' . $date->format('M d, Y');
-                                                                                                                };
+
                                                                                                                 if ($details->updated_at) {
-                                                                                                                    convert_date($details->updated_at);
+                                                                                                                    $date = DateTime::createFromFormat('Y-m-d H:i:s', $details->updated_at);
+                                                                                                                    echo "Last Updated" . ' ' . $date->format('M d, Y');
                                                                                                                 } else {
-                                                                                                                    convert_date($details->created_at);
+                                                                                                                    $date = DateTime::createFromFormat('Y-m-d H:i:s', $details->created_at);
+                                                                                                                    echo "Last Updated" . ' ' . $date->format('M d, Y');
                                                                                                                 }
                                                                                                                 ?></span>
                                                             </p>
@@ -351,19 +349,24 @@ if (isset($_POST['delete'])) {
                                                         echo $date->format('d F Y'); ?></td>
                                                     <td><?php $date = DateTime::createFromFormat('Y-m-d', ($details->deadlineDate));
                                                         echo $date->format('d F Y'); ?></td>
-                                                    <td><span class="badge badge-success p-1"><?php if (date('Y-m-d', strtotime($details->deadlineDate)) > date('Y-m-d')) {
-                                                                                                    echo "Open";
-                                                                                                } else {
-                                                                                                    echo "Closed";
-                                                                                                } ?></span></td>
+                                                    <td><?php if (date('Y-m-d', strtotime($details->deadlineDate)) > date('Y-m-d')) {
+                                                            $sqlj = "UPDATE jobs SET status = ? WHERE id =?";
+                                                            $stmtj = $pdo->prepare($sqlj);
+                                                            $stmtj->execute(['1', $details->id]);
+                                                            echo '<span class="badge badge-success p-1">Open</span>';
+                                                        } else {
+                                                            $sqlj = "UPDATE jobs SET status = ? WHERE id =?";
+                                                            $stmtj = $pdo->prepare($sqlj);
+                                                            $stmtj->execute(['0', $details->id]);
+                                                            echo '<span class="badge badge-danger p-1">Closed</span>';
+                                                        } ?></td>
                                                     <td class="text-center">
                                                         <div class="manage-candidate-wrap">
                                                             <div class="bread-action pt-0">
-                                                                <ul class="info-list d-flex">
-                                                                    <!-- Button trigger modal -->
-                                                                    <li class="d-inline-block"><a href="edit-job.php?id=<?= $details->id; ?>"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit" data-bs-toggle="" data-bs-target=""></i></a></li>
-                                                                    <form action="post" method="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>">
-                                                                        <input type="hidden" name="id" value=<?= $details->id ?>>
+                                                                <ul class="info-list d-flex flex-center-start">
+                                                                    <li class="d-inline-block"><a href="middleware.php?id=<?= $details->id; ?>"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit" data-bs-toggle="" data-bs-target=""></i></a></li>
+                                                                    <form action="post" method="<?php echo htmlspecialchars($_SERVER['PHP_SELF']) ?>" class="p-0 m-0">
+                                                                        <input type="hidden" name="jid" value=<?= $details->id ?>>
                                                                         <li class=" d-inline-block"><button class="btn btn-sm" name="delete"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></button></li>
                                                                     </form>
                                                                 </ul>

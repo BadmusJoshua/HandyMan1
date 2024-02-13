@@ -1,11 +1,10 @@
 <?php
 include 'inc/header/employer-header.php';
-
-$industry = '';
+// Initialize variables
+$jobTitle = $jobType = $careerLevel = $minOffer = $maxOffer = $deadlineDate = $jobDescription = $industry = $gender = $qualification = $skill = $logo = '';
 
 if (isset($_POST['postJob'])) {
-    // Initialize variables
-    $jobTitle = $jobType = $careerLevel = $minOffer = $maxOffer = $deadlineDate = $jobDescription = $industry = $gender = $qualification = $skill = $logo = '';
+
 
     // Retrieve form data
     $jobTitle = isset($_POST['jobTitle']) ? filter_input(INPUT_POST, 'jobTitle', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
@@ -19,6 +18,8 @@ if (isset($_POST['postJob'])) {
     $gender = isset($_POST['gender']) ? filter_input(INPUT_POST, 'gender', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $qualification = isset($_POST['qualification']) ? filter_input(INPUT_POST, 'qualification', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $skill = isset($_POST['skill']) ? filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+    $experience = isset($_POST['experience']) ? filter_input(INPUT_POST, 'experience', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+    $vacancy = isset($_POST['vacancy']) ? filter_input(INPUT_POST, 'vacancy', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
 
     // File upload handling
     if (!empty($_FILES['logo']['tmp_name'])) {
@@ -44,11 +45,11 @@ if (isset($_POST['postJob'])) {
     }
 
     // Prepare and execute SQL query
-    $sql = "INSERT INTO jobs (skill, qualification, gender, industry, jobDescription, deadlineDate, maxOffer, minOffer, careerLevel, jobType, jobTitle, userId, logo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO jobs (skill, qualification, gender, industry, jobDescription, deadlineDate, maxOffer, minOffer, careerLevel, jobType, jobTitle, userId, logo,experience, vacancy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
     $stmt = $pdo->prepare($sql);
 
     if ($stmt) { // Check if the statement was prepared successfully
-        $stmt->execute([$skill, $qualification, $gender, $industry, $jobDescription, $deadlineDate, $maxOffer, $minOffer, $careerLevel, $jobType, $jobTitle, $userId, $logo]);
+        $stmt->execute([$skill, $qualification, $gender, $industry, $jobDescription, $deadlineDate, $maxOffer, $minOffer, $careerLevel, $jobType, $jobTitle, $userId, $logo, $experience, $vacancy]);
     } else {
         echo "Error: Unable to prepare statement.";
     }
@@ -163,11 +164,18 @@ if (isset($_POST['postJob'])) {
                                             <div class="form-group user-chosen-select-container">
                                                 <select class="user-chosen-select" name="jobType" required>
                                                     <option value="">Select Job Type</option>
-                                                    <option value="Full Time">Full Time</option>
-                                                    <option value="Part Time">Part Time</option>
-                                                    <option value="Contract">Contract</option>
-                                                    <option value="Internship">Internship</option>
-                                                    <option value="Freelance">Freelance</option>
+                                                    <option <?php if ($jobType === "Full Time")
+                                                                echo 'selected'; ?> value="Full Time">Full Time</option>
+                                                    <option <?php if ($jobType === "Part Time")
+                                                                echo 'selected'; ?> value="Part Time">Part Time</option>
+                                                    <option <?php if ($jobType === "Freelance")
+                                                                echo 'selected'; ?> value="Remote">Remote</option>
+                                                    <option <?php if ($jobType === "Contract")
+                                                                echo 'selected'; ?> value="Contract">Contract</option>
+                                                    <option <?php if ($jobType === "Internship")
+                                                                echo 'selected'; ?> value="Internship">Internship</option>
+                                                    <option <?php if ($jobType === "Freelance")
+                                                                echo 'selected'; ?> value="Freelance">Freelance</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -320,16 +328,16 @@ if (isset($_POST['postJob'])) {
                                             <label class="label-text">No. Of Vacancy</label>
                                             <div class="form-group user-chosen-select-container">
                                                 <select class="user-chosen-select" name="vacancy" required>
-                                                    <option>1</option>
-                                                    <option>2</option>
-                                                    <option>3</option>
-                                                    <option>4</option>
-                                                    <option>5</option>
-                                                    <option>6</option>
-                                                    <option>7</option>
-                                                    <option>8</option>
-                                                    <option>9</option>
-                                                    <option>10</option>
+                                                    <option value='1'>1</option>
+                                                    <option value='2'>2</option>
+                                                    <option value='3'>3</option>
+                                                    <option value='4'>4</option>
+                                                    <option value='5'>5</option>
+                                                    <option value='6'>6</option>
+                                                    <option value='7'>7</option>
+                                                    <option value='8'>8</option>
+                                                    <option value='9'>9</option>
+                                                    <option value='10'>10</option>
                                                 </select>
                                             </div>
                                         </div>

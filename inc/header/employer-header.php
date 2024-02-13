@@ -14,11 +14,11 @@ $job = $detail->job_category;
 $image = $detail->image;
 
 //fetching all notifications pertaining to this user
-$sql = "SELECT * FROM notifications WHERE is_read=0 && id=$userId && category = $userCategory";
-$stmt = $pdo->prepare($sql);
-$stmt->execute();
-$content = $stmt->fetchAll();
-$notification_count = $stmt->rowCount();
+// $sql = "SELECT * FROM notifications WHERE is_read=0 && id=$userId && category = $userCategory";
+// $stmt = $pdo->prepare($sql);
+// $stmt->execute();
+// $content = $stmt->fetchAll();
+// $notification_count = $stmt->rowCount();
 
 //setting all notifications as read
 if (isset($_POST['view_all'])) {

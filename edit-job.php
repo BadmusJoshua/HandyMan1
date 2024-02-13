@@ -1,28 +1,7 @@
 <?php
 include 'inc/header/employer-header.php';
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-}
-$sql = "SELECT * FROM jobs WHERE id = ?";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([$id]);
-$jobDetails = $stmt->fetch();
-$posterId = $jobDetails->userId;
-if ($userId != $posterId) {
-    //redirect if user is not the owner of the job id
-    header("Location: employer-post-new-job.php");
-}
-$jobType = $jobDetails->jobType;
-$careerLevel = $jobDetails->careerLevel;
-$industry = $jobDetails->industry;
-$gender = $jobDetails->gender;
-$qualification = $jobDetails->qualification;
-
-$industry = '';
-
-if (isset($_POST['postJob'])) {
-    // Initialize variables
-    $jobTitle = $jobType = $careerLevel = $minOffer = $maxOffer = $deadlineDate = $jobDescription = $industry = $gender = $qualification = $skill = $logo = '';
+$updated = $status = '';
+if (isset($_POST['updateJob'])) {
 
     // Retrieve form data
     $jobTitle = isset($_POST['jobTitle']) ? filter_input(INPUT_POST, 'jobTitle', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
@@ -31,13 +10,19 @@ if (isset($_POST['postJob'])) {
     $minOffer = isset($_POST['minOffer']) ? filter_input(INPUT_POST, 'minOffer', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $maxOffer = isset($_POST['maxOffer']) ? filter_input(INPUT_POST, 'maxOffer', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $deadlineDate = isset($_POST['deadlineDate']) ? filter_input(INPUT_POST, 'deadlineDate', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+    if (date('Y-m-d', strtotime($deadlineDate)) > date('Y-m-d')) {
+        $status === '1';
+    } else {
+        $status === '2';
+    }
     $jobDescription = isset($_POST['jobDescription']) ? filter_input(INPUT_POST, 'jobDescription', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $industry = isset($_POST['industry']) ? filter_input(INPUT_POST, 'industry', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $gender = isset($_POST['gender']) ? filter_input(INPUT_POST, 'gender', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $qualification = isset($_POST['qualification']) ? filter_input(INPUT_POST, 'qualification', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $skill = isset($_POST['skill']) ? filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $experience = isset($_POST['experience']) ? filter_input(INPUT_POST, 'experience', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
-    $skill = isset($_POST['skill']) ? filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+    $vacancy = isset($_POST['vacancy']) ? filter_input(INPUT_POST, 'vacancy', FILTER_SANITIZE_NUMBER_INT) : '';
+    $id = isset($_POST['id']) ? filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT) : '';
 
     // File upload handling
     if (!empty($_FILES['logo']['tmp_name'])) {
@@ -66,15 +51,36 @@ if (isset($_POST['postJob'])) {
     }
 
     // Prepare and execute SQL query
-    $sql = "UPDATE jobs SET (skill, qualification, gender, industry, jobDescription, deadlineDate, maxOffer, minOffer, careerLevel, jobType, jobTitle, userId, logo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $pdo->prepare($sql);
-
-    if ($stmt) { // Check if the statement was prepared successfully
-        $stmt->execute([$skill, $qualification, $gender, $industry, $jobDescription, $deadlineDate, $maxOffer, $minOffer, $careerLevel, $jobType, $jobTitle, $userId, $logo]);
-    } else {
-        echo "Error: Unable to prepare statement.";
-    }
+    $sqla = "UPDATE jobs SET skill=?, qualification=?, gender=?, industry=?, jobDescription=?, deadlineDate=?, maxOffer=?, minOffer=?, careerLevel=?, jobType=?, jobTitle=?, logo=?, experience=?, vacancy=?, status =? WHERE id = ?";
+    $stmta = $pdo->prepare($sqla);
+    $stmta->execute([$skill, $qualification, $gender, $industry, $jobDescription, $deadlineDate, $maxOffer, $minOffer, $careerLevel, $jobType, $jobTitle, $logo, $experience, $vacancy, $status, $id]);
+    $updated = '1';
 }
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+
+    $sql = "SELECT * FROM jobs WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$id]);
+    $jobDetails = $stmt->fetch();
+    $jobType = $jobDetails->jobType;
+    $jobTitle = $jobDetails->jobTitle;
+    $minOffer = $jobDetails->minOffer;
+    $maxOffer = $jobDetails->maxOffer;
+    $deadlineDate = $jobDetails->deadlineDate;
+    $careerLevel = $jobDetails->careerLevel;
+    $industry = $jobDetails->industry;
+    $gender = $jobDetails->gender;
+    $qualification = $jobDetails->qualification;
+    $skill = $jobDetails->skill;
+    $jobDescription = $jobDetails->jobDescription;
+    $vacancy = $jobDetails->vacancy;
+    $experience = $jobDetails->experience;
+    $status = $jobDetails->status;
+}
+
+
+
 ?>
 
 <!-- ======= Sidebar ======= -->
@@ -156,6 +162,15 @@ if (isset($_POST['postJob'])) {
                     <div class="billing-content">
                         <div class="contact-form-action">
                             <form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" enctype="multipart/form-data">
+                                <?php
+                                if ($updated) {
+                                    echo '<div class="alert alert-success text-center alert-dismissible fade show" role="alert">
+                          Job details updated successfully!
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
+                                    header("Location:employer-manage-jobs.php");
+                                }
+                                ?>
                                 <div class="row">
                                     <div class="col-lg-6 column-lg-full">
                                         <div class="input-box company-logo-wrap">
@@ -173,7 +188,7 @@ if (isset($_POST['postJob'])) {
                                             <label class="label-text">Job Title</label>
                                             <div class="form-group">
                                                 <span class="la la-briefcase form-icon"></span>
-                                                <input class="form-control" type="text" name="jobTitle" placeholder="Enter job title" value="<?= $jobDetails->jobTitle ?>">
+                                                <input class="form-control" type="text" name="jobTitle" placeholder="Enter job title" value="<?= $jobTitle ?>">
                                             </div>
                                         </div>
                                     </div><!-- end col-lg-4 -->
@@ -189,6 +204,8 @@ if (isset($_POST['postJob'])) {
                                                                 echo 'selected'; ?> value="Full Time">Full Time</option>
                                                     <option <?php if ($jobType === "Part Time")
                                                                 echo 'selected'; ?> value="Part Time">Part Time</option>
+                                                    <option <?php if ($jobType === "Freelance")
+                                                                echo 'selected'; ?> value="Remote">Remote</option>
                                                     <option <?php if ($jobType === "Contract")
                                                                 echo 'selected'; ?> value="Contract">Contract</option>
                                                     <option <?php if ($jobType === "Internship")
@@ -250,15 +267,15 @@ if (isset($_POST['postJob'])) {
                                             <div class="form-group user-chosen-select-container">
                                                 <select class="user-chosen-select" name="experience" required>
                                                     <option value="">Choose Experience</option>
-                                                    <option value="No Experience">No Experience</option>
-                                                    <option value="Less than 1 Year">Less than 1 Year</option>
-                                                    <option value="1 to 2 Year(s)">1 to 2 Year(s)</option>
-                                                    <option value="2 to 4 Year(s)">2 to 4 Year(s)</option>
-                                                    <option value="3 to 5 Year(s)">3 to 5 Year(s)</option>
-                                                    <option value="2 Years">2 Years</option>
-                                                    <option value="3 Years">3 Years</option>
-                                                    <option value="4 Years">4 Years</option>
-                                                    <option value="Over 5 Years">Over 5 Years</option>
+                                                    <option <?php if ($experience === "No Experience") echo 'selected'; ?> value="No Experience">No Experience</option>
+                                                    <option <?php if ($experience === "Less than 1 Year") echo 'selected'; ?> value="Less than 1 Year">Less than 1 Year</option>
+                                                    <option <?php if ($experience === "1 to 2 Year(s)") echo 'selected'; ?> value="1 to 2 Year(s)">1 to 2 Year(s)</option>
+                                                    <option <?php if ($experience === "2 to 4 Year(s)") echo 'selected'; ?> value="2 to 4 Year(s)">2 to 4 Year(s)</option>
+                                                    <option <?php if ($experience === "3 to 5 Year(s)") echo 'selected'; ?> value="3 to 5 Year(s)">3 to 5 Year(s)</option>
+                                                    <option <?php if ($experience === "2 Years") echo 'selected'; ?> value="2 Years">2 Years</option>
+                                                    <option <?php if ($experience === "3 Years") echo 'selected'; ?> value="3 Years">3 Years</option>
+                                                    <option <?php if ($experience === "4 Years") echo 'selected'; ?> value="4 Years">4 Years</option>
+                                                    <option <?php if ($experience === "Over 5 Years") echo 'selected'; ?> value="Over 5 Years">Over 5 Years</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -339,11 +356,11 @@ if (isset($_POST['postJob'])) {
                                             <div class="d-flex flex-row gap-2">
                                                 <div class="form-group">
                                                     <span class="la la-dollar-sign form-icon"></span>
-                                                    <input class="form-control" type="number" placeholder="Min" name="minOffer" value="<?= $jobDetails->minOffer ?>" required>
+                                                    <input class="form-control" type="number" placeholder="Min" name="minOffer" value="<?= $minOffer ?>" required>
                                                 </div>
                                                 <div class="form-group">
                                                     <span class="la la-dollar-sign form-icon"></span>
-                                                    <input class="form-control" type="number" placeholder="Max" name="maxOffer" value="<?= $jobDetails->maxOffer ?>" required>
+                                                    <input class="form-control" type="number" placeholder="Max" name="maxOffer" value="<?= $maxOffer ?>" required>
                                                 </div>
                                             </div><!-- end row -->
                                         </div>
@@ -352,7 +369,7 @@ if (isset($_POST['postJob'])) {
                                         <div class="input-box">
                                             <label class="label-text">Skill Requirements</label>
                                             <div class="form-group mb-0">
-                                                <textarea class="message-control form-control user-text-editor" name="skill" id="skill" cols="30" rows="5" placeholder="list skills separated with a comma" value="<?= $jobDetails->skill ?>" required></textarea>
+                                                <textarea class="message-control form-control user-text-editor" name="skill" id="skill" cols="30" rows="5" placeholder="list skills separated with a comma" required><?= $skill ?></textarea>
                                             </div>
                                         </div>
                                     </div><!-- end col-lg-4 -->
@@ -363,16 +380,28 @@ if (isset($_POST['postJob'])) {
                                                 <label class="label-text">No. Of Vacancy</label>
                                                 <div class="form-group user-chosen-select-container">
                                                     <select class="user-chosen-select" name="vacancy" required>
-                                                        <option <?php if ($vacancy === '1') echo 'selected'; ?> value='1'>1</option>
-                                                        <option <?php if ($vacancy === '2') echo 'selected'; ?> value='2'>2</option>
-                                                        <option <?php if ($vacancy === '3') echo 'selected'; ?> value='3'>3</option>
-                                                        <option <?php if ($vacancy === '4') echo 'selected'; ?> value='4'>4</option>
-                                                        <option <?php if ($vacancy === '5') echo 'selected'; ?> value='5'>5</option>
-                                                        <option <?php if ($vacancy === '6') echo 'selected'; ?> value='6'>6</option>
-                                                        <option <?php if ($vacancy === '7') echo 'selected'; ?> value='7'>7</option>
-                                                        <option <?php if ($vacancy === '8') echo 'selected'; ?> value='8'>8</option>
-                                                        <option <?php if ($vacancy === '9') echo 'selected'; ?> value='9'>9</option>
-                                                        <option <?php if ($vacancy === '10') echo 'selected'; ?> value='10'>10</option>
+                                                        <option <?php if ($vacancy == '')
+                                                                    echo 'selected'; ?> value=''>Choose an option</option>
+                                                        <option <?php if ($vacancy == '1')
+                                                                    echo 'selected'; ?> value='1'>1</option>
+                                                        <option <?php if ($vacancy == '2')
+                                                                    echo 'selected'; ?> value='2'>2</option>
+                                                        <option <?php if ($vacancy == '3')
+                                                                    echo 'selected'; ?> value='3'>3</option>
+                                                        <option <?php if ($vacancy == '4')
+                                                                    echo 'selected'; ?> value='4'>4</option>
+                                                        <option <?php if ($vacancy == '5')
+                                                                    echo 'selected'; ?> value='5'>5</option>
+                                                        <option <?php if ($vacancy == '6')
+                                                                    echo 'selected'; ?> value='6'>6</option>
+                                                        <option <?php if ($vacancy == '7')
+                                                                    echo 'selected'; ?> value='7'>7</option>
+                                                        <option <?php if ($vacancy == '8')
+                                                                    echo 'selected'; ?> value='8'>8</option>
+                                                        <option <?php if ($vacancy == '9')
+                                                                    echo 'selected'; ?> value='9'>9</option>
+                                                        <option <?php if ($vacancy == '10')
+                                                                    echo 'selected'; ?> value='10'>10</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -382,7 +411,7 @@ if (isset($_POST['postJob'])) {
                                                 <label class="label-text">Application Deadline Date</label>
                                                 <div class="form-group">
                                                     <span class="la la-calendar form-icon"></span>
-                                                    <input type="date" name="deadlineDate" id="" class="date-range form-control" placeholder="YYYY-MM-DD" value="<?= $jobDetails->deadlineDate ?>">
+                                                    <input type="date" name="deadlineDate" id="" class="date-range form-control" placeholder="YYYY-MM-DD" value="<?= $deadlineDate ?>">
                                                 </div>
                                             </div>
                                         </div><!-- end col-lg-4 -->
@@ -390,15 +419,24 @@ if (isset($_POST['postJob'])) {
                                             <div class="input-box">
                                                 <label class="label-text">Job Description</label>
                                                 <div class="form-group mb-0">
-                                                    <textarea class="message-control form-control user-text-editor" name="jobDescription" id="jobDescription" cols="30" rows="5" value="<?= $jobDetails->jobDescription ?>" required></textarea>
+                                                    <textarea class="message-control form-control user-text-editor" name="jobDescription" id="jobDescription" cols="30" rows="5" required><?= $jobDescription ?></textarea>
                                                 </div>
                                             </div>
                                         </div><!-- end col-lg-12 -->
                                     </div>
+                                    <div class="col-lg-6 column-lg-full">
+                                        <div class="input-box">
+                                            <label class="label-text">Job Description</label>
+                                            <div class="form-group mb-0">
+                                                <input type="hidden" name="id" value=<?= $id ?>>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="row">
+
                                         <div class="col-12 justify-content-center align-items-center d-flex">
                                             <div class="btn-box mt-4">
-                                                <button class="theme-btn border-0 align-self-center" type="submit" name="updateJob"><i class="la la-plus"></i> Update Job Opening</button>
+                                                <button class="theme-btn border-0 align-self-center" name="updateJob"><i class="la la-plus"></i> Update Job Opening</button>
                                             </div><!-- end btn-box -->
                                         </div>
                                     </div>
