@@ -78,12 +78,7 @@ if ($totalCustomers != 0) {
             </a>
         </li><!-- End Profile Page Nav -->
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="meetings.php">
-                <i class="ri-building-4-line"></i>
-                <span>Meetings</span>
-            </a>
-        </li><!-- End Meeting Page Nav -->
+
 
         <li class="nav-item">
             <a class="nav-link collapsed" href="jobs.php">

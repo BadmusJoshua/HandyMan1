@@ -11,12 +11,14 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute([$userId]);
 $detail = $stmt->fetch();
 $userCategory = $detail->category;
-$job = $detail->job_category;
+$job = $detail->job;
 $image = $detail->image;
 $name = ucwords($detail->name);
+list($first_name, $last_name) = explode(
+    ' ',
+    $name
+);
 $name_array = explode(' ', $name);
-$last_name = end($name_array);
-$first_name = $name_array[0];
 $initial = substr($first_name, 0, 1);
 $official_name = "$initial . $last_name";
 
@@ -150,7 +152,7 @@ if (isset($_POST['view_all'])) {
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="assets/uploads/images/<?php echo $image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="rounded-circle" style="height:30px;width:30px;">
+                        <img src="<?= $image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="rounded-circle" style="height:30px;width:30px;">
                         <span class="d-none d-md-block dropdown-toggle ps-2"><?php echo $official_name; ?></span>
                     </a><!-- End Profile Iamge Icon -->
 
@@ -174,7 +176,7 @@ if (isset($_POST['view_all'])) {
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="profile.php">
+                            <a class="dropdown-item d-flex align-items-center" href="applicant-profile.php">
                                 <i class="bi bi-gear"></i>
                                 <span>Account Settings</span>
                             </a>

@@ -12,7 +12,7 @@
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="profile.php">
+            <a class="nav-link collapsed" href="applicant-profile.php">
                 <i class="bi bi-person"></i>
                 <span>Profile</span>
             </a>

@@ -1,7 +1,28 @@
 <?php
 require_once 'inc/header/applicant-header.php';
 
+$sql = "SELECT * FROM jobs WHERE status = '1' ";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([]);
+$jobCount = $stmt->rowCount();
 
+//sql to check number of applications
+$sql = "SELECT * FROM applications WHERE applicantId  = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$userId]);
+$applicationCount = $stmt->rowCount();
+
+//sql to delete note
+if (isset($_POST['remove'])) {
+  $note_id = $_POST['id'];
+  $sql = "DELETE FROM notes WHERE id = ?";
+  $stmt = $pdo->prepare($sql);
+  if ($stmt) {
+    $stmt->execute([$note_id]);
+  } else {
+    echo "Error: Unable to prepare statement.";
+  }
+}
 
 ?>
 
@@ -75,14 +96,13 @@ require_once 'inc/header/applicant-header.php';
   </ul>
 
 </aside><!-- End Sidebar-->
-
 <main id="main" class="main">
 
   <div class="pagetitle">
     <h1>Dashboard</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+        <li class="breadcrumb-item"><a href="applicant-index.php">Home</a></li>
         <li class="breadcrumb-item active">Dashboard</li>
       </ol>
     </nav>
@@ -97,8 +117,8 @@ require_once 'inc/header/applicant-header.php';
               <i class="la la-briefcase"></i>
             </div><!-- end icon-element-->
             <div class="info-content">
-              <span class="info__count">5</span>
-              <h4 class="info__title font-size-16 mt-2">Total Job Applied</h4>
+              <span class="info__count"><?= $jobCount ?></span>
+              <h4 class="info__title font-size-16 mt-2">Total Open Jobs</h4>
             </div><!-- end info-content -->
           </div>
         </div>
@@ -110,8 +130,8 @@ require_once 'inc/header/applicant-header.php';
               <i class="la la-comment"></i>
             </div><!-- end icon-element-->
             <div class="info-content">
-              <span class="info__count">20</span>
-              <h4 class="info__title font-size-16 mt-2">Reviews</h4>
+              <span class="info__count"><?= $applicationCount ?></span>
+              <h4 class="info__title font-size-16 mt-2">Applications submitted</h4>
             </div><!-- end info-content -->
           </div>
         </div>
@@ -178,48 +198,51 @@ require_once 'inc/header/applicant-header.php';
             </div><!-- end mess__title -->
             <div class="timeline-body">
               <div class="mess__body">
-                <div class="mess__item">
-                  <div class="note-badge-wrap d-flex align-items-center justify-content-between">
-                    <span class="badge badge-primary note-badge note-badge-bg-2 p-2">High Priority</span>
-                    <ul class="info-list">
-                      <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
-                      <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                    </ul>
+                <?php
+                $note_sql = "SELECT * FROM notes WHERE userId =? && category =? ";
+                $note_stmt = $pdo->prepare($note_sql);
+                $note_stmt->execute([$userId, $userCategory]);
+                $notes = $note_stmt->fetchAll();
+                if ($notes) {
+                  foreach ($notes as $note) { ?>
+                    <div class="mess__item">
+
+                      <div class="note-badge-wrap d-flex align-items-center justify-content-between">
+                        <?php if ($note->priority == "High") { ?>
+                          <span class="badge badge-primary note-badge note-badge-bg-2 p-2">High Priority</span>
+
+                        <?php } elseif ($note->priority == "Medium") { ?>
+                          <span class="badge badge-warning text-white note-badge note-badge-bg-2 p-2">Medium Priority</span>
+                        <?php } else { ?>
+                          <span class="badge badge-success note-badge note-badge-bg-2 p-2">Low Priority</span>
+
+                        <?php }
+                        ?>
+                        <ul class="info-list">
+                          <li class="d-inline-block"><a href="notes.php?id=<?= $note->id ?>"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
+                          <li class="d-inline-block">
+                            <form method="post" action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>"> <button name="remove" class="border-0"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></button>
+                              <input type="hidden" name="id" value="<?= $note->id ?>">
+                            </form>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="content mt-2">
+                        <p class="line-height-24 font-size-13"><?= $note->message ?></p>
+                      </div>
+                      <span class="font-weight-bold font-size-11 "><?php
+                                                                    $date = DateTime::createFromFormat('Y-m-d H:i:s', $note->created_at);
+                                                                    echo $date->format('d M, Y H:i:s');
+                                                                    ?></span>
+                    </div><!-- end mess__item -->
+                  <?php };
+                } else { ?>
+                  <div class="alert alert-danger text-center alert-dismissible fade show w-80 align-self-center" role="alert">
+                    You don't have any note yet!
+
                   </div>
-                  <div class="content mt-2">
-                    <p class="line-height-24 font-size-13">Medecins du Monde Jane Addams reduce child
-                      mortality challenges Ford Foundation.Diversification shifting
-                      landscape advocate pathway to a better life rights international</p>
-                  </div>
-                </div><!-- end mess__item -->
-                <div class="mess__item">
-                  <div class="note-badge-wrap d-flex align-items-center justify-content-between">
-                    <span class="badge badge-success note-badge note-badge-bg-2 p-2">Low Priority</span>
-                    <ul class="info-list">
-                      <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
-                      <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                    </ul>
-                  </div>
-                  <div class="content mt-2">
-                    <p class="line-height-24 font-size-13">Medecins du Monde Jane Addams reduce child
-                      mortality challenges Ford Foundation.Diversification shifting
-                      landscape advocate pathway to a better life rights international</p>
-                  </div>
-                </div><!-- end mess__item -->
-                <div class="mess__item">
-                  <div class="note-badge-wrap d-flex align-items-center justify-content-between">
-                    <span class="badge badge-warning text-white note-badge note-badge-bg-2 p-2">Medium Priority</span>
-                    <ul class="info-list">
-                      <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
-                      <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                    </ul>
-                  </div>
-                  <div class="content mt-2">
-                    <p class="line-height-24 font-size-13">Medecins du Monde Jane Addams reduce child
-                      mortality challenges Ford Foundation.Diversification shifting
-                      landscape advocate pathway to a better life rights international</p>
-                  </div>
-                </div><!-- end mess__item -->
+                <?php }
+                ?>
               </div><!-- end mess__body -->
             </div>
             <div class="mess__item border-bottom-0 text-center">

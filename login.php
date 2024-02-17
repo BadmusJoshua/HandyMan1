@@ -1,32 +1,55 @@
 <?php
 include 'inc/config/database.php';
-$passwordErr = $userNotFound = $invalidToken = $tokenExpired = $tokenLost = "";
+$passwordErr = $userNotFound = $invalidToken = $tokenExpired = $tokenLost = $expiredToken = $disabled = "";
 
 //checking if cookie exists
 if (isset($_COOKIE['remember_me'])) {
-  // setcookie('remember_me', '', time() - 86400);
-  list($userId, $userCategory, $nothing, $token) = explode(
+  //   setcookie('remember_me', '', time() - 86400);
+  // }
+  list($userId, $userCategory, $token) = explode(
     ':',
     $_COOKIE['remember_me']
   );
 
-  $sql = "SELECT * FROM remember_me_tokens WHERE  token = ?";
+  $sql = "SELECT * FROM remember_me_tokens WHERE  id = ?";
   $stmt = $pdo->prepare($sql);
-  $stmt->execute([$token]);
+  $stmt->execute([$userId]);
   $row = $stmt->rowCount();
   $details = $stmt->fetch();
-  $expire_date = $details->expires_at;
-
+  if ($details) {
+    $expire_date = $details->expires_at;
+  }
   if ($row === 1) {
+    //if token is not yet expired
     if (time() < strtotime($expire_date)) {
       if ($userCategory === '1') {
-        session_start();
-        $_SESSION['id'] = $userId;
-        header("Location: index.php");
+
+        //sql to fetch the value for the disabled flag
+        $sql = "SELECT disabled FROM applicants WHERE  id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$userId]);
+        $disabled = $stmt->fetch();
+        if ($disabled == '0') {
+          session_start();
+          $_SESSION['id'] = $userId;
+          header("Location: applicant-index.php");
+        } else {
+          $disabled = 1;
+        }
       } elseif ($userCategory === '2') {
-        session_start();
-        $_SESSION['id'] = $userId;
-        header("Location: employer-index.php");
+
+        //sql to fetch the value for the disabled flag
+        $sql = "SELECT disabled FROM employers WHERE  id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$userId]);
+        $disabled = $stmt->fetch();
+        if ($disabled == '0') {
+          session_start();
+          $_SESSION['id'] = $userId;
+          header("Location: employer-index.php");
+        } else {
+          $disabled = 1;
+        }
       } else {
         $invalidToken = 1;
       }
@@ -34,8 +57,18 @@ if (isset($_COOKIE['remember_me'])) {
       $tokenExpired = 1;
     }
   } else {
-    $tokenLost = 1;
+
+    // Delete the user's token from the database
+    $query = "DELETE FROM remember_me_tokens WHERE id = ?";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([$userId]);
+
+    // If a token was found and deleted, delete the cookie
+    setcookie('remember_me', '', time() - 86400);
   }
+  $tokenLost = 1;
+  // echo $token;
+
 }
 
 if (isset($_POST['login'])) {
@@ -46,7 +79,7 @@ if (isset($_POST['login'])) {
   $stmt = $pdo->prepare($sql);
   $stmt->execute([$email]);
   $is_applicant = $stmt->rowCount();
-  // if username belongs to a technician
+  // if email belongs to an applicant
   if ($is_applicant > 0) {
     $detail = $stmt->fetch();
     $hashed_password = $detail->password;
@@ -56,27 +89,35 @@ if (isset($_POST['login'])) {
     $confirm_password = password_verify($input_password, $hashed_password);
     //if password match
     if ($confirm_password) {
-      //saving the id in a session
-      session_start();
-      $_SESSION['id'] = $userId;
+      //sql to fetch the value for the disabled flag
+      $sql = "SELECT disabled FROM applicants WHERE  id = ?";
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute([$userId]);
+      $disabled = $stmt->fetch();
+      if ($disabled == '0') {
+        session_start();
+        $_SESSION['id'] = $userId;
 
-      //if user choses to be remembered
-      if (isset($_POST['remember'])) {
-        $token = bin2hex(random_bytes(16)); // Generate a random 16-byte token
-        $userId = $_SESSION['id']; // Get the user's ID from the database
+        //if user choses to be remembered
+        if (isset($_POST['remember'])) {
+          $token = bin2hex(random_bytes(16)); // Generate a random 16-byte token
+          $userId = $_SESSION['id']; // Get the user's ID from the database
 
-        // Store the token and expiration time in a database table
-        $sql = "INSERT INTO remember_me_tokens (id, token, expires_at, category) VALUES (?, ?,?,?)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$userId, $token, date('Y-m-d H:i:s', strtotime("+30 days")), $userCategory]);
+          // Store the token and expiration time in a database table
+          $sql = "INSERT INTO remember_me_tokens (id, token, expires_at, category) VALUES (?, ?,?,?)";
+          $stmt = $pdo->prepare($sql);
+          $stmt->execute([$userId, $token, date('Y-m-d H:i:s', strtotime("+30 days")), $userCategory]);
 
-        //setting cookie on the user browser
-        $cookieValue = $userId . ':' . $userCategory  . ':' . $token;
-        //set cookie
-        setcookie('remember_me', $cookieValue, time() + 86400 * 30);
+          //setting cookie on the user browser
+          $cookieValue = $userId . ':' . $userCategory  . ':' . $token;
+          //set cookie
+          setcookie('remember_me', $cookieValue, time() + 86400 * 30);
+        }
+        // redirects to applicant dashboard
+        header("Location: applicant-index.php");
+      } else {
+        $disabled = 1;
       }
-      // redirects to applicant dashboard
-      header("Location: applicant-index.php");
     } else {
       $passwordErr = 1;
     }
@@ -86,7 +127,7 @@ if (isset($_POST['login'])) {
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$email]);
     $is_employer = $stmt->rowCount();
-    // if username belongs to an
+    // if email belongs to an employer
     if ($is_employer > 0) {
       $detail = $stmt->fetch();
       $hashed_password = $detail->password;
@@ -98,26 +139,30 @@ if (isset($_POST['login'])) {
       //if password match
       if ($confirm_password) {
 
-        //saving the id in a session
-        session_start();
-        $_SESSION['id'] = $userId;
+        if ($disabled == '0') {
+          session_start();
+          $_SESSION['id'] = $userId;
 
-        //if user choses to be remembered
-        if (isset($_POST['remember'])) {
-          $token = bin2hex(random_bytes(16)); // Generate a random 16-byte token
-          $userId = $_SESSION['id']; // Get the user's ID from the database
+          //if user choses to be remembered
+          if (isset($_POST['remember'])) {
+            $token = bin2hex(random_bytes(16)); // Generate a random 16-byte token
+            $userId = $_SESSION['id']; // Get the user's ID from the database
 
-          // Store the token and expiration time in a database table
-          $sql = "INSERT INTO remember_me_tokens (id, token, expires_at, category) VALUES (?, ?,?, ?)";
-          $stmt = $pdo->prepare($sql);
-          $stmt->execute([$userId, $token, date('Y-m-d H:i:s', strtotime("+30 days")), $userCategory]);
-          //setting cookie on the user browser
-          $cookieValue = $userId . ':' . $userCategory . ':' . $token;
-          //set cookie
-          setcookie('remember_me', $cookieValue, time() + 86400 * 30);
+            // Store the token and expiration time in a database table
+            $sql = "INSERT INTO remember_me_tokens (id, token, expires_at, category) VALUES (?, ?,?,?)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$userId, $token, date('Y-m-d H:i:s', strtotime("+30 days")), $userCategory]);
+
+            //setting cookie on the user browser
+            $cookieValue = $userId . ':' . $userCategory  . ':' . $token;
+            //set cookie
+            setcookie('remember_me', $cookieValue, time() + 86400 * 30);
+          }
+          // redirects to employer dashboard
+          header("Location: employer-index.php");
+        } else {
+          $disabled = 1;
         }
-        // redirects to employer dashboard
-        header("Location: employer-index.php");
       } else {
         $passwordErr = 1;
       }
@@ -210,7 +255,7 @@ if (isset($_POST['login'])) {
                     }
                     if ($tokenLost) {
                       echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
-                          Token leaked, you need to sign in again!
+                          Token not found, you need to sign in again!
                           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>';
                     }
@@ -220,8 +265,12 @@ if (isset($_POST['login'])) {
                           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>';
                     }
-
-
+                    if ($disabled) {
+                      echo '<div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                          This account has been disabled!
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
+                    }
                     ?>
                     <div class="col-12">
                       <label for="yourUsername" class="form-label">Email</label>

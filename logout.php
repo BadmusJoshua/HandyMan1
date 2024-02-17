@@ -13,7 +13,7 @@ if (!empty($_SESSION['id'])) {
         $token = filter_var($token, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
         // Delete the user's token from the database
-        $query = "DELETE FROM remember_me_tokens WHERE user_id= ?";
+        $query = "DELETE FROM remember_me_tokens WHERE id= ?";
         $stmt = $pdo->prepare($query);
         $stmt->execute([$userId]);
 
@@ -29,4 +29,3 @@ if (!empty($_SESSION['id'])) {
 }
 
 header("Location: login.php");
-?>

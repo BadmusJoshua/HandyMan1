@@ -1,60 +1,82 @@
 <?php
 include 'inc/header/applicant-header.php';
 
+//fetching other user details
+$twitter = $detail->twitter;
+$facebook = $detail->facebook;
+$instagram = $detail->instagram;
+$phone = $detail->phone;
+$email = $detail->email;
+$about = $detail->about;
+$headquarter = $detail->headquarter;
+$website = $detail->website;
+$employee = $detail->employee_size;
+$address = $detail->address;
+$id = $detail->id;
+$country = $detail->country;
+$state = $detail->state;
+$imagePath = "$detail->image"; // path to previous image
+
 
 $user = $passwordErr = $password_change = $userUpdate = $imageErr = '';
+$profileImage = $detail->image;
 
 if (isset($_POST['updateProfile'])) {
 
 
   if (isset($_FILES['profileImage'])) {
-    $sql = "SELECT * FROM applicants WHERE id = ?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$userId]);
-    $detail = $stmt->fetch();
-    $imagePath = "assets/uploads/images/$detail->image"; // path to previous image
+    if (!empty($_FILES['profileImage']['tmp_name'])) {
+      $fileExt = strtolower(pathinfo($_FILES['profileImage']['name'], PATHINFO_EXTENSION));
+      $fileName = uniqid('applicantImage') . '.' . $fileExt;
+      $uploadDirectory = 'assets/uploads/applicant-image';
 
-    $image = $_FILES['profileImage'];
-    $imageTemp = $image['tmp_name'];
-    $imageExt = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION)); // Get the file extension
-
-    // Generate a unique name for the file using uniqid() and appending the extension
-    $imageName = uniqid('applicant_profile_image_') . '.' . $imageExt;
-    $imageDir = 'assets/uploads/images/' . $imageName;
-    $acceptedExt = array('jpeg', 'jpg', 'png');
-
-    if (in_array($imageExt, $acceptedExt)) {
-      move_uploaded_file($imageTemp, $imageDir);
-      $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      $about = filter_input(INPUT_POST, 'about', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      $job = filter_input(INPUT_POST, 'job', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      $skill = filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      $experience = filter_input(INPUT_POST, 'experience', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      $country = filter_input(INPUT_POST, 'country', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      $address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      $twitter = filter_input(INPUT_POST, 'twitter', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      $facebook = filter_input(INPUT_POST, 'facebook', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      $instagram = filter_input(INPUT_POST, 'instagram', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-      $sql = "select * FROM applicants WHERE email = ?";
-      $stmt = $pdo->prepare($sql);
-      $stmt->execute([$email]);
-      $userCount = $stmt->rowCount();
-      if ($userCount > 1) {
-        $user = 1;
-      } else {
-        $sql = "UPDATE applicants SET about=?,image = ?,job=?,skill=?,experience=?,country=?,address=?,phone=?,email=?,twitter=?,facebook=?,instagram=? WHERE id = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$about, $imageName, $job, $skill, $experience, $country, $address, $phone, $email, $twitter, $facebook, $instagram, $userId]);
-        $userUpdate = 1;
+      if (!file_exists($uploadDirectory)) {
+        mkdir($uploadDirectory, 0777, true);
       }
-      if (file_exists($imagePath)) { // if previous image exists
-        unlink($imagePath); // delete previous image and process new one
+
+      $uploadFile = $uploadDirectory . '/' . $fileName;
+      $acceptedExt = array('jpeg', 'jpg', 'png');
+
+      if (in_array($fileExt, $acceptedExt)) {
+        move_uploaded_file($_FILES['profileImage']['tmp_name'], $uploadFile);
+        $profileImage = $uploadFile;
+        if (file_exists($imagePath)) { // if previous image exists
+          unlink($imagePath); // delete previous image and process new one
+        }
+      } else {
+        $imageErr = "1";
       }
     } else {
-      $imageErr = 1;
+      $profileImage = '';
+    };
+
+    $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $about = filter_input(INPUT_POST, 'about', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $job = filter_input(INPUT_POST, 'job', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $skill = filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $experience = filter_input(INPUT_POST, 'experience', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $country = filter_input(INPUT_POST, 'country', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $twitter = filter_input(INPUT_POST, 'twitter', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $facebook = filter_input(INPUT_POST, 'facebook', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $instagram = filter_input(INPUT_POST, 'instagram', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+    $sql = "select * FROM applicants WHERE email = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$email]);
+    $userCount = $stmt->rowCount();
+    if ($userCount == 0) {
+      $user = 1;
+    } else {
+      $sql = "UPDATE applicants SET about=?,image = ?,job=?,skill=?,experience=?,country=?,address=?,phone=?,email=?,twitter=?,facebook=?,instagram=? WHERE id = ?";
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute([$about, $profileImage, $job, $skill, $experience, $country, $address, $phone, $email, $twitter, $facebook, $instagram, $userId]);
+      $userUpdate = 1;
+    }
+    if (file_exists($imagePath)) { // if previous image exists
+      unlink($imagePath); // delete previous image and process new one
     }
   }
 }
@@ -110,13 +132,6 @@ if (isset($_POST['changePassword'])) {
     </li><!-- End Profile Page Nav -->
 
     <li class="nav-item">
-      <a class="nav-link collapsed" href="meetings.php">
-        <i class="ri-building-4-line"></i>
-        <span>Meetings</span>
-      </a>
-    </li><!-- End Meetings Page Nav -->
-
-    <li class="nav-item">
       <a class="nav-link collapsed" href="jobs.php">
         <i class="bi bi-briefcase-fill"></i>
         <span>Jobs</span>
@@ -152,7 +167,7 @@ if (isset($_POST['changePassword'])) {
 </aside><!-- End Sidebar-->
 <main id="main" class="main">
 
-  <div class="pagetitle">
+  <div class="pagetitle" style="margin-top:-20px;">
     <h1>Profile</h1>
     <nav>
       <ol class="breadcrumb">
@@ -237,10 +252,7 @@ if (isset($_POST['changePassword'])) {
             <div class="tab-content pt-2">
 
               <div class="tab-pane fade show active profile-overview" id="profile-overview">
-                <h5 class="card-title">About</h5>
-                <p class="small fst-italic"><?php echo $detail->about ?></p>
-
-                <h5 class="card-title">Profile Details</h5>
+                <h5 class="card-title">Applicant Details</h5>
 
                 <div class="row">
                   <div class="col-lg-3 col-md-4 label ">Full Name</div>
@@ -323,9 +335,16 @@ if (isset($_POST['changePassword'])) {
                   </div>
 
                   <div class="row mb-3">
+                    <label for="Job" class="col-md-4 col-lg-3 col-form-label">Job</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="job" type="text" class="form-control" id="Job" value="<?php echo $detail->job ?>">
+                    </div>
+                  </div>
+
+                  <div class="row mb-3">
                     <label for="Skills" class="col-md-4 col-lg-3 col-form-label">Skills</label>
                     <div class="col-md-8 col-lg-9">
-                      <input name="skills" type="text" class="form-control" id="company" value="<?php echo $detail->skill ?>" placeholder="List your skills separating them with a comma">
+                      <input name="skills" type="text" class="form-control" id="skill" value="<?php echo $detail->skill ?>" placeholder="List your skills separating them with a comma">
                     </div>
                   </div>
 
@@ -360,20 +379,6 @@ if (isset($_POST['changePassword'])) {
                   </div>
 
                   <div class="row mb-3">
-                    <label for="Job" class="col-md-4 col-lg-3 col-form-label">Job</label>
-                    <div class="col-md-8 col-lg-9">
-                      <input name="job" type="text" class="form-control" id="Job" value="<?php echo $detail->job ?>">
-                    </div>
-                  </div>
-
-                  <div class="row mb-3">
-                    <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
-                    <div class="col-md-8 col-lg-9">
-                      <input name="address" type="text" class="form-control" id="Address" value="<?php echo $detail->address ?>">
-                    </div>
-                  </div>
-
-                  <div class="row mb-3">
                     <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Phone</label>
                     <div class="col-md-8 col-lg-9">
                       <input name="phone" type="text" class="form-control" id="Phone" value="<?php echo $detail->phone ?>">
@@ -386,6 +391,15 @@ if (isset($_POST['changePassword'])) {
                       <input name="email" type="email" class="form-control" id="Email" value="<?php echo $detail->email ?>">
                     </div>
                   </div>
+
+                  <div class="row mb-3">
+                    <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="address" type="text" class="form-control" id="Address" value="<?php echo $detail->address ?>">
+                    </div>
+                  </div>
+
+
 
                   <div class="row mb-3">
                     <label for="Twitter" class="col-md-4 col-lg-3 col-form-label">Twitter Profile</label>

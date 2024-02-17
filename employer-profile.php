@@ -11,36 +11,54 @@ $about = $detail->about;
 $headquarter = $detail->headquarter;
 $website = $detail->website;
 $employee = $detail->employee_size;
-$state = $detail->state;
-$country = $detail->country;
 $address = $detail->address;
+$id = $detail->id;
+$country = $detail->country;
+$state = $detail->state;
+$imagePath = "$detail->image"; // path to previous image
+
 
 $user = $passwordErr = $password_change = $userUpdate = $imageErr = '';
 $profileImage = $detail->image;
 if (isset($_POST['updateProfile'])) {
-    $image = $_FILES['profileImage'];
-    $imageName = $image[$userId . '-' . $userCategory . '-' . 'name'];
-    $imageTemp = $image['tmp_name'];
-    $imageDir = 'assets/uploads/companyLogo/' . $imageName;
-    $imageSplit = explode('.', $imageName);
-    $imageExt = strtolower(end($imageSplit));
-    $acceptedExt = array('jpeg', 'jpg', 'png');
-    if (in_array($imageExt, $acceptedExt)) {
-        move_uploaded_file($imageTemp, $imageDir);
+    if (!empty($_FILES['profileImage']['tmp_name'])) {
+        $fileExt = strtolower(pathinfo($_FILES['profileImage']['name'], PATHINFO_EXTENSION));
+        $fileName = uniqid('employerImage') . '.' . $fileExt;
+        $uploadDirectory = 'assets/uploads/employer-image';
+
+        if (!file_exists($uploadDirectory)) {
+            mkdir($uploadDirectory, 0777, true);
+        }
+
+        $uploadFile = $uploadDirectory . '/' . $fileName;
+        $acceptedExt = array('jpeg', 'jpg', 'png');
+
+        if (in_array($fileExt, $acceptedExt)) {
+            move_uploaded_file($_FILES['profileImage']['tmp_name'], $uploadFile);
+            $profileImage = $uploadFile;
+            if (file_exists($imagePath)) { // if previous image exists
+                unlink($imagePath); // delete previous image and process new one
+            }
+        } else {
+            $imageErr = "1";
+        }
     } else {
-        $imageErr = "invalid file type";
-    }
+        $profileImage = '';
+    };
+
     $name = filter_input(INPUT_POST, 'company_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $about = filter_input(INPUT_POST, 'about', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $company = filter_input(INPUT_POST, 'company', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $employee = filter_input(INPUT_POST, 'employee-size', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $job = filter_input(INPUT_POST, 'job_category', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $country = filter_input(INPUT_POST, 'country', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $headquarter = filter_input(INPUT_POST, 'headquarter', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $phone = filter_input(INPUT_POST, 'company_phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $email = filter_input(INPUT_POST, 'company_email', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $twitter = filter_input(INPUT_POST, 'company_twitter', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $facebook = filter_input(INPUT_POST, 'company_facebook', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $instagram = filter_input(INPUT_POST, 'company_instagram', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $state = filter_input(INPUT_POST, 'state', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $twitter = filter_input(INPUT_POST, 'twitter', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $facebook = filter_input(INPUT_POST, 'facebook', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $instagram = filter_input(INPUT_POST, 'instagram', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $website = filter_input(INPUT_POST, 'website', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $userId = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $sql = "select * FROM employers WHERE email = ?";
     $stmt = $pdo->prepare($sql);
@@ -49,9 +67,9 @@ if (isset($_POST['updateProfile'])) {
     if ($userCount > 1) {
         $user = 1;
     } else {
-        $sql = "UPDATE employers SET about=?,image = ?, job_category=?,country=?,address=?,phone=?,email=?,twitter=?,facebook=?,instagram=? WHERE id = ?";
+        $sql = "UPDATE employers SET about=?,image = ?,employee_size=?, job_category=?,country=?,state=?,address=?,phone=?,email=?,website=?,twitter=?,facebook=?,instagram=? WHERE id = ?";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$about, $imageName, $company, $job, $country, $address, $phone, $email, $twitter, $facebook, $instagram, $userId]);
+        $stmt->execute([$about, $profileImage, $employee, $job, $country, $state, $address, $phone, $email, $website, $twitter, $facebook, $instagram, $userId]);
         $userUpdate = 1;
     }
 }
@@ -91,57 +109,48 @@ if (isset($_POST['changePassword'])) {
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
-            <a class="nav-link collapsed " href="employer-index.php">
+            <a class="nav-link collapsed" href="employer-index.php">
                 <i class="bi bi-grid"></i>
                 <span>Dashboard</span>
             </a>
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link" href="employer-profile.php">
+            <a class="nav-link" href="employer-applicant-profile.php">
                 <i class="bi bi-person"></i>
                 <span>Profile</span>
             </a>
         </li><!-- End Profile Page Nav -->
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="meetings.php">
-                <i class="ri-building-4-line"></i>
-                <span>Meetings</span>
+            <a class="nav-link collapsed" href="employer-post-new-job.php">
+                <i class="bi bi-journal-plus"></i>
+                <span>Post New Job</span>
             </a>
-        </li><!-- End Meetings Page Nav -->
+        </li><!-- End Post New Job Page Nav -->
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="jobs.php">
+            <a class="nav-link collapsed" href="employer-manage-jobs.php">
                 <i class="bi bi-briefcase-fill"></i>
-                <span>Jobs</span>
+                <span>Manage Jobs</span>
             </a>
-        </li><!-- End Jobs Page Nav -->
+        </li><!-- End Manage Jobs Page Nav -->
+
 
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="contact.php">
+            <a class="nav-link collapsed" href="employer-manage-applicants.php">
                 <i class="bi bi-envelope"></i>
-                <span>Help Desk</span>
+                <span>Manage Applicants</span>
             </a>
-        </li><!-- End Help Desk Page Nav -->
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="faq.php">
-                <i class="bi bi-question-circle"></i>
-                <span>F.A.Q</span>
-            </a>
-        </li><!-- End F.A.Q Page Nav -->
+        </li><!-- End Contact Page Nav -->
 
         <li class="nav-item">
             <a class="nav-link collapsed" href="logout.php">
                 <i class="bi bi-box-arrow-in-right"></i>
                 <span>Sign Out</span>
             </a>
-        </li><!-- End Sign Out Page Nav -->
-
-
-
+        </li><!-- End suggestion in Page Nav -->
     </ul>
 
 </aside><!-- End Sidebar-->
@@ -178,7 +187,7 @@ if (isset($_POST['changePassword'])) {
 
                 <div class="card">
                     <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-                        <img src="assets/<?= "images/$profileImage" ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="" style="height:130px; width:130px;border-radius:50%;">
+                        <img src="<?= $image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="" style="height:130px; width:130px;border-radius:50%;">
                         <h2><?= $name ?></h2>
                         <h3><?= $job ?></h3>
                         <div class="social-links mt-2">
@@ -236,8 +245,12 @@ if (isset($_POST['changePassword'])) {
                                 <div class="row">
                                     <div class="col-lg-3 col-md-4 label">Headquarters</div>
                                     <div class="col-lg-9 col-md-8"><?php if ((!empty($state)) && (!empty($country))) {
-                                                                        echo "$state . ',' . $country ";
+                                                                        echo "$state, $country ";
                                                                     } ?></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-4 label">Address</div>
+                                    <div class="col-lg-9 col-md-8"><?= $address ?></div>
                                 </div>
 
                                 <div class="row">
@@ -313,9 +326,23 @@ if (isset($_POST['changePassword'])) {
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="about" class="col-md-4 col-lg-3 col-form-label">Headquarter</label>
+                                        <label for="about" class="col-md-4 col-lg-3 col-form-label">State</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <textarea name="headquarter" class="form-control" id="about" style="height: 100px"><?= $headquarter ?></textarea>
+                                            <input type="text" name="state" id="state" class="form-control" value="<?= $state ?>">
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="about" class="col-md-4 col-lg-3 col-form-label">Country</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <input type="text" name="country" id="country" class="form-control" value="<?= $country ?>">
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="Job" class="col-md-4 col-lg-3 col-form-label">Address</label>
+                                        <div class="col-md-8 col-lg-9">
+                                            <input name="address" type="text" class="form-control" id="address" value="<?= $address ?>">
                                         </div>
                                     </div>
 
@@ -374,6 +401,7 @@ if (isset($_POST['changePassword'])) {
                                             <input name="instagram" type="url" class="form-control" id="Instagram" placeholder="Enter your instagram profile link" value="<?= $instagram ?>">
                                         </div>
                                     </div>
+                                    <input name="id" type="hidden" class="form-control" id="Id" placeholder="" value="<?= $id ?>">
 
                                     <div class="text-center">
                                         <button type="submit" class="btn btn-primary" name="updateProfile">Save Changes</button>
@@ -410,6 +438,9 @@ if (isset($_POST['changePassword'])) {
                                             <input name="renewpassword" type="password" class="form-control" id="renewPassword">
                                         </div>
                                     </div>
+
+                                    <input name="id" type="hidden" class="form-control" id="Id" placeholder="" value="<?= $id ?>">
+
 
                                     <div class="text-center">
                                         <button type="submit" class="btn btn-primary " name="changePassword">Change Password</button>

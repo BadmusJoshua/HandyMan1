@@ -10,7 +10,7 @@ if (isset($_GET['username'])) {
         $user_details = $stmt->fetch();
         session_start();
         $_SESSION['technician_id'] = $user_details->id;
-        header("Location: view_technician_profile.php");
+        header("Location: view_technician_applicant-profile.php");
     } else {
         $sql = "SELECT * FROM users WHERE username = ?";
         $stmt = $pdo->prepare($sql);
@@ -20,7 +20,7 @@ if (isset($_GET['username'])) {
             $user_details = $stmt->fetch();
             session_start();
             $_SESSION['client_id'] = $user_details->id;
-            header("Location: view_client_profile.php");
+            header("Location: view_client_applicant-profile.php");
         }
     }
 }

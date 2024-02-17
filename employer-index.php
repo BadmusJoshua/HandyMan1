@@ -10,6 +10,20 @@ $sql = "SELECT * FROM applications WHERE employerId  = ?";
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$userId]);
 $applicationCount = $stmt->rowCount();
+
+//sql to delete note
+if (isset($_POST['remove'])) {
+    $note_id = $_POST['id'];
+    $sql = "DELETE FROM notes WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([$note_id]);
+    } else {
+        echo "Error: Unable to prepare statement.";
+    }
+}
+
+
 ?>
 
 <!-- ======= Sidebar ======= -->
@@ -25,7 +39,7 @@ $applicationCount = $stmt->rowCount();
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="employer-profile.php">
+            <a class="nav-link collapsed" href="employer-applicant-profile.php">
                 <i class="bi bi-person"></i>
                 <span>Profile</span>
             </a>
@@ -45,12 +59,7 @@ $applicationCount = $stmt->rowCount();
             </a>
         </li><!-- End Manage Jobs Page Nav -->
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="meetings.php">
-                <i class="ri-building-4-line"></i>
-                <span>Meetings</span>
-            </a>
-        </li><!-- End Meeting Page Nav -->
+
 
         <li class="nav-item">
             <a class="nav-link collapsed" href="employer-manage-applicants.php">
@@ -81,7 +90,7 @@ $applicationCount = $stmt->rowCount();
     </div><!-- End Page Title -->
 
     <section class="section dashboard">
-        <div class="row mt-5">
+        <div class="row mt-5 d-flex flex-grow ">
             <div class="col-lg-3 column-lg-half responsive-column">
                 <div class="overview-item">
                     <div class="icon-box bg-1 mb-0 d-flex align-items-center">
@@ -103,7 +112,7 @@ $applicationCount = $stmt->rowCount();
                         </div><!-- end icon-element-->
                         <div class="info-content">
                             <span class="info__count"><?= $applicationCount ?></span>
-                            <h4 class="info__title font-size-16 mt-2">Application Submit</h4>
+                            <h4 class="info__title font-size-16 mt-2 ">Applications</h4>
                         </div><!-- end info-content -->
                     </div>
                 </div>
@@ -171,73 +180,74 @@ $applicationCount = $stmt->rowCount();
                         </div><!-- end mess__title -->
                         <div class="timeline-body">
                             <div class="mess__body">
-                                <div class="mess__item">
-                                    <div class="note-badge-wrap d-flex align-items-center justify-content-between">
-                                        <span class="badge badge-primary note-badge note-badge-bg-2 p-2">High Priority</span>
-                                        <ul class="info-list">
-                                            <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
-                                            <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                                        </ul>
+                                <?php
+                                $note_sql = "SELECT * FROM notes WHERE userId =? && category =? ";
+                                $note_stmt = $pdo->prepare($note_sql);
+                                $note_stmt->execute([$userId, $userCategory]);
+                                $notes = $note_stmt->fetchAll();
+                                if ($notes) {
+                                    foreach ($notes as $note) { ?>
+                                        <div class="mess__item">
+
+                                            <div class="note-badge-wrap d-flex align-items-center justify-content-between">
+                                                <?php if ($note->priority == "High") { ?>
+                                                    <span class="badge badge-primary note-badge note-badge-bg-2 p-2">High Priority</span>
+
+                                                <?php } elseif ($note->priority == "Medium") { ?>
+                                                    <span class="badge badge-warning text-white note-badge note-badge-bg-2 p-2">Medium Priority</span>
+                                                <?php } else { ?>
+                                                    <span class="badge badge-success note-badge note-badge-bg-2 p-2">Low Priority</span>
+
+                                                <?php }
+                                                ?>
+                                                <ul class="info-list">
+                                                    <li class="d-inline-block"><a href="notes.php?id=<?= $note->id ?>"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
+                                                    <li class="d-inline-block">
+                                                        <form method="post" action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>"> <button name="remove" class="border-0"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></button>
+                                                            <input type="hidden" name="id" value="<?= $note->id ?>">
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="content mt-2">
+                                                <p class="line-height-24 font-size-13"><?= $note->message ?></p>
+                                            </div>
+                                            <span class="font-weight-bold font-size-11 "><?php
+                                                                                            $date = DateTime::createFromFormat('Y-m-d H:i:s', $note->created_at);
+                                                                                            echo $date->format('d M, Y H:i:s');
+                                                                                            ?></span>
+                                        </div><!-- end mess__item -->
+                                    <?php };
+                                } else { ?>
+                                    <div class="alert alert-danger text-center alert-dismissible fade show w-80 align-self-center" role="alert">
+                                        You don't have any note yet!
+
                                     </div>
-                                    <div class="content mt-2">
-                                        <p class="line-height-24 font-size-13">Medecins du Monde Jane Addams reduce child
-                                            mortality challenges Ford Foundation.Diversification shifting
-                                            landscape advocate pathway to a better life rights international</p>
-                                    </div>
+                                <?php }
+                                ?>
+                                <div class="mess__item border-bottom-0 text-center">
+                                    <a href="notes.php" class="theme-btn border-0 w-100" style="text-decoration:none;">Add Note</a>
                                 </div><!-- end mess__item -->
-                                <div class="mess__item">
-                                    <div class="note-badge-wrap d-flex align-items-center justify-content-between">
-                                        <span class="badge badge-success note-badge note-badge-bg-2 p-2">Low Priority</span>
-                                        <ul class="info-list">
-                                            <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
-                                            <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="content mt-2">
-                                        <p class="line-height-24 font-size-13">Medecins du Monde Jane Addams reduce child
-                                            mortality challenges Ford Foundation.Diversification shifting
-                                            landscape advocate pathway to a better life rights international</p>
-                                    </div>
-                                </div><!-- end mess__item -->
-                                <div class="mess__item">
-                                    <div class="note-badge-wrap d-flex align-items-center justify-content-between">
-                                        <span class="badge badge-warning text-white note-badge note-badge-bg-2 p-2">Medium Priority</span>
-                                        <ul class="info-list">
-                                            <li class="d-inline-block"><a href="#"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
-                                            <li class="d-inline-block"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="content mt-2">
-                                        <p class="line-height-24 font-size-13">Medecins du Monde Jane Addams reduce child
-                                            mortality challenges Ford Foundation.Diversification shifting
-                                            landscape advocate pathway to a better life rights international</p>
-                                    </div>
-                                </div><!-- end mess__item -->
-                            </div><!-- end mess__body -->
-                        </div>
-                        <div class="mess__item border-bottom-0 text-center">
-                            <button type="button" class="theme-btn border-0 w-100">Add Note</button>
-                        </div><!-- end mess__item -->
-                    </div><!-- end mess-dropdown -->
-                </div><!-- end dashboard-shared -->
-            </div><!-- end col-lg-5 -->
-            <div class="row margin-top-30px">
-                <div class="col-lg-6">
-                    <div class="chart-box">
-                        <div class="chart-headline margin-bottom-40px">
-                            <h3 class="widget-title font-size-16 pb-0"><i class="font-size-20 la la-chart-line mr-1"></i>Static Analytics</h3>
-                        </div>
-                        <canvas id="doughnut-chart"></canvas>
-                        <div class="chart-legend margin-top-40px">
-                            <ul>
-                                <li><span class="legend__item"></span>Applied Jobs</li>
-                                <li><span class="legend__item legend__bg-1"></span>Posted Jobs</li>
-                                <li><span class="legend__item legend__bg-2"></span>Active Bids</li>
-                            </ul>
-                        </div>
-                    </div><!-- end chart-box -->
-                </div><!-- end col-lg-6 -->
-            </div><!-- end row -->
+                            </div><!-- end mess-dropdown -->
+                        </div><!-- end dashboard-shared -->
+                    </div><!-- end col-lg-5 -->
+                    <!-- <div class="row margin-top-30px">
+                        <div class="col-lg-6">
+                            <div class="chart-box">
+                                <div class="chart-headline margin-bottom-40px">
+                                    <h3 class="widget-title font-size-16 pb-0"><i class="font-size-20 la la-chart-line mr-1"></i>Static Analytics</h3>
+                                </div>
+                                <canvas id="doughnut-chart"></canvas>
+                                <div class="chart-legend margin-top-40px">
+                                    <ul>
+                                        <li><span class="legend__item"></span>Applied Jobs</li>
+                                        <li><span class="legend__item legend__bg-1"></span>Posted Jobs</li>
+                                        <li><span class="legend__item legend__bg-2"></span>Active Bids</li>
+                                    </ul>
+                                </div>
+                            </div>< end chart-box
+                        </div><end col-lg-6 
+                    </div>end row -->
     </section>
 
 </main><!-- End #main -->

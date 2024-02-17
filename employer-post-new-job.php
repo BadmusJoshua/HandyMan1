@@ -25,7 +25,7 @@ if (isset($_POST['postJob'])) {
     if (!empty($_FILES['logo']['tmp_name'])) {
         $fileExt = strtolower(pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION));
         $fileName = uniqid('company_logo') . '.' . $fileExt;
-        $uploadDirectory = 'uploads/companyLogos';
+        $uploadDirectory = 'assets\uploads\companyLogo';
 
         if (!file_exists($uploadDirectory)) {
             mkdir($uploadDirectory, 0777, true);
@@ -69,7 +69,7 @@ if (isset($_POST['postJob'])) {
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="employer-profile.php">
+            <a class="nav-link collapsed" href="employer-applicant-profile.php">
                 <i class="bi bi-person"></i>
                 <span>Profile</span>
             </a>
@@ -89,12 +89,7 @@ if (isset($_POST['postJob'])) {
             </a>
         </li><!-- End Manage Jobs Page Nav -->
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="meetings.php">
-                <i class="ri-building-4-line"></i>
-                <span>Meetings</span>
-            </a>
-        </li><!-- End Meeting Page Nav -->
+
 
         <li class="nav-item">
             <a class="nav-link collapsed" href="employer-manage-applicants.php">

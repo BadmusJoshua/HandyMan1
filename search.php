@@ -25,18 +25,13 @@ $no_result = '';
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="profile.php">
+            <a class="nav-link collapsed" href="applicant-profile.php">
                 <i class="bi bi-person"></i>
                 <span>Profile</span>
             </a>
         </li><!-- End Profile Page Nav -->
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="meetings.php">
-                <i class="ri-building-4-line"></i>
-                <span>Meetings</span>
-            </a>
-        </li><!-- End Meeting Page Nav -->
+
 
         <li class="nav-item">
             <a class="nav-link collapsed" href="jobs.php">
@@ -210,7 +205,7 @@ $no_result = '';
                                                     <i class="bi bi-star-fill"></i>
                                                     <i class="bi bi-star-fill"></i>';
                                                                                                                                         } ?></h6>
-                                                    <a href="view_profile.php?username=<?php echo $log->username; ?>">View Profile</a>
+                                                    <a href="view_applicant-profile.php?username=<?php echo $log->username; ?>">View Profile</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -241,7 +236,7 @@ $no_result = '';
                                                     <h5 class=" my-1"> <?php echo $c_log->name; ?></h5>
                                                     <h6 style="line-height:1.3rem;"><span style="color: #012970;font-weight:bolder;">Country:</span> <?php echo $c_log->country; ?></h6>
                                                     <h6 style="line-height:1.3rem;"><span style="color: #012970;font-weight:bolder;">Address:</span> <?php echo $c_log->address; ?></h6>
-                                                    <a href="view_profile.php?username=<?php echo $c_log->username; ?>">View Profile</a>
+                                                    <a href="view_applicant-profile.php?username=<?php echo $c_log->username; ?>">View Profile</a>
                                                 </div>
                                             </div>
                                         </div>

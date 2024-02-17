@@ -73,7 +73,6 @@ if (isset($_POST['view_all'])) {
 
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
-    <title> JobCrest || The best job openings</title>
 </head>
 
 <body>
@@ -144,7 +143,7 @@ if (isset($_POST['view_all'])) {
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="assets/uploads/companyLogo/<?= $image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="rounded-circle" style="height:30px;width:30px;">
+                        <img src="<?= $image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="rounded-circle" style="height:30px;width:30px;">
                         <span class="d-none d-md-block dropdown-toggle ps-2"></span>
 
                     </a><!-- End Profile Iamge Icon -->
