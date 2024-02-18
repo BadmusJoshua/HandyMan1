@@ -8,9 +8,9 @@ $instagram = $detail->instagram;
 $phone = $detail->phone;
 $email = $detail->email;
 $about = $detail->about;
-$headquarter = $detail->headquarter;
+// $headquarter = $detail->headquarter;
 $website = $detail->website;
-$employee = $detail->employee_size;
+// $employee = $detail->employee_size;
 $address = $detail->address;
 $id = $detail->id;
 $country = $detail->country;
@@ -24,60 +24,57 @@ $profileImage = $detail->image;
 if (isset($_POST['updateProfile'])) {
 
 
-  if (isset($_FILES['profileImage'])) {
-    if (!empty($_FILES['profileImage']['tmp_name'])) {
-      $fileExt = strtolower(pathinfo($_FILES['profileImage']['name'], PATHINFO_EXTENSION));
-      $fileName = uniqid('applicantImage') . '.' . $fileExt;
-      $uploadDirectory = 'assets/uploads/applicant-image';
+  if (!empty($_FILES['profileImage']['tmp_name'])) {
+    $fileExt = strtolower(pathinfo($_FILES['profileImage']['name'], PATHINFO_EXTENSION));
+    $fileName = uniqid('applicantImage') . '.' . $fileExt;
+    $uploadDirectory = 'assets/uploads/applicant-image';
 
-      if (!file_exists($uploadDirectory)) {
-        mkdir($uploadDirectory, 0777, true);
-      }
+    if (!file_exists($uploadDirectory)) {
+      mkdir($uploadDirectory, 0777, true);
+    }
 
-      $uploadFile = $uploadDirectory . '/' . $fileName;
-      $acceptedExt = array('jpeg', 'jpg', 'png');
+    $uploadFile = $uploadDirectory . '/' . $fileName;
+    $acceptedExt = array('jpeg', 'jpg', 'png');
 
-      if (in_array($fileExt, $acceptedExt)) {
-        move_uploaded_file($_FILES['profileImage']['tmp_name'], $uploadFile);
-        $profileImage = $uploadFile;
-        if (file_exists($imagePath)) { // if previous image exists
-          unlink($imagePath); // delete previous image and process new one
-        }
-      } else {
-        $imageErr = "1";
-      }
+    if (in_array($fileExt, $acceptedExt)) {
+      move_uploaded_file($_FILES['profileImage']['tmp_name'], $uploadFile);
+      $profileImage = $uploadFile;
     } else {
-      $profileImage = '';
-    };
+      $imageErr = "1";
+    }
+  } else {
+    $profileImage = '';
+  };
 
-    $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $about = filter_input(INPUT_POST, 'about', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $job = filter_input(INPUT_POST, 'job', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $skill = filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $experience = filter_input(INPUT_POST, 'experience', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $country = filter_input(INPUT_POST, 'country', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $twitter = filter_input(INPUT_POST, 'twitter', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $facebook = filter_input(INPUT_POST, 'facebook', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $instagram = filter_input(INPUT_POST, 'instagram', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $about = filter_input(INPUT_POST, 'about', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $job = filter_input(INPUT_POST, 'job', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $skill = filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $experience = filter_input(INPUT_POST, 'experience', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $country = filter_input(INPUT_POST, 'country', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $state = filter_input(INPUT_POST, 'state', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $address = filter_input(INPUT_POST, 'address', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $website = filter_input(INPUT_POST, 'website', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $twitter = filter_input(INPUT_POST, 'twitter', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $facebook = filter_input(INPUT_POST, 'facebook', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $instagram = filter_input(INPUT_POST, 'instagram', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-    $sql = "select * FROM applicants WHERE email = ?";
+  $sql = "select * FROM applicants WHERE email = ?";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute([$email]);
+  $userCount = $stmt->rowCount();
+  if ($userCount == 0) {
+    $user = 1;
+  } else {
+    $sql = "UPDATE applicants SET about=?,image = ?,job=?,skill=?,experience=?,country=?,state=?,address=?,phone=?,email=?,website=?,twitter=?,facebook=?,instagram=? WHERE id = ?";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$email]);
-    $userCount = $stmt->rowCount();
-    if ($userCount == 0) {
-      $user = 1;
-    } else {
-      $sql = "UPDATE applicants SET about=?,image = ?,job=?,skill=?,experience=?,country=?,address=?,phone=?,email=?,twitter=?,facebook=?,instagram=? WHERE id = ?";
-      $stmt = $pdo->prepare($sql);
-      $stmt->execute([$about, $profileImage, $job, $skill, $experience, $country, $address, $phone, $email, $twitter, $facebook, $instagram, $userId]);
-      $userUpdate = 1;
-    }
-    if (file_exists($imagePath)) { // if previous image exists
-      unlink($imagePath); // delete previous image and process new one
-    }
+    $stmt->execute([$about, $profileImage, $job, $skill, $experience, $country, $state, $address, $phone, $email, $website, $twitter, $facebook, $instagram, $userId]);
+    $userUpdate = 1;
+  }
+  if (file_exists($imagePath)) { // if previous image exists
+    unlink($imagePath); // delete previous image and process new one
   }
 }
 
@@ -95,7 +92,7 @@ if (isset($_POST['changePassword'])) {
   $confirmPassword = password_verify($input_old_password, $current_hashed_password);
   if ($confirmPassword) {
     if ($confirm_password != $input_new_password) {
-      $passwordErr = "your password does not match";
+      $passwordErr = 1;
     } else {
       $hashed_password = password_hash($input_new_password, PASSWORD_DEFAULT);
       $sql = "UPDATE applicants SET password = ? WHERE id = ?";
@@ -116,16 +113,14 @@ if (isset($_POST['changePassword'])) {
   <ul class="sidebar-nav" id="sidebar-nav">
 
     <li class="nav-item">
-
-      <a class="nav-link collapsed " href="applicant-index.php">
+      <a class="nav-link collapsed" href="applicant-index.php">
         <i class="bi bi-grid"></i>
         <span>Dashboard</span>
       </a>
-
     </li><!-- End Dashboard Nav -->
 
     <li class="nav-item">
-      <a class="nav-link" href="applicant-profile.php">
+      <a class="nav-link " href="applicant-profile.php">
         <i class="bi bi-person"></i>
         <span>Profile</span>
       </a>
@@ -138,13 +133,19 @@ if (isset($_POST['changePassword'])) {
       </a>
     </li><!-- End Jobs Page Nav -->
 
-
     <li class="nav-item">
-      <a class="nav-link collapsed" href="contact.php">
-        <i class="bi bi-envelope"></i>
-        <span>Help Desk</span>
-      </a>
-    </li><!-- End Help Desk Page Nav -->
+      <div class="dropdown-center nav-link collapsed" style=" margin:0; padding:0; ">
+        <button class="btn dropdown-toggle nav-link collapsed" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="outline: none;
+      box-shadow: none;" onfocus="this.blur()">
+          <i class="bi bi-patch-check"></i>&nbsp;Resumes
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item nav-link collapsed" href="upload-cv-and-coverletter.php">Upload CV and Cover letter</a></li>
+          <li><a class="dropdown-item nav-link collapsed" href="create-resume.php">Create Resume</a></li>
+        </ul>
+      </div>
+
+    </li><!-- End Resumes Page Nav -->
 
     <li class="nav-item">
       <a class="nav-link collapsed" href="faq.php">
@@ -154,24 +155,28 @@ if (isset($_POST['changePassword'])) {
     </li><!-- End F.A.Q Page Nav -->
 
     <li class="nav-item">
+      <a class="nav-link collapsed" href="contact.php">
+        <i class="bi bi-envelope"></i>
+        <span>Help Desk</span>
+      </a>
+    </li><!-- End Contact Page Nav -->
+
+    <li class="nav-item">
       <a class="nav-link collapsed" href="logout.php">
         <i class="bi bi-box-arrow-in-right"></i>
         <span>Sign Out</span>
       </a>
-    </li><!-- End Sign Out Page Nav -->
-
-
-
+    </li><!-- End suggestionin Page Nav -->
   </ul>
 
 </aside><!-- End Sidebar-->
 <main id="main" class="main">
 
-  <div class="pagetitle" style="margin-top:-20px;">
+  <div class="pagetitle">
     <h1>Profile</h1>
     <nav>
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+        <li class="breadcrumb-item"><a href="applicant-index.php">Home</a></li>
         <li class="breadcrumb-item active">Profile</li>
       </ol>
     </nav>
@@ -211,8 +216,8 @@ if (isset($_POST['changePassword'])) {
       <div class="col-xl-4">
 
         <div class="card">
-          <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-            <img src="assets/uploads/images/<?php echo $detail->image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="" style="height:130px; width:130px;border-radius:50%;">
+          <div class="card-body profile-card pt-4 d-flex flex-column align-items-center text-center">
+            <img src="<?= $detail->image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="" style="height:130px; width:130px;border-radius:50%;">
             <h2><?php echo $detail->name ?></h2>
             <h3><?php echo $detail->job ?></h3>
             <div class="social-links mt-2">
@@ -241,10 +246,6 @@ if (isset($_POST['changePassword'])) {
               </li>
 
               <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Create CV</button>
-              </li>
-
-              <li class="nav-item">
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change Password</button>
               </li>
 
@@ -257,6 +258,10 @@ if (isset($_POST['changePassword'])) {
                 <div class="row">
                   <div class="col-lg-3 col-md-4 label ">Full Name</div>
                   <div class="col-lg-9 col-md-8"><?php echo $detail->name ?></div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-3 col-md-4 label ">About</div>
+                  <div class="col-lg-9 col-md-8"><?php echo $detail->about ?></div>
                 </div>
 
                 <div class="row">
@@ -287,6 +292,10 @@ if (isset($_POST['changePassword'])) {
                 <div class="row">
                   <div class="col-lg-3 col-md-4 label">Country</div>
                   <div class="col-lg-9 col-md-8"><?php echo $detail->country ?></div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-3 col-md-4 label">State</div>
+                  <div class="col-lg-9 col-md-8"><?php echo $detail->state ?></div>
                 </div>
 
                 <div class="row">
@@ -352,26 +361,28 @@ if (isset($_POST['changePassword'])) {
                     <label for="experience" class="col-md-4 col-lg-3 col-form-label">Experience</label>
                     <div class="col-md-8 col-lg-9">
                       <select name="experience" id="">
-                        <option value=""></option>
-                        <option value="less than 1 year" <?php if ((!empty($experience)) && ($experience === "less than 1 year")) {
+                        <option value="" <?php if ((!empty($detail->experience)) && ($detail->experience === "")) {
+                                            echo 'selected';
+                                          } ?>>Select your experience level</option>
+                        <option value="less than 1 year" <?php if ((!empty($detail->experience)) && ($detail->experience === "less than 1 year")) {
                                                             echo 'selected';
                                                           } ?>>Less than 1 year</option>
-                        <option value="1 year" <?php if ((!empty($experience)) && ($experience === "1 year")) {
+                        <option value="1 year" <?php if ((!empty($detail->experience)) && ($detail->experience === "1 year")) {
                                                   echo 'selected';
                                                 } ?>>1 year</option>
-                        <option value="2 years" <?php if ((!empty($experience)) && ($experience === "2 years")) {
+                        <option value="2 years" <?php if ((!empty($detail->experience)) && ($detail->experience === "2 years")) {
                                                   echo 'selected';
                                                 } ?>>2 years</option>
-                        <option value="3 years" <?php if ((!empty($experience)) && ($experience === "3 years")) {
+                        <option value="3 years" <?php if ((!empty($detail->experience)) && ($detail->experience === "3 years")) {
                                                   echo 'selected';
                                                 } ?>>3 years</option>
-                        <option value="4 years" <?php if ((!empty($experience)) && ($experience === "4 years")) {
+                        <option value="4 years" <?php if ((!empty($detail->experience)) && ($detail->experience === "4 years")) {
                                                   echo 'selected';
                                                 } ?>>4 years</option>
-                        <option value="5 years" <?php if ((!empty($experience)) && ($experience === "5 years")) {
+                        <option value="5 years" <?php if ((!empty($detail->experience)) && ($detail->experience === "5 years")) {
                                                   echo 'selected';
                                                 } ?>>5 years</option>
-                        <option value="more than 5 years" <?php if ((!empty($experience)) && ($experience === "more than 5 years")) {
+                        <option value="more than 5 years" <?php if ((!empty($detail->experience)) && ($detail->experience === "more than 5 years")) {
                                                             echo 'selected';
                                                           } ?>>3 years</option>
                       </select>
@@ -391,6 +402,18 @@ if (isset($_POST['changePassword'])) {
                       <input name="email" type="email" class="form-control" id="Email" value="<?php echo $detail->email ?>">
                     </div>
                   </div>
+                  <div class="row mb-3">
+                    <label for="Address" class="col-md-4 col-lg-3 col-form-label">Country</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="country" type="text" class="form-control" id="country" value="<?php echo $detail->country ?>">
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <label for="Address" class="col-md-4 col-lg-3 col-form-label">State</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="state" type="text" class="form-control" id="state" value="<?php echo $detail->state ?>">
+                    </div>
+                  </div>
 
                   <div class="row mb-3">
                     <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
@@ -399,7 +422,12 @@ if (isset($_POST['changePassword'])) {
                     </div>
                   </div>
 
-
+                  <div class="row mb-3">
+                    <label for="Twitter" class="col-md-4 col-lg-3 col-form-label">Portfolio Website</label>
+                    <div class="col-md-8 col-lg-9">
+                      <input name="website" type="url" class="form-control" id="website" value="<?php echo $detail->website ?>" placeholder="Enter your portfolio website link">
+                    </div>
+                  </div>
 
                   <div class="row mb-3">
                     <label for="Twitter" class="col-md-4 col-lg-3 col-form-label">Twitter Profile</label>
