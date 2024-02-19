@@ -1,6 +1,17 @@
 <?php
 
 include 'inc/header/applicant-header.php';
+
+//SQL to get job count
+$sql = "SELECT * FROM jobs ORDER BY created_at ASC";
+$stmt = $pdo->prepare($sql);
+if ($stmt) {
+    $stmt->execute([]);
+} else {
+    echo "Error: Unable to prepare statement.";
+}
+$jobCount = $stmt->rowCount();
+$jobs = $stmt->fetchAll();
 ?>
 <!-- ======= Sidebar ======= -->
 <aside id="sidebar" class="sidebar">
@@ -93,133 +104,141 @@ include 'inc/header/applicant-header.php';
         <!-- Job List Area Start -->
         <div class="job-listing-area">
             <div class="container">
-                <div class="row">
+                <div class="row d-flex flex-column">
                     <!-- Left content -->
-                    <div class="col-xl-3 col-lg-3 col-md-4">
+                    <div class="d-flex flex-row  ">
+                        <div class="small-section-tittle2 text-center">
+                            <h4>Filter Jobs</h4>
+                        </div>
                         <!-- Job Category Listing start -->
-                        <div class="job-category-listing mb-50">
-                            <!-- single one -->
-                            <div class="single-listing">
-                                <div class="small-section-tittle2">
-                                    <h4>Job Category</h4>
-                                </div>
-                                <!-- Select job items start -->
-                                <div class="select-job-items2 input-group">
-                                    <select name="select">
-                                        <option class="form-control" value="">All Category</option>
-                                        <option value="">Category 1</option>
-                                        <option value="">Category 2</option>
-                                        <option value="">Category 3</option>
-                                        <option value="">Category 4</option>
+                        <div class="job-category-listing mb-50 d-flex flex-row justify-content-evenly">
+                            <!-- single three -->
+                            <div class="input-box">
+                                <div class="form-group user-chosen-select-container">
+                                    <select class="user-chosen-select" name="gender" required>
+                                        <option value="">Choose Gender</option>
+                                        <option value="Male or Female">Male or Female</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
                                     </select>
                                 </div>
-                                <!--  Select job items End-->
-                                <!-- select-Categories start -->
-                                <div class="select-Categories pt-2 pb-2">
-                                    <div class="small-section-tittle2">
-                                        <h4>Job Type</h4>
-                                    </div>
-                                    <label class="container">Full Time
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    <label class="container">Part Time
-                                        <input type="checkbox" checked="checked active">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    <label class="container">Remote
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    <label class="container">Freelance
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
+                            </div>
+                            <!-- single one -->
+                            <div class="input-box">
+                                <div class="form-group user-chosen-select-container">
+                                    <select class="user-chosen-select" name="jobType" required>
+                                        <option value="">Select Job Type</option>
+                                        <option <?php if ($jobType === "Full Time")
+                                                    echo 'selected'; ?> value="Full Time">Full Time</option>
+                                        <option <?php if ($jobType === "Part Time")
+                                                    echo 'selected'; ?> value="Part Time">Part Time</option>
+                                        <option <?php if ($jobType === "Freelance")
+                                                    echo 'selected'; ?> value="Remote">Remote</option>
+                                        <option <?php if ($jobType === "Contract")
+                                                    echo 'selected'; ?> value="Contract">Contract</option>
+                                        <option <?php if ($jobType === "Internship")
+                                                    echo 'selected'; ?> value="Internship">Internship</option>
+                                        <option <?php if ($jobType === "Freelance")
+                                                    echo 'selected'; ?> value="Freelance">Freelance</option>
+                                    </select>
                                 </div>
-                                <!-- select-Categories End -->
                             </div>
                             <!-- single two -->
-                            <div class="single-listing">
-                                <!-- select-Categories start -->
-                                <div class="select-Categories pt-80 pb-50">
-                                    <div class="small-section-tittle2">
-                                        <h4>Experience</h4>
-                                    </div>
-                                    <label class="container">1-2 Years
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    <label class="container">2-3 Years
-                                        <input type="checkbox" checked="checked active">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    <label class="container">3-6 Years
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    <label class="container">6-more..
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
+                            <div class="input-box">
+                                <div class="form-group user-chosen-select-container">
+                                    <select class="user-chosen-select" name="experience" required>
+                                        <option value="">Choose Experience</option>
+                                        <option value="No Experience">No Experience</option>
+                                        <option value="Less than 1 Year">Less than 1 Year</option>
+                                        <option value="1 to 2 Year(s)">1 to 2 Year(s)</option>
+                                        <option value="2 to 4 Year(s)">2 to 4 Year(s)</option>
+                                        <option value="3 to 5 Year(s)">3 to 5 Year(s)</option>
+                                        <option value="2 Years">2 Years</option>
+                                        <option value="3 Years">3 Years</option>
+                                        <option value="4 Years">4 Years</option>
+                                        <option value="Over 5 Years">Over 5 Years</option>
+                                    </select>
                                 </div>
-                                <!-- select-Categories End -->
                             </div>
                             <!-- single three -->
-                            <div class="single-listing">
-                                <!-- select-Categories start -->
-                                <div class="select-Categories pb-50">
-                                    <div class="small-section-tittle2">
-                                        <h4>Posted Within</h4>
-                                    </div>
-                                    <label class="container">Any
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    <label class="container">Today
-                                        <input type="checkbox" checked="checked active">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    <label class="container">Last 2 days
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    <label class="container">Last 3 days
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    <label class="container">Last 5 days
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    <label class="container">Last 10 days
-                                        <input type="checkbox">
-                                        <span class="checkmark"></span>
-                                    </label>
+                            <div class="input-box">
+                                <div class="form-group user-chosen-select-container">
+                                    <select class="user-chosen-select" name="industry" required>
+                                        <option value="">Select industry</option>
+                                        <option value="Healthcare" <?php if ($industry === 'Healthcare') echo ' selected'; ?>>Healthcare</option>
+                                        <option value="Education" <?php if ($industry === 'Education') echo ' selected'; ?>>Education</option>
+                                        <option value="Information Technology" <?php if ($industry === 'Information Technology') echo ' selected'; ?>>Information Technology</option>
+                                        <option value="Business Management" <?php if ($industry === 'Business Management') echo ' selected'; ?>>Business Management</option>
+                                        <option value="Sales and Marketing" <?php if ($industry === 'Sales and Marketing') echo ' selected'; ?>>Sales and Marketing</option>
+                                        <option value="Banking and Finance" <?php if ($industry === 'Banking and Finance') echo ' selected'; ?>>Banking and Finance</option>
+                                        <option value="Engineering" <?php if ($industry === 'Engineering') echo ' selected'; ?>>Engineering</option>
+                                        <option value="Customer Service" <?php if ($industry === 'Customer Service') echo ' selected'; ?>>Customer Service</option>
+                                        <option value="Human Resources" <?php if ($industry === 'Human Resources') echo ' selected'; ?>>Human Resources</option>
+                                        <option value="Construction and Skilled Trades" <?php if ($industry === 'Construction and Skilled Trades') echo ' selected'; ?>>Construction and Skilled Trades</option>
+                                        <option value="Hospitality and Tourism" <?php if ($industry === 'Hospitality and Tourism') echo ' selected'; ?>>Hospitality and Tourism</option>
+                                        <option value="Retail" <?php if ($industry === 'Retail') echo ' selected'; ?>>Retail</option>
+                                        <option value="Manufacture and Production" <?php if ($industry === 'Manufacture and Production') echo ' selected'; ?>>Manufacture and Production</option>
+                                        <option value="Legal" <?php if ($industry === 'Legal') echo ' selected'; ?>>Legal</option>
+                                        <option value="Media and Communication" <?php if ($industry === 'Media and Communication') echo ' selected'; ?>>Media and Communication</option>
+                                        <option value="Science and Research" <?php if ($industry === 'Science and Research') echo ' selected'; ?>>Science and Research</option>
+                                        <option value="Art and Design" <?php if ($industry === 'Art and Design') echo ' selected'; ?>>Art and Design</option>
+                                        <option value="Agriculture and Farming" <?php if ($industry === 'Agriculture and Farming') echo ' selected'; ?>>Agriculture and Farming</option>
+                                        <option value="Government and Public Administration" <?php if ($industry === 'Government and Public Administration') echo ' selected'; ?>>Government and Public Administration</option>
+                                        <option value="Transportation and Logistics" <?php if ($industry === 'Transportation and Logistics') echo ' selected'; ?>>Transportation and Logistics</option>
+                                        <option value="Real Estate" <?php if ($industry === 'Real Estate') echo ' selected'; ?>>Real Estate</option>
+                                        <option value="NonProfit and Social Services" <?php if ($industry === 'NonProfit and Social Services') echo ' selected'; ?>>NonProfit and Social Services</option>
+                                        <option value="Insurance" <?php if ($industry === 'Insurance') echo ' selected'; ?>>Insurance</option>
+                                        <option value="Fitness and Wellness" <?php if ($industry === 'Fitness and Wellness') echo ' selected'; ?>>Fitness and Wellness</option>
+                                        <option value="Energy" <?php if ($industry === 'Energy') echo ' selected'; ?>>Energy</option>
+                                        <option value="Consulting" <?php if ($industry === 'Consulting') echo ' selected'; ?>>Consulting</option>
+                                        <option value="Security and Law Enforcement" <?php if ($industry === 'Security and Law Enforcement') echo ' selected'; ?>>Security and Law Enforcement</option>
+                                        <option value="Writing and Editing" <?php if ($industry === 'Writing and Editing') echo ' selected'; ?>>Writing and Editing</option>
+                                        <option value="Performing Arts" <?php if ($industry === 'Performing Arts') echo ' selected'; ?>>Performing Arts</option>
+                                        <option value="Sports" <?php if ($industry === 'Sports') echo ' selected'; ?>>Sports</option>
+                                        <option value="Telecommunications" <?php if ($industry === 'Telecommunications') echo ' selected'; ?>>Telecommunications</option>
+                                        <option value="Personal Care and Beauty Services" <?php if ($industry === 'Personal Care and Beauty Services') echo ' selected'; ?>>Personal Care and Beauty Services</option>
+                                        <option value="Digital Marketing" <?php if ($industry === 'Digital Marketing') echo ' selected'; ?>>Digital Marketing</option>
+                                        <option value="Journalism" <?php if ($industry === 'Journalism') echo ' selected'; ?>>Journalism</option>
+                                    </select>
                                 </div>
-                                <!-- select-Categories End -->
+                            </div>
+                            <!-- single three -->
+                            <div class="input-box">
+                                <div class="form-group user-chosen-select-container">
+                                    <select class="user-chosen-select" name="careerLevel" required>
+                                        <option value="">Career Level</option>
+                                        <option value="Student">Student</option>
+                                        <option value="Junior">Junior</option>
+                                        <option value="Intermediate">Intermediate</option>
+                                        <option value="Senior">Senior</option>
+                                        <option value="Manager">Manager</option>
+                                        <option value="Executive">Executive</option>
+                                    </select>
+                                </div><!-- end form-group -->
+                            </div>
+
+                            <!-- single three -->
+                            <div class="input-box">
+                                <div class="form-group user-chosen-select-container">
+                                    <select class="user-chosen-select" name="qualification" required>
+                                        <option value="">Qualification</option>
+                                        <option value="None Required">None Required</option>
+                                        <option value="SSCE">SSCE</option>
+                                        <option value="OND">OND</option>
+                                        <option value="HND">HND</option>
+                                        <option value="Diploma">Diploma</option>
+                                        <option value="Graduate">Graduate</option>
+                                        <option value="Associate Degree">Associate Degree</option>
+                                        <option value="Bachelor's Degree">Bachelor's Degree</option>
+                                        <option value="Master's Degree">Master's Degree</option>
+                                        <option value="Doctorate Degree">Doctorate Degree</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="single-listing">
                                 <!-- Range Slider Start -->
                                 <aside class="left_widgets p_filter_widgets price_rangs_aside sidebar_box_shadow">
-                                    <div class="small-section-tittle2">
-                                        <h4>Filter Jobs</h4>
-                                    </div>
-                                    <div class="widgets_inner">
-                                        <div class="range_item">
-                                            <!-- <div id="slider-range"></div> -->
-                                            <input type="text" class="js-range-slider" value="" />
-                                            <div class="d-flex align-items-center">
-                                                <div class="price_text">
-                                                    <p>Price :</p>
-                                                </div>
-                                                <div class="price_value d-flex justify-content-center">
-                                                    <input type="text" class="js-input-from" id="amount" readonly />
-                                                    <span>to</span>
-                                                    <input type="text" class="js-input-to" id="amount" readonly />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+
                                 </aside>
                                 <!-- Range Slider End -->
                             </div>
@@ -234,8 +253,8 @@ include 'inc/header/applicant-header.php';
                                 <!-- Count of Job list Start -->
                                 <div class="row">
                                     <div class="col-lg-12">
-                                        <div class="count-job mb-35">
-                                            <span>39, 782 Jobs found</span>
+                                        <div class="count-job mb-35 text-center">
+                                            <span><?= $jobCount ?> Jobs found</span>
 
                                         </div>
                                     </div>

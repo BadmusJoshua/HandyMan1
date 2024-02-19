@@ -39,6 +39,10 @@ if (isset($_POST['updateProfile'])) {
     if (in_array($fileExt, $acceptedExt)) {
       move_uploaded_file($_FILES['profileImage']['tmp_name'], $uploadFile);
       $profileImage = $uploadFile;
+
+      if (file_exists($imagePath)) { // if previous image exists
+        unlink($imagePath); // delete previous image and process new one
+      }
     } else {
       $imageErr = "1";
     }
@@ -72,9 +76,6 @@ if (isset($_POST['updateProfile'])) {
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$about, $profileImage, $job, $skill, $experience, $country, $state, $address, $phone, $email, $website, $twitter, $facebook, $instagram, $userId]);
     $userUpdate = 1;
-  }
-  if (file_exists($imagePath)) { // if previous image exists
-    unlink($imagePath); // delete previous image and process new one
   }
 }
 
