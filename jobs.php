@@ -2,6 +2,8 @@
 
 include 'inc/header/applicant-header.php';
 
+$jobType = $gender = $experience = $industry = $careerLevel = $qualification = $queryJobCount = $output = "";
+
 //SQL to get job count
 $sql = "SELECT * FROM jobs ORDER BY created_at ASC";
 $stmt = $pdo->prepare($sql);
@@ -12,6 +14,59 @@ if ($stmt) {
 }
 $jobCount = $stmt->rowCount();
 $jobs = $stmt->fetchAll();
+
+function timeAgo($date)
+{
+    $dateTime = new DateTime($date);
+    $currentDate = new DateTime();
+
+    $interval = $dateTime->diff($currentDate);
+
+    $output = "";
+
+    if ($interval->y) {
+        $output .= $interval->y . " years ";
+    }
+    if ($interval->m) {
+        $output .= $interval->m . " months ";
+    }
+    if ($interval->d) {
+        $output .= $interval->d . " days ";
+    }
+    if ($interval->h) {
+        $output .= $interval->h . " hours ";
+    }
+    if ($interval->i) {
+        $output .= $interval->i . " minutes ";
+    }
+    if ($interval->s) {
+        $output .= $interval->s . " seconds ";
+    }
+
+    $output .= "ago";
+
+    return $output;
+}
+
+//SQL to filter jobs
+if (isset($_POST['filterJobs'])) {
+    $jobType = isset($_POST['jobType']) ? ($_POST['jobType']) : '';
+    $gender = isset($_POST['gender']) ? ($_POST['gender']) : '';
+    $experience = isset($_POST['experience']) ? ($_POST['experience']) : '';
+    $industry = isset($_POST['industry']) ? ($_POST['industry']) : '';
+    $careerLevel = isset($_POST['careerLevel']) ? ($_POST['careerLevel']) : '';
+    $qualification = isset($_POST['qualification']) ? ($_POST['qualification']) : '';
+
+    $sql = "SELECT * FROM jobs WHERE jobType LIKE '%$jobType%' && gender LIKE '%$gender%' && experience LIKE '%$experience%' && industry LIKE '%$industry%' && careerLevel LIKE '%$careerLevel%' qualification LIKE '%&qualification%'";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+    } else {
+        echo "Error: Unable to prepare statement.";
+    }
+    $queryJobCount = $stmt->rowCount();
+    $queryJobs = $stmt->fetchAll();
+};
 ?>
 <!-- ======= Sidebar ======= -->
 <aside id="sidebar" class="sidebar">
@@ -106,12 +161,9 @@ $jobs = $stmt->fetchAll();
             <div class="container">
                 <div class="row d-flex flex-column">
                     <!-- Left content -->
-                    <div class="d-flex flex-row  ">
-                        <div class="small-section-tittle2 text-center">
-                            <h4>Filter Jobs</h4>
-                        </div>
+                    <div class="d-flex flex-row ">
                         <!-- Job Category Listing start -->
-                        <div class="job-category-listing mb-50 d-flex flex-row justify-content-evenly">
+                        <div class="job-category-listing mb-50 d-flex flex-row flex-wrap gap-1 align-items-stretch">
                             <!-- single three -->
                             <div class="input-box">
                                 <div class="form-group user-chosen-select-container">
@@ -235,13 +287,7 @@ $jobs = $stmt->fetchAll();
                                     </select>
                                 </div>
                             </div>
-                            <div class="single-listing">
-                                <!-- Range Slider Start -->
-                                <aside class="left_widgets p_filter_widgets price_rangs_aside sidebar_box_shadow">
-
-                                </aside>
-                                <!-- Range Slider End -->
-                            </div>
+                            <button name="filterJobs" class="theme-btn border-0 " type="submit" style="height:fit-content;">Filter Jobs</button>
                         </div>
                         <!-- Job Category Listing End -->
                     </div>
@@ -254,7 +300,12 @@ $jobs = $stmt->fetchAll();
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <div class="count-job mb-35 text-center">
-                                            <span><?= $jobCount ?> Jobs found</span>
+                                            <?php if ($jobCount) { ?>
+                                                <span><?= $jobCount . " Jobs found" ?> </span>
+                                            <?  }
+                                            if (isset($_POST['filterJobs'])) { ?>
+                                                <span><?= $queryJobCount . " Jobs found" ?> </span>
+                                            <?php } ?>
 
                                         </div>
                                     </div>
@@ -262,27 +313,96 @@ $jobs = $stmt->fetchAll();
                                 <!-- Count of Job list End -->
                                 <!-- single-job-content -->
                                 <div class="row">
-                                    <div class="single-job-items mb-5 col-md-6 col-sm-4">
-                                        <div class="job-items">
-                                            <div class="company-img">
-                                                <a href="#"><img src="assets/img/icon/job-list1.png" alt=""></a>
+                                    <?php if ($job) {
+                                        foreach ($jobs as $job) { ?>
+                                            <div class="single-job-items mb-4 col-md-6 col-sm-1">
+                                                <div class="job-items">
+                                                    <div class="company-img">
+                                                        <a href="#"><img src="assets/img/icon/job-list1.png" alt=""></a>
+                                                    </div>
+                                                    <div class="job-tittle job-tittle2">
+                                                        <a href="#">
+                                                            <h4><?= $job->jobTitle ?></h4>
+                                                        </a>
+
+                                                        <div class="dropdown-center">
+                                                            <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                See More
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li>
+                                                                    <h6 class="dropdown-item text-justify "><b>Job Description :</b><?= $job->jobDescription ?> </h6>
+                                                                </li>
+                                                                <li>
+                                                                    <h6 class="dropdown-item text-justify "> <b>Qualifications :</b><?= $job->qualification ?></h6>
+                                                                </li>
+                                                                <li>
+                                                                    <h6 class="dropdown-item text-justify "> <b>Skill Requirements :</b><?= $job->skill ?>
+                                                                    </h6>
+                                                                </li>
+                                                                <li>
+                                                                    <h6 class="dropdown-item text-justify "> <b>Experience :</b><?= $job->experience ?>
+                                                                    </h6>
+                                                                </li>
+                                                                <li>
+                                                                    <h6 class="dropdown-item text-justify "> <b>Job Type : </b><?= $job->jobType ?>
+                                                                    </h6>
+                                                                </li>
+                                                                <li>
+                                                                    <h6 class="dropdown-item text-justify "> <b>Job Level : </b><?= $job->careerLevel ?>
+                                                                    </h6>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <ul>
+                                                            <?php
+                                                            //sql to fetch employer details
+                                                            $employer_sql = "SELECT * FROM  employers WHERE id = ?";
+                                                            $employer_stmt = $pdo->prepare($employer_sql);
+                                                            if ($employer_stmt) {
+                                                                $employer_stmt->execute([$job->userId]);
+                                                                $employer_details = $employer_stmt->fetch();
+                                                            } else {
+                                                                echo "Error: Unable to prepare statement.";
+                                                            }
+                                                            ?>
+
+                                                            <li><?= $employer_details->name ?></li>
+                                                            <li><?= $job->industry ?></li>
+                                                            <li><i class="fas fa-map-marker-alt"></i><?= $employer_details->state ?>, <?= $employer_details->country ?></li>
+                                                            <li>$<?= $job->minOffer ?> - $<?= $job->maxOffer ?></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="items-link items-link2 f-right">
+                                                    <?php
+                                                    if ($job->status == '1') { ?>
+                                                        <div class="d-flex justify-content-between"> <span class="badge bg-primary rounded-3 fw-semibold">Open</span>
+                                                            <li class="d-inline-block"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Apply" data-bs-toggle="" data-bs-target=""></i></li>
+                                                        </div>
+
+                                                    <?php } else { ?>
+                                                        <span class="badge bg-secondary rounded-3 fw-semibold">Closed</span>
+                                                    <?php } ?>
+
+                                                    <span>
+                                                        <?php
+                                                        $output = timeAgo($job->created_at);
+                                                        echo $output;
+                                                        ?>
+                                                    </span>
+                                                </div>
+                                                <div>
+
+
+                                                </div>
                                             </div>
-                                            <div class="job-tittle job-tittle2">
-                                                <a href="#">
-                                                    <h4>Digital Marketer</h4>
-                                                </a>
-                                                <ul>
-                                                    <li>Creative Agency</li>
-                                                    <li><i class="fas fa-map-marker-alt"></i>Athens, Greece</li>
-                                                    <li>$3500 - $4000</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="items-link items-link2 f-right">
-                                            <a href="job_details.html">Full Time</a>
-                                            <span>7 hours ago</span>
-                                        </div>
-                                    </div>
+                                    <?php  }
+                                    } elseif ($queryJobs) {
+                                    }
+                                    ?>
+
                                     <!-- single-job-content -->
                                     <div class="single-job-items mb-5 col-md-6 col-sm-4">
                                         <div class="job-items">
@@ -305,116 +425,7 @@ $jobs = $stmt->fetchAll();
                                             <span>7 hours ago</span>
                                         </div>
                                     </div>
-                                    <!-- single-job-content -->
-                                    <div class="single-job-items mb-5 col-md-6 col-sm-4">
-                                        <div class="job-items">
-                                            <div class="company-img">
-                                                <a href="#"><img src="assets/img/icon/job-list3.png" alt=""></a>
-                                            </div>
-                                            <div class="job-tittle job-tittle2">
-                                                <a href="#">
-                                                    <h4>Software Developer</h4>
-                                                </a>
-                                                <ul>
-                                                    <li>IT Firm</li>
-                                                    <li><i class="fas fa-map-marker-alt"></i>Athens, Greece</li>
-                                                    <li>$2500 - $3000</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="items-link items-link2 f-right">
-                                            <a href="job_details.html">Full Time</a>
-                                            <span>7 hours ago</span>
-                                        </div>
-                                    </div>
-                                    <!-- single-job-content -->
-                                    <div class="single-job-items mb-5 col-md-6 col-sm-4">
-                                        <div class="job-items">
-                                            <div class="company-img">
-                                                <a href="#"><img src="assets/img/icon/job-list4.png" alt=""></a>
-                                            </div>
-                                            <div class="job-tittle job-tittle2">
-                                                <a href="#">
-                                                    <h4>Lecturer</h4>
-                                                </a>
-                                                <ul>
-                                                    <li>Education</li>
-                                                    <li><i class="fas fa-map-marker-alt"></i>Athens, Greece</li>
-                                                    <li>$300 - $500</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="items-link items-link2 f-right">
-                                            <a href="job_details.html">Full Time</a>
-                                            <span>7 hours ago</span>
-                                        </div>
-                                    </div>
-                                    <!-- single-job-content -->
-                                    <div class="single-job-items mb-5 col-md-6 col-sm-4">
-                                        <div class="job-items">
-                                            <div class="company-img">
-                                                <a href="#"><img src="assets/img/icon/job-list1.png" alt=""></a>
-                                            </div>
-                                            <div class="job-tittle job-tittle2">
-                                                <a href="#">
-                                                    <h4>Digital Marketer</h4>
-                                                </a>
-                                                <ul>
-                                                    <li>Creative Agency</li>
-                                                    <li><i class="fas fa-map-marker-alt"></i>Athens, Greece</li>
-                                                    <li>$3500 - $4000</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="items-link items-link2 f-right">
-                                            <a href="job_details.html">Full Time</a>
-                                            <span>7 hours ago</span>
-                                        </div>
-                                    </div>
-                                    <!-- single-job-content -->
-                                    <div class="single-job-items mb-5 col-md-6 col-sm-4">
-                                        <div class="job-items">
-                                            <div class="company-img">
-                                                <a href="#"><img src="assets/img/icon/job-list3.png" alt=""></a>
-                                            </div>
-                                            <div class="job-tittle job-tittle2">
-                                                <a href="#">
-                                                    <h4>Digital Marketer</h4>
-                                                </a>
-                                                <ul>
-                                                    <li>Creative Agency</li>
-                                                    <li><i class="fas fa-map-marker-alt"></i>Athens, Greece</li>
-                                                    <li>$3500 - $4000</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="items-link items-link2 f-right">
-                                            <a href="job_details.html">Full Time</a>
-                                            <span>7 hours ago</span>
-                                        </div>
-                                    </div>
-                                    <!-- single-job-content -->
-                                    <div class="single-job-items mb-5 col-md-6 col-sm-4">
-                                        <div class="job-items">
-                                            <div class="company-img">
-                                                <a href="#"><img src="assets/img/icon/job-list4.png" alt=""></a>
-                                            </div>
-                                            <div class="job-tittle job-tittle2">
-                                                <a href="#">
-                                                    <h4>Digital Marketer</h4>
-                                                </a>
-                                                <ul>
-                                                    <li>Creative Agency</li>
-                                                    <li><i class="fas fa-map-marker-alt"></i>Athens, Greece</li>
-                                                    <li>$3500 - $4000</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="items-link items-link2 f-right">
-                                            <a href="job_details.html">Full Time</a>
-                                            <span>7 hours ago</span>
-                                        </div>
-                                    </div>
+
                                 </div>
 
                             </div>

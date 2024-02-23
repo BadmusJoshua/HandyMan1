@@ -7,10 +7,7 @@ $facebook = $detail->facebook;
 $instagram = $detail->instagram;
 $phone = $detail->phone;
 $email = $detail->email;
-$about = $detail->about;
-// $headquarter = $detail->headquarter;
 $website = $detail->website;
-// $employee = $detail->employee_size;
 $address = $detail->address;
 $id = $detail->id;
 $country = $detail->country;
@@ -47,13 +44,14 @@ if (isset($_POST['updateProfile'])) {
       $imageErr = "1";
     }
   } else {
-    $profileImage = '';
+    if (file_exists($imagePath)) { // use previous image exists as no new image is uploaded
+      $profileImage = $imagePath;
+    }
   };
 
   $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $about = filter_input(INPUT_POST, 'about', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
   $job = filter_input(INPUT_POST, 'job', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-  $skill = filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $skill = filter_input(INPUT_POST, 'skills', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
   $experience = filter_input(INPUT_POST, 'experience', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
   $country = filter_input(INPUT_POST, 'country', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
   $state = filter_input(INPUT_POST, 'state', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -72,9 +70,9 @@ if (isset($_POST['updateProfile'])) {
   if ($userCount == 0) {
     $user = 1;
   } else {
-    $sql = "UPDATE applicants SET about=?,image = ?,job=?,skill=?,experience=?,country=?,state=?,address=?,phone=?,email=?,website=?,twitter=?,facebook=?,instagram=? WHERE id = ?";
+    $sql = "UPDATE applicants SET image = ?,job=?,skill=?,experience=?,country=?,state=?,address=?,phone=?,email=?,website=?,twitter=?,facebook=?,instagram=? WHERE id = ?";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$about, $profileImage, $job, $skill, $experience, $country, $state, $address, $phone, $email, $website, $twitter, $facebook, $instagram, $userId]);
+    $stmt->execute([$profileImage, $job, $skill, $experience, $country, $state, $address, $phone, $email, $website, $twitter, $facebook, $instagram, $userId]);
     $userUpdate = 1;
   }
 }
@@ -260,10 +258,6 @@ if (isset($_POST['changePassword'])) {
                   <div class="col-lg-3 col-md-4 label ">Full Name</div>
                   <div class="col-lg-9 col-md-8"><?php echo $detail->name ?></div>
                 </div>
-                <div class="row">
-                  <div class="col-lg-3 col-md-4 label ">About</div>
-                  <div class="col-lg-9 col-md-8"><?php echo $detail->about ?></div>
-                </div>
 
                 <div class="row">
                   <div class="col-lg-3 col-md-4 label">Job</div>
@@ -334,13 +328,6 @@ if (isset($_POST['changePassword'])) {
                     <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Full Name</label>
                     <div class="col-md-8 col-lg-9">
                       <input name="fullName" type="text" class="form-control" id="fullName" value="<?php echo $detail->name ?>">
-                    </div>
-                  </div>
-
-                  <div class="row mb-3">
-                    <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
-                    <div class="col-md-8 col-lg-9">
-                      <textarea name="about" class="form-control" id="about" style="height: 100px" value="<?php echo $detail->about ?>"></textarea>
                     </div>
                   </div>
 
