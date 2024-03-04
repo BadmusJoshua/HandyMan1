@@ -74,7 +74,7 @@ include 'inc/config/database.php';
                                                 </ul>
                                             </li>
                                             <li><a href="contact.html">Contact</a></li>
-                                            <li><a href="index.php">Admin</a></li>
+                                            <li><a href="admin-login.php">Admin</a></li>
 
                                         </ul>
                                     </nav>

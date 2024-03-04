@@ -19,33 +19,36 @@ if (isset($_COOKIE['remember_me'])) {
   if ($details) {
     $expire_date = $details->expires_at;
   }
-  if ($row === 1) {
+  if ($row === '1') {
     //if token is not yet expired
     if (time() < strtotime($expire_date)) {
       if ($userCategory === '1') {
 
         //sql to fetch the value for the disabled flag
-        $sql = "SELECT disabled FROM applicants WHERE  id = ?";
+        $sql = "SELECT * FROM applicants WHERE  id = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$userId]);
-        $disabled = $stmt->fetch();
-        if ($disabled == '0') {
+        $auth = $stmt->fetch();
+        if ($auth->disabled === 0) {
           session_start();
           $_SESSION['id'] = $userId;
+          $_SESSION['category'] = $userCategory;
           header("Location: applicant-index.php");
         } else {
           $disabled = 1;
         }
-      } elseif ($userCategory === '2') {
+      } elseif ($userCategory === 2) {
 
         //sql to fetch the value for the disabled flag
-        $sql = "SELECT disabled FROM employers WHERE  id = ?";
+        $sql = "SELECT * FROM employers WHERE  id = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$userId]);
-        $disabled = $stmt->fetch();
-        if ($disabled == '0') {
+        $auth = $stmt->fetch();
+        if ($auth->disabled === 0) {
           session_start();
           $_SESSION['id'] = $userId;
+          $_SESSION['category'] = $userCategory;
+
           header("Location: employer-index.php");
         } else {
           $disabled = 1;
@@ -90,13 +93,15 @@ if (isset($_POST['login'])) {
     //if password match
     if ($confirm_password) {
       //sql to fetch the value for the disabled flag
-      $sql = "SELECT disabled FROM applicants WHERE  id = ?";
+      $sql = "SELECT * FROM applicants WHERE  id = ?";
       $stmt = $pdo->prepare($sql);
       $stmt->execute([$userId]);
-      $disabled = $stmt->fetch();
-      if ($disabled == '0') {
+      $auth = $stmt->fetch();
+      if ($auth->disabled === 0) {
         session_start();
         $_SESSION['id'] = $userId;
+        $_SESSION['category'] = $userCategory;
+
 
         //if user choses to be remembered
         if (isset($_POST['remember'])) {
@@ -139,9 +144,10 @@ if (isset($_POST['login'])) {
       //if password match
       if ($confirm_password) {
 
-        if ($disabled == '0') {
+        if ($disabled === 0) {
           session_start();
           $_SESSION['id'] = $userId;
+          $_SESSION['category'] = $userCategory;
 
           //if user choses to be remembered
           if (isset($_POST['remember'])) {

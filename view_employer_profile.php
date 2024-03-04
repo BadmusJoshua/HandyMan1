@@ -1,44 +1,80 @@
 <?php
-include 'inc/header/header.php';
-$review_submit = '';
-if (isset($_SESSION['technician_id'])) {
-    $technician_id = $_SESSION['technician_id'];
-    $sql = "SELECT * FROM users WHERE id = ?";
+include 'inc/header/applicant-header.php';
+$review_submit = $rate = '';
+
+//get employer id
+if (isset($_GET['id'])) {
+    $employerId = $_SESSION['employerId'] = $_GET['id'];
+
+    //check if employer id is valid
+    $sql = "SELECT * FROM employers WHERE id = ?";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$technician_id]);
-    $technician_details = $stmt->fetch();
+    if ($stmt) {
+        $stmt->execute([$employerId]);
+        $employer_count = $stmt->rowCount();
+        if ($employer_count == 1) {
+            $employer_details = $stmt->fetch();
+        } else {
+            //redirect to jobs page
+            header("Location: jobs.php");
+        }
+    } else {
+        echo "Error: Unable to prepare statement.";
+    }
+} elseif (isset($_SESSION['employerId'])) {
+    $employerId = $_SESSION['employerId'];
+
+    //check if employer id is valid
+    $sql = "SELECT * FROM employers WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([$employerId]);
+        $employer_count = $stmt->rowCount();
+        if ($employer_count == 1) {
+            $employer_details = $stmt->fetch();
+        } else {
+            //redirect to jobs page
+            header("Location: jobs.php");
+        }
+    } else {
+        echo "Error: Unable to prepare statement.";
+    }
 } else {
+    //redirect to jobs page
+    header("Location: jobs.php");
 }
+
 if (isset($_POST['comment'])) {
     $message = filter_input(INPUT_POST, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $rating = ($_POST['rating']);
-    if (!empty($message) && (!empty($rating))) {
-        $sql = "INSERT INTO reviews (message,rating,client_id,client_name,client_image,technician_id) VALUES (?,?,?,?,?,?)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$message, $rating, $userId, $name, $detail->image, $technician_id]);
-        $review_submit = 1;
-    }
+    $id = ($_POST['employerId']);
+
+    $sql = "INSERT INTO reviews (message,rating,applicant_id,applicant_name,applicant_image,employer_id) VALUES (?,?,?,?,?,?)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$message, $rating, $userId, $name, $image, $id]);
+    $review_submit = 1;
 }
 //fetch sum of ratings
-$sql = "SELECT sum(rating) AS TOTAL_RATING FROM reviews WHERE technician_id = $technician_id";
+$sql = "SELECT sum(rating) AS TOTAL_RATING FROM reviews WHERE employer_id = ?";
 $stmt = $pdo->prepare($sql);
-$stmt->execute();
+$stmt->execute([$employer_id]);
 $totalRating = $stmt->fetch(PDO::FETCH_NUM);
 $ratingSum = $totalRating[0];
 
 //fetch count of ratings
-$sql = "SELECT * FROM reviews WHERE technician_id = $technician_id";
+$sql = "SELECT * FROM reviews WHERE employer_id = ?";
 $stmt = $pdo->prepare($sql);
-$stmt->execute();
+$stmt->execute([$employerId]);
 $totalCount = $stmt->rowCount();
 if ($totalCount == 0) {
     $rates = 0;
 } else {
+    //fetch average rate
     $rates = ($ratingSum / $totalCount);
 }
-$sql = "UPDATE users SET rating = $rates WHERE id=$technician_id";
-$stmt = $pdo->prepare($sql);
-$stmt->execute();
+// $sql = "UPDATE employers SET rating = ? WHERE id=?";
+// $stmt = $pdo->prepare($sql);
+// $stmt->execute([$rate, $employerId]);
 ?>
 <!-- ======= Sidebar ======= -->
 <aside id="sidebar" class="sidebar">
@@ -46,19 +82,12 @@ $stmt->execute();
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
-            <?php
-            if ($technician == 1) { ?>
-                <a class="nav-link collapsed " href="technician_index.php">
-                    <i class="bi bi-grid"></i>
-                    <span>Dashboard</span>
-                </a>
-            <?php } else { ?>
-                <a class="nav-link collapsed " href="index.php">
-                    <i class="bi bi-grid"></i>
-                    <span>Dashboard</span>
-                </a>
-            <?php }
-            ?>
+
+            <a class="nav-link collapsed " href="applicant-index.php">
+                <i class="bi bi-grid"></i>
+                <span>Dashboard</span>
+            </a>
+
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
@@ -75,8 +104,26 @@ $stmt->execute();
             </a>
         </li><!-- End Meetings Page Nav -->
 
+        <li class="nav-item">
+            <a class="nav-link" href="jobs.php">
+                <i class="bi bi-briefcase-fill"></i>
+                <span>Jobs</span>
+            </a>
+        </li><!-- End Jobs Page Nav -->
 
+        <li class="nav-item">
+            <div class="dropdown-center nav-link collapsed" style=" margin:0; padding:0; ">
+                <button class="btn dropdown-toggle nav-link collapsed" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="outline: none;
+      box-shadow: none;" onfocus="this.blur()">
+                    <i class="bi bi-patch-check"></i>&nbsp;Resumes
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item nav-link collapsed" href="upload-cv-and-coverletter.php">Upload CV and Cover letter</a></li>
+                    <li><a class="dropdown-item nav-link collapsed" href="create-resume.php">Create Resume</a></li>
+                </ul>
+            </div>
 
+        </li><!-- End Resumes Page Nav -->
 
         <li class="nav-item">
             <a class="nav-link collapsed" href="contact.php">
@@ -99,19 +146,17 @@ $stmt->execute();
             </a>
         </li><!-- End Sign Out Page Nav -->
 
-
-
     </ul>
 
 </aside><!-- End Sidebar-->
 <main id="main" class="main">
 
     <div class="pagetitle">
-        <h1>Technician Profile</h1>
+        <h1>Employer Profile</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                <li class="breadcrumb-item active">Technician Profile</li>
+                <li class="breadcrumb-item"><a href="applicant-index.php">Home</a></li>
+                <li class="breadcrumb-item active">Employer Profile</li>
             </ol>
         </nav>
     </div><!-- End Page Title -->
@@ -122,20 +167,22 @@ $stmt->execute();
                 <?php
                 if ($review_submit) { ?>
                     <div class="col-12 alert alert-success text-center alert-dismissible fade show" role="alert">
-                        Your review has been submitted</div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        Your review has been submitted
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+                    </div>
             </div>
         <?php }
         ?>
         <div class="card">
             <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
-                <img src="assets/<?= "images/$technician_details->image" ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="" style="height:130px; width:180px;border-radius:50%;">
-                <h2><?php echo $technician_details->name ?></h2>
-                <h3><?php echo $technician_details->job ?></h3>
+                <img src="assets/<?= "$employer_details->image" ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="" style="height:130px; width:180px;border-radius:50%;">
+                <h2><?php echo $employer_details->name ?></h2>
+                <h3><?php echo $employer_details->job_category ?></h3>
                 <div class="social-links mt-2">
-                    <a href="<?php echo $technician_details->twitter ?>" class="twitter"><i class="bi bi-twitter"></i></a>
-                    <a href="<?php echo $technician_details->facebook ?>" class="facebook"><i class="bi bi-facebook"></i></a>
-                    <a href="<?php echo $technician_details->instagram ?>" class="instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="<?php echo $employer_details->twitter ?>" class="twitter"><i class="bi bi-twitter"></i></a>
+                    <a href="<?php echo $employer_details->facebook ?>" class="facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="<?php echo $employer_details->instagram ?>" class="instagram"><i class="bi bi-instagram"></i></a>
                 </div>
             </div>
         </div>
@@ -169,30 +216,68 @@ $stmt->execute();
                     <div class="tab-content pt-2">
 
                         <div class="tab-pane fade show active profile-overview" id="profile-overview">
-                            <h5 class="card-title">About</h5>
-                            <p class="small fst-italic"><?php echo $technician_details->about ?></p>
 
-                            <h5 class="card-title">Profile Details</h5>
+                            <h5 class="card-title">Employer Details</h5>
 
                             <div class="row">
-                                <div class="col-lg-3 col-md-4 label ">Full Name</div>
-                                <div class="col-lg-9 col-md-8"><?php echo $technician_details->name ?></div>
+                                <div class="col-lg-3 col-md-4 label">Company Name</div>
+                                <div class="col-lg-9 col-md-8"><?php echo $employer_details->name ?></div>
                             </div>
 
                             <div class="row">
-                                <div class="col-lg-3 col-md-4 label">Company</div>
-                                <div class="col-lg-9 col-md-8"><?php echo $technician_details->company ?></div>
+                                <div class="col-lg-3 col-md-4 label">About</div>
+                                <div class="col-lg-9 col-md-8">
+                                    <p class="small fst-italic"><?php echo $employer_details->about ?></p>
+                                </div>
                             </div>
 
                             <div class="row">
-                                <div class="col-lg-3 col-md-4 label">Job</div>
-                                <div class="col-lg-9 col-md-8"><?php echo $technician_details->job ?></div>
+                                <div class="col-lg-3 col-md-4 label">Headquarters</div>
+                                <div class="col-lg-9 col-md-8"><?php if ((!empty($employer_details->state)) && (!empty($employer_details->country))) {
+                                                                    echo "$employer_details->state, $employer_details->country ";
+                                                                } ?></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Address</div>
+                                <div class="col-lg-9 col-md-8"><?= $employer_details->address ?></div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Industry</div>
+                                <div class="col-lg-9 col-md-8"><?= $employer_details->job_category ?></div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Employee Size</div>
+                                <div class="col-lg-9 col-md-8"><?= $employer_details->employee_size ?>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Posted Jobs</div>
+                                <div class="col-lg-9 col-md-8"></div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Phone</div>
+                                <div class="col-lg-9 col-md-8"><?= $employer_details->phone ?></div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Email</div>
+                                <div class="col-lg-9 col-md-8"><?= $employer_details->email ?></div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label">Website</div>
+                                <div class="col-lg-9 col-md-8"><?= $employer_details->website ?></div>
                             </div>
 
                             <div class="row">
                                 <div class="col-lg-3 col-md-4 label">Rating</div>
-                                <div class="col-lg-9 col-md-8"><?php $technician_details->rating;
-                                                                $rate = $technician_details->rating;
+                                <div class="col-lg-9 col-md-8"><?php $employer_details->rating;
+                                                                $rate = $employer_details->rating;
                                                                 echo $rate;
                                                                 if ($rate == 0) {
                                                                     echo ' No reviews yet';
@@ -274,26 +359,6 @@ $stmt->execute();
                                                                 ?></div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-lg-3 col-md-4 label">Country</div>
-                                <div class="col-lg-9 col-md-8"><?php echo $technician_details->country ?></div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-lg-3 col-md-4 label">Address</div>
-                                <div class="col-lg-9 col-md-8"><?php echo $technician_details->address ?></div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-lg-3 col-md-4 label">Phone</div>
-                                <div class="col-lg-9 col-md-8"><?php echo $technician_details->phone ?></div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-lg-3 col-md-4 label">Email</div>
-                                <div class="col-lg-9 col-md-8"><?php echo $technician_details->email ?></div>
-                            </div>
-
                         </div>
 
 
@@ -301,9 +366,9 @@ $stmt->execute();
                         <div class="tab-pane fade pt-3" id="reviews">
 
                             <?php
-                            $sql = "SELECT * FROM reviews WHERE technician_id=? ORDER BY rating DESC";
+                            $sql = "SELECT * FROM reviews WHERE employer_id=? ORDER BY rating DESC";
                             $stmt = $pdo->prepare($sql);
-                            $stmt->execute([$technician_id]);
+                            $stmt->execute([$employerId]);
                             $review_count = $stmt->rowCount();
                             if ($review_count == 0) { ?>
                                 <div class="text-center m-auto">No Reviews yet!</div>
@@ -313,10 +378,10 @@ $stmt->execute();
                                     <?php foreach ($review as $comment) : ?>
                                         <div class="row border p-2">
                                             <div class="col-2 justify-content-center ">
-                                                <img src="assets/images/<?= $comment->client_image ?>" alt="" style="height:70px;width:70px;" onerror="this.src='assets/img/profile-img.jpg'" class="rounded-circle">
+                                                <img src="<?= $comment->applicant_image ?>" alt="" style="height:70px;width:70px;" onerror="this.src='assets/img/profile-img.jpg'" class="rounded-circle">
                                             </div>
                                             <div class="col-10 justify-content-between">
-                                                <h5><?= $comment->client_name ?></h5>
+                                                <h5><?= $comment->applicant_name ?></h5>
                                                 <small><?= $comment->created ?></small>
                                             </div>
                                             <div class="col-12"><?= $comment->message ?></div>
@@ -378,7 +443,7 @@ $stmt->execute();
                         <div class="tab-pane fade pt-3" id="leave_review">
                             <!-- Review Form -->
                             <?php
-                            if ($detail->username == $technician_details->username) { ?>
+                            if ($detail->name == $employer_details->name) { ?>
                                 <div class="text-center m-auto">You can't leave a review for yourself </div>
 
                             <?php } else { ?>
@@ -392,7 +457,7 @@ $stmt->execute();
                                         <div class="col-6">
                                             <label for="" class="form-label">Rating: </label>
                                             <select name="rating" id="" class="form-control">
-                                                <option value=""></option>
+                                                <option value=""> Choose Rating</option>
                                                 <option value="1">Terrible 😠</option>
                                                 <option value="2">Bad 😫</option>
                                                 <option value="3">Fair 😐</option>
@@ -400,6 +465,7 @@ $stmt->execute();
                                                 <option value="5">Excellent 😁</option>
                                             </select>
                                         </div>
+                                        <input type="hidden" name="employerId" value="<?= $employerId ?>">
 
                                     </div>
 

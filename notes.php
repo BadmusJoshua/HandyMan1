@@ -1,5 +1,17 @@
 <?php
-include 'inc/header/employer-header.php';
+session_start();
+if (isset($_SESSION['category'])) {
+    $Category = $_SESSION['category'];
+    if ($Category === 1) {
+        include 'inc/header/applicant-header.php';
+    } elseif ($Category === 2) {
+        include 'inc/header/employer-header.php';
+    } else {
+        include 'inc/header/admin-header.php';
+    }
+} else {
+    header("Location:index.php");
+}
 // Initialize variables
 $message = $priority = $note_update = $note_create = $edit_note = $note = '';
 
@@ -55,50 +67,157 @@ if (isset($_POST['updateNote'])) {
 <aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
+        <?php
+        if ($Category === 1) {
+            include 'inc/header/applicant-header.php'; ?>
+            <li class="nav-item">
+                <a class="nav-link " href="index.php">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li><!-- End Dashboard Nav -->
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="employer-index.php">
-                <i class="bi bi-grid"></i>
-                <span>Dashboard</span>
-            </a>
-        </li><!-- End Dashboard Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="applicant-profile.php">
+                    <i class="bi bi-person"></i>
+                    <span>Profile</span>
+                </a>
+            </li><!-- End Profile Page Nav -->
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="employer-profile.php">
-                <i class="bi bi-person"></i>
-                <span>Profile</span>
-            </a>
-        </li><!-- End Profile Page Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="meetings.php">
+                    <i class="ri-building-4-line"></i>
+                    <span>Meetings</span>
+                </a>
+            </li><!-- End Meeting Page Nav -->
 
-        <li class="nav-item">
-            <a class="nav-link" href="employer-post-new-job.php">
-                <i class="bi bi-journal-plus"></i>
-                <span>Post New Job</span>
-            </a>
-        </li><!-- End Post New Job Page Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="jobs.php">
+                    <i class="bi bi-briefcase-fill"></i>
+                    <span>Jobs</span>
+                </a>
+            </li><!-- End Jobs Page Nav -->
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="employer-manage-jobs.php">
-                <i class="bi bi-briefcase-fill"></i>
-                <span>Manage Jobs</span>
-            </a>
-        </li><!-- End Manage Jobs Page Nav -->
+            <li class="nav-item">
+                <div class="dropdown-center nav-link collapsed" style=" margin:0; padding:0; ">
+                    <button class="btn dropdown-toggle nav-link collapsed" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="outline: none;
+      box-shadow: none;" onfocus="this.blur()">
+                        <i class="bi bi-patch-check"></i>&nbsp;Resumes
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item nav-link collapsed" href="upload-cv-and-coverletter.php">Upload CV and Cover letter</a></li>
+                        <li><a class="dropdown-item nav-link collapsed" href="create-resume.php">Create Resume</a></li>
+                    </ul>
+                </div>
+
+            </li><!-- End Resumes Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="faq.php">
+                    <i class="bi bi-question-circle"></i>
+                    <span>F.A.Q</span>
+                </a>
+            </li><!-- End F.A.Q Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="contact.php">
+                    <i class="bi bi-envelope"></i>
+                    <span>Help Desk</span>
+                </a>
+            </li><!-- End Contact Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="logout.php">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Sign Out</span>
+                </a>
+            </li><!-- End suggestionin Page Nav -->
+        <?php } elseif ($Category === 2) {
+            include 'inc/header/employer-header.php'; ?>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="employer-index.php">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li><!-- End Dashboard Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="employer-profile.php">
+                    <i class="bi bi-person"></i>
+                    <span>Profile</span>
+                </a>
+            </li><!-- End Profile Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link" href="employer-post-new-job.php">
+                    <i class="bi bi-journal-plus"></i>
+                    <span>Post New Job</span>
+                </a>
+            </li><!-- End Post New Job Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="employer-manage-jobs.php">
+                    <i class="bi bi-briefcase-fill"></i>
+                    <span>Manage Jobs</span>
+                </a>
+            </li><!-- End Manage Jobs Page Nav -->
 
 
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="employer-manage-applicants.php">
-                <i class="bi bi-envelope"></i>
-                <span>Manage Applicants</span>
-            </a>
-        </li><!-- End Contact Page Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="employer-manage-applicants.php">
+                    <i class="bi bi-envelope"></i>
+                    <span>Manage Applicants</span>
+                </a>
+            </li><!-- End Contact Page Nav -->
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="logout.php">
-                <i class="bi bi-box-arrow-in-right"></i>
-                <span>Sign Out</span>
-            </a>
-        </li><!-- End suggestion in Page Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="logout.php">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Sign Out</span>
+                </a>
+            </li><!-- End suggestion in Page Nav -->
+        <?php } else {
+            include 'inc/header/admin-header.php'; ?>
+            <li class="nav-item">
+                <a class="nav-link " href="admin-index.php">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li><!-- End Dashboard Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="view-applicants.php">
+                    <i class="bi bi-person"></i>
+                    <span>View Applicants</span>
+                </a>
+            </li><!-- End Profile Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="view-employers.php">
+                    <i class="bi bi-person"></i>
+                    <span>View Employers</span>
+                </a>
+            </li><!-- End Profile Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="view-jobs.php">
+                    <i class="bi bi-briefcase-fill"></i>
+                    <span>View Jobs</span>
+                </a>
+            </li><!-- End Jobs Page Nav -->
+
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="logout.php">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Sign Out</span>
+                </a>
+            </li><!-- End suggestionin Page Nav -->
+        <?php }
+        ?>
+
+
     </ul>
 
 </aside><!-- End Sidebar-->

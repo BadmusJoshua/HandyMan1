@@ -246,7 +246,8 @@ if (isset($_POST['remove'])) {
               </div><!-- end mess__body -->
             </div>
             <div class="mess__item border-bottom-0 text-center">
-              <button type="button" class="theme-btn border-0 w-100">Add Note</button>
+              <a href="notes.php" class="theme-btn border-0 w-100" style="text-decoration:none;">Add Note</a>
+
             </div><!-- end mess__item -->
           </div><!-- end mess-dropdown -->
         </div><!-- end dashboard-shared -->

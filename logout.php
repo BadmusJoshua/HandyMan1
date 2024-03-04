@@ -4,6 +4,9 @@ session_start();
 
 if (!empty($_SESSION['id'])) {
     $userId = $_SESSION['id'];
+    if (!empty($_SESSION['category'])) {
+        $_SESSION['category'] = $userCategory;
+    }
 
     if (isset($_COOKIE['remember_me'])) {
         $cookie_parts = explode(':', $_COOKIE['remember_me']);
@@ -13,9 +16,9 @@ if (!empty($_SESSION['id'])) {
         $token = filter_var($token, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
         // Delete the user's token from the database
-        $query = "DELETE FROM remember_me_tokens WHERE id= ?";
+        $query = "DELETE FROM remember_me_tokens WHERE id= ? and category = ?";
         $stmt = $pdo->prepare($query);
-        $stmt->execute([$userId]);
+        $stmt->execute([$userId, $userCategory]);
 
         // If a token was found and deleted, delete the cookie
         if ($stmt->rowCount() > 0) {
@@ -23,7 +26,7 @@ if (!empty($_SESSION['id'])) {
         }
     }
 
-    // Clear the session ID and log the user out
+    // Clear the session ID and category and log the user out
     $_SESSION = array();
     session_destroy();
 }

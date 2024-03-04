@@ -75,6 +75,8 @@ if (isset($_POST['submit'])) {
                     $userId = $detail->id;
                     session_start();
                     $_SESSION['id'] = $userId;
+                    $_SESSION['category'] = $userCategory;
+
                     header("Location:employer-index.php");
                 }
             }

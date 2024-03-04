@@ -14,7 +14,7 @@ if (isset($_POST['postJob'])) {
     $maxOffer = isset($_POST['maxOffer']) ? filter_input(INPUT_POST, 'maxOffer', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $deadlineDate = isset($_POST['deadlineDate']) ? filter_input(INPUT_POST, 'deadlineDate', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $jobDescription = isset($_POST['jobDescription']) ? filter_input(INPUT_POST, 'jobDescription', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
-    $industry = isset($_POST['industry']) ? filter_input(INPUT_POST, 'industry', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
+    $industry = $job;
     $gender = isset($_POST['gender']) ? filter_input(INPUT_POST, 'gender', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $qualification = isset($_POST['qualification']) ? filter_input(INPUT_POST, 'qualification', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
     $skill = isset($_POST['skill']) ? filter_input(INPUT_POST, 'skill', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';

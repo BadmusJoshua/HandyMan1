@@ -2,18 +2,8 @@
 
 include 'inc/header/applicant-header.php';
 
-$jobType = $gender = $experience = $industry = $careerLevel = $qualification = $queryJobCount = $output = "";
+$jobType = $gender = $experience = $industry = $careerLevel = $qualification = $queryJobs = $output = $applied = "";
 
-//SQL to get job count
-$sql = "SELECT * FROM jobs ORDER BY created_at ASC";
-$stmt = $pdo->prepare($sql);
-if ($stmt) {
-    $stmt->execute([]);
-} else {
-    echo "Error: Unable to prepare statement.";
-}
-$jobCount = $stmt->rowCount();
-$jobs = $stmt->fetchAll();
 
 function timeAgo($date)
 {
@@ -48,25 +38,199 @@ function timeAgo($date)
     return $output;
 }
 
-//SQL to filter jobs
-if (isset($_POST['filterJobs'])) {
-    $jobType = isset($_POST['jobType']) ? ($_POST['jobType']) : '';
-    $gender = isset($_POST['gender']) ? ($_POST['gender']) : '';
-    $experience = isset($_POST['experience']) ? ($_POST['experience']) : '';
-    $industry = isset($_POST['industry']) ? ($_POST['industry']) : '';
-    $careerLevel = isset($_POST['careerLevel']) ? ($_POST['careerLevel']) : '';
-    $qualification = isset($_POST['qualification']) ? ($_POST['qualification']) : '';
+//process application
+if (isset($_POST['apply'])) {
+    echo "applied";
 
-    $sql = "SELECT * FROM jobs WHERE jobType LIKE '%$jobType%' && gender LIKE '%$gender%' && experience LIKE '%$experience%' && industry LIKE '%$industry%' && careerLevel LIKE '%$careerLevel%' qualification LIKE '%&qualification%'";
+    // $applicantId = $_POST['applicantId'];
+    $applicantId = filter_input(INPUT_POST, 'applicantId', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $employerId = filter_input(INPUT_POST, 'employerId', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $jobId = filter_input(INPUT_POST, 'jobId', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+
+
+    echo $applicantId . '-' . $employerId . '-' . $jobId;
+
+    // $sql = "INSERT INTO applications (applicantId, employerId, jobId ) VALUES (?,?,?) ";
+    // $stmt = $pdo->prepare($sql);
+    // if ($stmt) {
+    //     $stmt->execute([$applicantId, $employerId, $jobId]);
+    //     $applied = 1;
+    // } else {
+    //     echo "Error: Unable to prepare statement.";
+    // }
+
+}
+
+//SQL to filter jobs
+if (isset($_GET['jobTitle'])) {
+    $jobTitle = $_GET['jobTitle'];
+
+    $sql = "SELECT * FROM jobs WHERE jobTitle LIKE '%$jobTitle%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    }
+} elseif (isset($_GET['qualification'])) {
+    $qualification = $_GET['qualification'];
+
+    $sql = "SELECT * FROM jobs WHERE qualification LIKE '%$qualification%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    };
+} elseif (isset($_GET['skills'])) {
+    $skill = $_GET['skills'];
+
+    $sql = "SELECT * FROM jobs WHERE skill LIKE '%$skills%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    };
+} elseif (isset($_GET['skills'])) {
+    $skill = $_GET['skills'];
+
+    $sql = "SELECT * FROM jobs WHERE skill LIKE '%$skills%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    };
+} elseif (isset($_GET['experience'])) {
+    $experience = $_GET['experience'];
+
+    $sql = "SELECT * FROM jobs WHERE experience LIKE '%$experience%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    };
+} elseif (isset($_GET['jobType'])) {
+    $jobType = $_GET['jobType'];
+
+    $sql = "SELECT * FROM jobs WHERE jobType LIKE '%$jobType%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    };
+} elseif (isset($_GET['careerLevel'])) {
+    $careerLevel = $_GET['careerLevel'];
+
+    $sql = "SELECT * FROM jobs WHERE careerLevel LIKE '%$careerLevel%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    };
+} elseif (isset($_GET['industry'])) {
+    $industry = $_GET['industry'];
+
+    $sql = "SELECT * FROM jobs WHERE industry LIKE '%$industry%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    };
+} elseif (isset($_GET['state'])) {
+    $state = $_GET['state'];
+
+    $sql = "SELECT * FROM jobs WHERE state LIKE '%$state%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    };
+} elseif (isset($_GET['country'])) {
+    $country = $_GET['country'];
+
+    $sql = "SELECT * FROM jobs WHERE country LIKE '%$country%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    };
+} elseif (isset($_GET['minOffer'])) {
+    $minOffer = $_GET['minOffer'];
+
+    $sql = "SELECT * FROM jobs WHERE minOffer LIKE '%$minOffer%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    };
+} elseif (isset($_GET['maxOffer'])) {
+    $maxOffer = $_GET['maxOffer'];
+
+    $sql = "SELECT * FROM jobs WHERE maxOffer LIKE '%$maxOffer%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    };
+} elseif (isset($_GET['status'])) {
+    $status = $_GET['status'];
+
+    $sql = "SELECT * FROM jobs WHERE status LIKE '%$status%' ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([]);
+        $jobCount = $stmt->rowCount();
+        $queryJobs = $stmt->fetchAll();
+    } else {
+        echo "Error: Unable to prepare statement.";
+    };
+} else {
+    //SQL to get job count
+    $sql = "SELECT * FROM jobs ORDER BY created_at ASC";
     $stmt = $pdo->prepare($sql);
     if ($stmt) {
         $stmt->execute([]);
     } else {
         echo "Error: Unable to prepare statement.";
     }
-    $queryJobCount = $stmt->rowCount();
-    $queryJobs = $stmt->fetchAll();
-};
+    $jobCount = $stmt->rowCount();
+    $jobs = $stmt->fetchAll();
+}
 ?>
 <!-- ======= Sidebar ======= -->
 <aside id="sidebar" class="sidebar">
@@ -159,138 +323,8 @@ if (isset($_POST['filterJobs'])) {
         <!-- Job List Area Start -->
         <div class="job-listing-area">
             <div class="container">
-                <div class="row d-flex flex-column">
-                    <!-- Left content -->
-                    <div class="d-flex flex-row ">
-                        <!-- Job Category Listing start -->
-                        <div class="job-category-listing mb-50 d-flex flex-row flex-wrap gap-1 align-items-stretch">
-                            <!-- single three -->
-                            <div class="input-box">
-                                <div class="form-group user-chosen-select-container">
-                                    <select class="user-chosen-select" name="gender" required>
-                                        <option value="">Choose Gender</option>
-                                        <option value="Male or Female">Male or Female</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- single one -->
-                            <div class="input-box">
-                                <div class="form-group user-chosen-select-container">
-                                    <select class="user-chosen-select" name="jobType" required>
-                                        <option value="">Select Job Type</option>
-                                        <option <?php if ($jobType === "Full Time")
-                                                    echo 'selected'; ?> value="Full Time">Full Time</option>
-                                        <option <?php if ($jobType === "Part Time")
-                                                    echo 'selected'; ?> value="Part Time">Part Time</option>
-                                        <option <?php if ($jobType === "Freelance")
-                                                    echo 'selected'; ?> value="Remote">Remote</option>
-                                        <option <?php if ($jobType === "Contract")
-                                                    echo 'selected'; ?> value="Contract">Contract</option>
-                                        <option <?php if ($jobType === "Internship")
-                                                    echo 'selected'; ?> value="Internship">Internship</option>
-                                        <option <?php if ($jobType === "Freelance")
-                                                    echo 'selected'; ?> value="Freelance">Freelance</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- single two -->
-                            <div class="input-box">
-                                <div class="form-group user-chosen-select-container">
-                                    <select class="user-chosen-select" name="experience" required>
-                                        <option value="">Choose Experience</option>
-                                        <option value="No Experience">No Experience</option>
-                                        <option value="Less than 1 Year">Less than 1 Year</option>
-                                        <option value="1 to 2 Year(s)">1 to 2 Year(s)</option>
-                                        <option value="2 to 4 Year(s)">2 to 4 Year(s)</option>
-                                        <option value="3 to 5 Year(s)">3 to 5 Year(s)</option>
-                                        <option value="2 Years">2 Years</option>
-                                        <option value="3 Years">3 Years</option>
-                                        <option value="4 Years">4 Years</option>
-                                        <option value="Over 5 Years">Over 5 Years</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- single three -->
-                            <div class="input-box">
-                                <div class="form-group user-chosen-select-container">
-                                    <select class="user-chosen-select" name="industry" required>
-                                        <option value="">Select industry</option>
-                                        <option value="Healthcare" <?php if ($industry === 'Healthcare') echo ' selected'; ?>>Healthcare</option>
-                                        <option value="Education" <?php if ($industry === 'Education') echo ' selected'; ?>>Education</option>
-                                        <option value="Information Technology" <?php if ($industry === 'Information Technology') echo ' selected'; ?>>Information Technology</option>
-                                        <option value="Business Management" <?php if ($industry === 'Business Management') echo ' selected'; ?>>Business Management</option>
-                                        <option value="Sales and Marketing" <?php if ($industry === 'Sales and Marketing') echo ' selected'; ?>>Sales and Marketing</option>
-                                        <option value="Banking and Finance" <?php if ($industry === 'Banking and Finance') echo ' selected'; ?>>Banking and Finance</option>
-                                        <option value="Engineering" <?php if ($industry === 'Engineering') echo ' selected'; ?>>Engineering</option>
-                                        <option value="Customer Service" <?php if ($industry === 'Customer Service') echo ' selected'; ?>>Customer Service</option>
-                                        <option value="Human Resources" <?php if ($industry === 'Human Resources') echo ' selected'; ?>>Human Resources</option>
-                                        <option value="Construction and Skilled Trades" <?php if ($industry === 'Construction and Skilled Trades') echo ' selected'; ?>>Construction and Skilled Trades</option>
-                                        <option value="Hospitality and Tourism" <?php if ($industry === 'Hospitality and Tourism') echo ' selected'; ?>>Hospitality and Tourism</option>
-                                        <option value="Retail" <?php if ($industry === 'Retail') echo ' selected'; ?>>Retail</option>
-                                        <option value="Manufacture and Production" <?php if ($industry === 'Manufacture and Production') echo ' selected'; ?>>Manufacture and Production</option>
-                                        <option value="Legal" <?php if ($industry === 'Legal') echo ' selected'; ?>>Legal</option>
-                                        <option value="Media and Communication" <?php if ($industry === 'Media and Communication') echo ' selected'; ?>>Media and Communication</option>
-                                        <option value="Science and Research" <?php if ($industry === 'Science and Research') echo ' selected'; ?>>Science and Research</option>
-                                        <option value="Art and Design" <?php if ($industry === 'Art and Design') echo ' selected'; ?>>Art and Design</option>
-                                        <option value="Agriculture and Farming" <?php if ($industry === 'Agriculture and Farming') echo ' selected'; ?>>Agriculture and Farming</option>
-                                        <option value="Government and Public Administration" <?php if ($industry === 'Government and Public Administration') echo ' selected'; ?>>Government and Public Administration</option>
-                                        <option value="Transportation and Logistics" <?php if ($industry === 'Transportation and Logistics') echo ' selected'; ?>>Transportation and Logistics</option>
-                                        <option value="Real Estate" <?php if ($industry === 'Real Estate') echo ' selected'; ?>>Real Estate</option>
-                                        <option value="NonProfit and Social Services" <?php if ($industry === 'NonProfit and Social Services') echo ' selected'; ?>>NonProfit and Social Services</option>
-                                        <option value="Insurance" <?php if ($industry === 'Insurance') echo ' selected'; ?>>Insurance</option>
-                                        <option value="Fitness and Wellness" <?php if ($industry === 'Fitness and Wellness') echo ' selected'; ?>>Fitness and Wellness</option>
-                                        <option value="Energy" <?php if ($industry === 'Energy') echo ' selected'; ?>>Energy</option>
-                                        <option value="Consulting" <?php if ($industry === 'Consulting') echo ' selected'; ?>>Consulting</option>
-                                        <option value="Security and Law Enforcement" <?php if ($industry === 'Security and Law Enforcement') echo ' selected'; ?>>Security and Law Enforcement</option>
-                                        <option value="Writing and Editing" <?php if ($industry === 'Writing and Editing') echo ' selected'; ?>>Writing and Editing</option>
-                                        <option value="Performing Arts" <?php if ($industry === 'Performing Arts') echo ' selected'; ?>>Performing Arts</option>
-                                        <option value="Sports" <?php if ($industry === 'Sports') echo ' selected'; ?>>Sports</option>
-                                        <option value="Telecommunications" <?php if ($industry === 'Telecommunications') echo ' selected'; ?>>Telecommunications</option>
-                                        <option value="Personal Care and Beauty Services" <?php if ($industry === 'Personal Care and Beauty Services') echo ' selected'; ?>>Personal Care and Beauty Services</option>
-                                        <option value="Digital Marketing" <?php if ($industry === 'Digital Marketing') echo ' selected'; ?>>Digital Marketing</option>
-                                        <option value="Journalism" <?php if ($industry === 'Journalism') echo ' selected'; ?>>Journalism</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- single three -->
-                            <div class="input-box">
-                                <div class="form-group user-chosen-select-container">
-                                    <select class="user-chosen-select" name="careerLevel" required>
-                                        <option value="">Career Level</option>
-                                        <option value="Student">Student</option>
-                                        <option value="Junior">Junior</option>
-                                        <option value="Intermediate">Intermediate</option>
-                                        <option value="Senior">Senior</option>
-                                        <option value="Manager">Manager</option>
-                                        <option value="Executive">Executive</option>
-                                    </select>
-                                </div><!-- end form-group -->
-                            </div>
+                <div class="row">
 
-                            <!-- single three -->
-                            <div class="input-box">
-                                <div class="form-group user-chosen-select-container">
-                                    <select class="user-chosen-select" name="qualification" required>
-                                        <option value="">Qualification</option>
-                                        <option value="None Required">None Required</option>
-                                        <option value="SSCE">SSCE</option>
-                                        <option value="OND">OND</option>
-                                        <option value="HND">HND</option>
-                                        <option value="Diploma">Diploma</option>
-                                        <option value="Graduate">Graduate</option>
-                                        <option value="Associate Degree">Associate Degree</option>
-                                        <option value="Bachelor's Degree">Bachelor's Degree</option>
-                                        <option value="Master's Degree">Master's Degree</option>
-                                        <option value="Doctorate Degree">Doctorate Degree</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button name="filterJobs" class="theme-btn border-0 " type="submit" style="height:fit-content;">Filter Jobs</button>
-                        </div>
-                        <!-- Job Category Listing End -->
-                    </div>
                     <!-- Right content -->
                     <div class="col-xl-9 col-lg-9 col-md-8">
                         <!-- Featured_job_start -->
@@ -302,10 +336,17 @@ if (isset($_POST['filterJobs'])) {
                                         <div class="count-job mb-35 text-center">
                                             <?php if ($jobCount) { ?>
                                                 <span><?= $jobCount . " Jobs found" ?> </span>
-                                            <?  }
-                                            if (isset($_POST['filterJobs'])) { ?>
-                                                <span><?= $queryJobCount . " Jobs found" ?> </span>
-                                            <?php } ?>
+
+
+
+                                            <?php }
+                                            if ($applied) {
+                                                echo '<div class="alert alert-success text-center alert-dismissible fade show" role="alert">
+                          Application successful!
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>';
+                                            }
+                                            ?>
 
                                         </div>
                                     </div>
@@ -313,7 +354,123 @@ if (isset($_POST['filterJobs'])) {
                                 <!-- Count of Job list End -->
                                 <!-- single-job-content -->
                                 <div class="row">
-                                    <?php if ($job) {
+                                    <?php if ($queryJobs) {
+                                        foreach ($queryJobs as $job) { ?>
+                                            <div class="single-job-items mb-4 col-lg-4 col-md-3 col-sm-1">
+                                                <div class="job-items">
+                                                    <div class="company-img">
+                                                        <a href="#"><img src="assets/img/icon/job-list1.png" alt=""></a>
+                                                    </div>
+                                                    <div class="job-tittle job-tittle2">
+                                                        <a href="jobs.php?jobTitle=<?= $job->jobTitle ?>">
+                                                            <h5 class=" text-wrap w-50"><?= $job->jobTitle ?></h5>
+                                                        </a>
+                                                        <div class="dropdown-center">
+                                                            <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                See More
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                <li>
+                                                                    <h6 class="dropdown-item text-justify "><b>Job Description:</b> <?= $job->jobDescription ?> </h6>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="jobs.php?qualification=<?= $job->qualification ?>">
+                                                                        <h6 class="dropdown-item text-justify "> <b>Qualifications:</b> <?= $job->qualification ?></h6>
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="jobs.php?skills=<?= $job->skill ?>">
+                                                                        <h6 class="dropdown-item text-justify "> <b>Skill Requirements:</b> <?= $job->skill ?>
+                                                                        </h6>
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="jobs.php?experience=<?= $job->experience ?>">
+                                                                        <h6 class="dropdown-item text-justify "> <b>Experience:</b> <?= $job->experience ?>
+                                                                        </h6>
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="jobs.php?jobType=<?= $job->jobType ?>">
+                                                                        <h6 class="dropdown-item text-justify "> <b>Job Type :</b> <?= $job->jobType ?>
+                                                                        </h6>
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="jobs.php?careerLevel=<?= $job->careerLevel ?>">
+                                                                        <h6 class="dropdown-item text-justify "> <b>Job Level :</b> <?= $job->careerLevel ?>
+                                                                        </h6>
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <ul>
+
+                                                            <?php
+
+                                                            //sql to fetch employer details
+                                                            $employer_sql = "SELECT * FROM  employers WHERE id = ?";
+                                                            $employer_stmt = $pdo->prepare($employer_sql);
+                                                            if ($employer_stmt) {
+                                                                $employer_stmt->execute([$job->userId]);
+                                                                $employer_details = $employer_stmt->fetch();
+                                                            } else {
+                                                                echo "Error: Unable to prepare statement.";
+                                                            }
+                                                            ?>
+
+                                                            <li><a href="view_employer_profile.php?id=<?= $job->userId ?>"><?= $employer_details->name ?></a></li>
+
+                                                            <li><a href="jobs.php?industry=<?= $job->industry ?>"><?= $job->industry ?></a></li>
+
+                                                            <li><i class="fas fa-map-marker-alt"></i><a href="jobs.php?state=<?= $employer_details->state ?>"><?= $employer_details->state ?></a>, <a href="jobs.php?country=<?= $employer_details->country ?>"><?= $employer_details->country ?></a></li>
+
+                                                            <li><a href="jobs.php?minOffer=<?= $job->minOffer ?>">$<?= $job->minOffer ?></a> - <a href="jobs.php?maxOffer=<?= $job->maxOffer ?>">$<?= $job->maxOffer ?></a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="items-link items-link2 f-right">
+                                                    <?php
+                                                    // sql to get current application count for this job
+                                                    $count_sql = "SELECT * FROM applications WHERE employerId = ?";
+                                                    $stmt = $pdo->prepare($sql);
+                                                    if ($stmt) {
+                                                        $stmt->execute([$job->userId]);
+                                                        $count = $stmt->rowCount();
+                                                    }
+                                                    if ($job->status == '1') { ?>
+                                                        <a href="jobs.php?status=<?= $job->status ?>"><span class="badge bg-primary rounded-3 fw-semibold">Open</span></a>
+
+                                                        <form action="post" method="<?php echo htmlspecialchars($_SERVER['PHP_SELF']) ?>">
+                                                            <!-- <input type="hidden" name="applicantId" value="<?= $userId ?>">
+                                                            <input type="hidden" name="jobId" value="<?= $job->id ?>">
+                                                            <input type="hidden" name="employerId" value="<?= $job->userId ?>"> -->
+                                                            <button class="badge bg-primary rounded-3 p-2 border-0 " name="apply">Apply To</button>
+                                                        </form>
+
+                                                    <?php } else { ?>
+                                                        <span class="badge bg-secondary rounded-3 fw-semibold">Closed</span>
+                                                    <?php } ?>
+                                                    <div class="d-flex justify-content-between">
+
+                                                        <div class="align-right"> <?= $count ?> applications </div>
+                                                    </div>
+
+                                                    <span class="w-50 font-size-11">
+                                                        <?php
+                                                        $output = timeAgo($job->created_at);
+                                                        echo $output;
+                                                        ?>
+                                                    </span>
+                                                </div>
+                                                <div>
+
+
+                                                </div>
+                                            </div>
+                                        <?php  }
+                                    } elseif ($job) {
                                         foreach ($jobs as $job) { ?>
                                             <div class="single-job-items mb-4 col-md-6 col-sm-1">
                                                 <div class="job-items">
@@ -321,36 +478,45 @@ if (isset($_POST['filterJobs'])) {
                                                         <a href="#"><img src="assets/img/icon/job-list1.png" alt=""></a>
                                                     </div>
                                                     <div class="job-tittle job-tittle2">
-                                                        <a href="#">
-                                                            <h4><?= $job->jobTitle ?></h4>
+                                                        <a href="jobs.php?jobTitle=<?= $job->jobTitle ?>">
+                                                            <h5 class=" text-wrap w-50"><?= $job->jobTitle ?></h5>
                                                         </a>
-
                                                         <div class="dropdown-center">
                                                             <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                                 See More
                                                             </button>
                                                             <ul class="dropdown-menu">
                                                                 <li>
-                                                                    <h6 class="dropdown-item text-justify "><b>Job Description :</b><?= $job->jobDescription ?> </h6>
+                                                                    <h6 class="dropdown-item text-justify "><b>Job Description:</b> <?= $job->jobDescription ?> </h6>
                                                                 </li>
                                                                 <li>
-                                                                    <h6 class="dropdown-item text-justify "> <b>Qualifications :</b><?= $job->qualification ?></h6>
+                                                                    <a href="jobs.php?qualification=<?= $job->qualification ?>">
+                                                                        <h6 class="dropdown-item text-justify "> <b>Qualifications:</b> <?= $job->qualification ?></h6>
+                                                                    </a>
                                                                 </li>
                                                                 <li>
-                                                                    <h6 class="dropdown-item text-justify "> <b>Skill Requirements :</b><?= $job->skill ?>
-                                                                    </h6>
+                                                                    <a href="jobs.php?skills=<?= $job->skill ?>">
+                                                                        <h6 class="dropdown-item text-justify "> <b>Skill Requirements:</b> <?= $job->skill ?>
+                                                                        </h6>
+                                                                    </a>
                                                                 </li>
                                                                 <li>
-                                                                    <h6 class="dropdown-item text-justify "> <b>Experience :</b><?= $job->experience ?>
-                                                                    </h6>
+                                                                    <a href="jobs.php?experience=<?= $job->experience ?>">
+                                                                        <h6 class="dropdown-item text-justify "> <b>Experience:</b> <?= $job->experience ?>
+                                                                        </h6>
+                                                                    </a>
                                                                 </li>
                                                                 <li>
-                                                                    <h6 class="dropdown-item text-justify "> <b>Job Type : </b><?= $job->jobType ?>
-                                                                    </h6>
+                                                                    <a href="jobs.php?jobType=<?= $job->jobType ?>">
+                                                                        <h6 class="dropdown-item text-justify "> <b>Job Type :</b> <?= $job->jobType ?>
+                                                                        </h6>
+                                                                    </a>
                                                                 </li>
                                                                 <li>
-                                                                    <h6 class="dropdown-item text-justify "> <b>Job Level : </b><?= $job->careerLevel ?>
-                                                                    </h6>
+                                                                    <a href="jobs.php?careerLevel=<?= $job->careerLevel ?>">
+                                                                        <h6 class="dropdown-item text-justify "> <b>Job Level :</b> <?= $job->careerLevel ?>
+                                                                        </h6>
+                                                                    </a>
                                                                 </li>
                                                             </ul>
                                                         </div>
@@ -368,63 +534,62 @@ if (isset($_POST['filterJobs'])) {
                                                             }
                                                             ?>
 
-                                                            <li><?= $employer_details->name ?></li>
-                                                            <li><?= $job->industry ?></li>
-                                                            <li><i class="fas fa-map-marker-alt"></i><?= $employer_details->state ?>, <?= $employer_details->country ?></li>
-                                                            <li>$<?= $job->minOffer ?> - $<?= $job->maxOffer ?></li>
+                                                            <li><a href="view_employer_profile.php?id=<?= $job->userId ?>"><?= $employer_details->name ?></a></li>
+                                                            <li><a href="jobs.php?industry=<?= $job->industry ?>"><?= $job->industry ?></a></li>
+                                                            <li><i class="fas fa-map-marker-alt"></i><a href="jobs.php?state=<?= $employer_details->state ?>"><?= $employer_details->state ?></a>, <a href="jobs.php?country=<?= $employer_details->country ?>"><?= $employer_details->country ?></a></li>
+                                                            <li><a href="jobs.php?minOffer=<?= $job->minOffer ?>">$<?= $job->minOffer ?></a> - <a href="jobs.php?maxOffer=<?= $job->maxOffer ?>">$<?= $job->maxOffer ?></a></li>
                                                         </ul>
                                                     </div>
                                                 </div>
                                                 <div class="items-link items-link2 f-right">
                                                     <?php
                                                     if ($job->status == '1') { ?>
-                                                        <div class="d-flex justify-content-between"> <span class="badge bg-primary rounded-3 fw-semibold">Open</span>
-                                                            <li class="d-inline-block"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Apply" data-bs-toggle="" data-bs-target=""></i></li>
+                                                        <div class="d-flex justify-content-between w-50"> <a href="jobs.php?status=<?= $job->status ?>"><span class="badge bg-primary rounded-3 fw-semibold">Open</span></a>
+
+                                                            <form class="row g-3 needs-validation" action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" novalidate>
+                                                                <input type="hidden" name="applicantId" value="<?= $userId ?>">
+                                                                <input type="hidden" name="jobId" value="<?= $job->id ?>">
+                                                                <input type="hidden" name="employerId" value="<?= $job->userId ?>">
+                                                                <button class="btn btn-primary rounded-3 p-2 border-0 " type="submit" name="apply">Apply</button>
+                                                            </form>
+
+
+                                                            <!-- sql to fetch count of applications for each job opening -->
+                                                            <?php
+                                                            $job_sql = "SELECT * FROM applications WHERE jobId  = ?";
+                                                            $job_stmt = $pdo->prepare($job_sql);
+                                                            if ($job_stmt) {
+                                                                $job_stmt->execute([$job->id]);
+                                                                $count = $job_stmt->rowCount();
+                                                            } else {
+                                                                echo "Error: unable to prepare stmt";
+                                                            }
+                                                            ?>
+
                                                         </div>
 
                                                     <?php } else { ?>
                                                         <span class="badge bg-secondary rounded-3 fw-semibold">Closed</span>
                                                     <?php } ?>
+                                                    <div class="align-right"> <?= $count ?> applications </div>
 
-                                                    <span>
+
+                                                    <span class="w-50 font-size-11">
                                                         <?php
                                                         $output = timeAgo($job->created_at);
                                                         echo $output;
                                                         ?>
                                                     </span>
                                                 </div>
-                                                <div>
 
-
-                                                </div>
                                             </div>
-                                    <?php  }
-                                    } elseif ($queryJobs) {
-                                    }
-                                    ?>
-
-                                    <!-- single-job-content -->
-                                    <div class="single-job-items mb-5 col-md-6 col-sm-4">
-                                        <div class="job-items">
-                                            <div class="company-img">
-                                                <a href="#"><img src="assets/img/icon/job-list2.png" alt=""></a>
-                                            </div>
-                                            <div class="job-tittle job-tittle2">
-                                                <a href="#">
-                                                    <h4>Graphics Designer</h4>
-                                                </a>
-                                                <ul>
-                                                    <li>Fashion Agency</li>
-                                                    <li><i class="fas fa-map-marker-alt"></i>Lagos, Nigeria</li>
-                                                    <li>$1500 - $2000</li>
-                                                </ul>
-                                            </div>
+                                    <?php }
+                                    } ?>
+                                    <?php if ($jobCount == 0) { ?>
+                                        <div class="alert alert-danger text-center alert-dismissible fade show" role="alert">
+                                            No Job Postings now, try later!
                                         </div>
-                                        <div class="items-link items-link2 f-right">
-                                            <a href="job_details.html">Full Time</a>
-                                            <span>7 hours ago</span>
-                                        </div>
-                                    </div>
+                                    <?php } ?>
 
                                 </div>
 
