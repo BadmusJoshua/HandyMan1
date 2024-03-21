@@ -166,10 +166,10 @@ if (isset($_POST['remove'])) {
                                                     <h6 class="fw-semibold mb-0">Id</h6>
                                                 </th>
                                                 <th class="border-bottom-0">
-                                                    <h6 class="fw-semibold mb-0 text-center">Name</h6>
+                                                    <h6 class="fw-semibold mb-0 text-center">Applicant Name</h6>
                                                 </th>
                                                 <th class="border-bottom-0">
-                                                    <h6 class="fw-semibold mb-0 text-center">Job</h6>
+                                                    <h6 class="fw-semibold mb-0 text-center">Job Title</h6>
                                                 </th>
 
                                                 <th class="border-bottom-0">
@@ -181,9 +181,7 @@ if (isset($_POST['remove'])) {
                                                 <th class="border-bottom-0">
                                                     <h6 class="fw-semibold mb-0">Job Type</h6>
                                                 </th>
-                                                <th class="border-bottom-0">
-                                                    <h6 class="fw-semibold mb-0">Actions</h6>
-                                                </th>
+
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -192,12 +190,13 @@ if (isset($_POST['remove'])) {
                                             $sql = "SELECT * FROM applications";
                                             $stmt = $pdo->prepare($sql);
                                             $stmt->execute();
-                                            $applications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                            $applications = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
 
-                                            if ($applications) {
-                                                foreach ($applications as $details) :
-                                            ?>
-                                                    <tr>
+                                            <tr>
+                                                <?php if ($applications) {
+                                                    foreach ($applications as $details) :
+                                                ?>
+
                                                         <td class="border-bottom-0">
                                                             <h6 class="fw-semibold mb-0"><?= $details['id'] ?></h6>
                                                         </td>
@@ -221,14 +220,27 @@ if (isset($_POST['remove'])) {
                                                             </span>
                                                         </td>
                                                         <td class="border-bottom-0 text-center">
-                                                            <h6 class="fw-semibold mb-1"><?= $details['job_category'] ?></h6>
+                                                            <h6 class="fw-semibold mb-1"><?php
+                                                                                            //sql to get employer details
+                                                                                            $employer_sql = "SELECT * FROM employers WHERE id = ?";
+                                                                                            $employer_stmt = $pdo->prepare($sql);
+                                                                                            if ($employer_stmt) {
+                                                                                                $employer_stmt->execute([$details['employerId']]);
+                                                                                                $employer_info = $employer_stmt->fetch();
+                                                                                                $employer_name = $employer_info['name'];
+                                                                                                $employer_rate = $employer_info['rate'];
+                                                                                            } else {
+                                                                                                echo "Error: Unable to prepare Statement";
+                                                                                            }
+                                                                                            echo $employer_name;
+                                                                                            ?></h6>
                                                             <span>
-                                                                <small class="text-center"><?php $details['rating'];
-                                                                                            $rate = $details['rating'];
-                                                                                            echo $rate;
-                                                                                            if ($rate == 0) {
+                                                                <small class="text-center"><?php
+
+                                                                                            echo $employer_rate;
+                                                                                            if ($employer_rate == 0) {
                                                                                                 echo "No reviews yet";
-                                                                                            } elseif ($rate == 1) {
+                                                                                            } elseif ($employer_rate == 1) {
                                                                                                 echo '
                                                         <i class="bi bi-star-fill"></i>
                                                         <i class="bi bi-star"></i>
@@ -236,7 +248,7 @@ if (isset($_POST['remove'])) {
                                                         <i class="bi bi-star"></i>
                                                         <i class="bi bi-star"></i>
                                                     ';
-                                                                                            } elseif ($rate >= 1.5 && $rate  < 2) {
+                                                                                            } elseif ($employer_rate >= 1.5 && $employer_rate  < 2) {
                                                                                                 echo
                                                                                                 '
                                                         <i class="bi bi-star-fill"></i>
@@ -245,7 +257,7 @@ if (isset($_POST['remove'])) {
                                                         <i class="bi bi-star"></i>
                                                         <i class="bi bi-star"></i>
                                                     ';
-                                                                                            } elseif ($rate == 2) {
+                                                                                            } elseif ($employer_rate == 2) {
                                                                                                 echo '
                                                     <i class="bi bi-star-fill"></i>
                                                     <i class="bi bi-star-fill"></i>
@@ -253,7 +265,7 @@ if (isset($_POST['remove'])) {
                                                     <i class="bi bi-star"></i>
                                                     <i class="bi bi-star"></i>
                                                     ';
-                                                                                            } elseif ($rate >= 2.5 && $rate < 3) {
+                                                                                            } elseif ($employer_rate >= 2.5 && $employer_rate < 3) {
                                                                                                 echo
                                                                                                 '
                                                     <i class="bi bi-star-fill"></i>
@@ -262,7 +274,7 @@ if (isset($_POST['remove'])) {
                                                     <i class="bi bi-star"></i>
                                                     <i class="bi bi-star"></i>
                                                     ';
-                                                                                            } elseif ($rate == 3) {
+                                                                                            } elseif ($employer_rate == 3) {
                                                                                                 echo '
                                                     <i class="bi bi-star-fill"></i>
                                                     <i class="bi bi-star-fill"></i>
@@ -270,7 +282,7 @@ if (isset($_POST['remove'])) {
                                                     <i class="bi bi-star"></i>
                                                     <i class="bi bi-star"></i>
                                                     ';
-                                                                                            } elseif ($rate >= 3.5 && $rate < 4) {
+                                                                                            } elseif ($employer_rate >= 3.5 && $employer_rate < 4) {
                                                                                                 echo
                                                                                                 '
                                                     <i class="bi bi-star-fill"></i>
@@ -279,7 +291,7 @@ if (isset($_POST['remove'])) {
                                                     <i class="bi bi-star-half"></i>
                                                     <i class="bi bi-star"></i>
                                                     ';
-                                                                                            } elseif ($rate == 4) {
+                                                                                            } elseif ($employer_rate == 4) {
                                                                                                 echo '  
                                                     <i class="bi bi-star-fill"></i>
                                                     <i class="bi bi-star-fill"></i>
@@ -287,7 +299,7 @@ if (isset($_POST['remove'])) {
                                                     <i class="bi bi-star-fill"></i> 
                                                     <i class="bi bi-star"></i>
                                                     ';
-                                                                                            } elseif ($rate >= 4.5 && $rate < 5) {
+                                                                                            } elseif ($employer_rate >= 4.5 && $employer_rate < 5) {
                                                                                                 echo '
                                                     <i class="bi bi-star-fill"></i>
                                                     <i class="bi bi-star-fill"></i>
@@ -308,49 +320,45 @@ if (isset($_POST['remove'])) {
                                                             </span>
                                                         </td>
                                                         <td class="border-bottom-0">
-                                                            <p class="mb-0 fw-normal"><?php if ($details['disabled'] === 1) { ?>
-                                                            <h6 class="fw-semibold mb-1 text-danger">Disabled</h6>
-                                                        <?php  } else {
-                                                                                            echo '<h6 class="fw-semibold mb-1 text-success">Active</h6>';
-                                                                                        } ?></p>
+                                                            <?php
+                                                            //sql to fetch job details
+                                                            $job_sql = "SELECT * FROM jobs WHERE id = ?";
+                                                            $job_sql = $pdo->prepare($job_sql);
+                                                            if ($job_sql) {
+                                                                $job_sql->execute([$details['jobId']]);
+                                                                $job_details = $job_sql->fetch();
+                                                                $job_title = $job_details['jobTitle'];
+                                                                $job_type = $job_details['jobType'];
+                                                                $careerLevel = $job_details['careerLevel'];
+                                                            } else {
+                                                                echo "Error: Unable to prepare Statement";
+                                                            }
+                                                            ?>
+                                                            <h6><?= $job_tile ?></h6>
                                                         </td>
 
                                                         <td class="border-bottom-0 text-center">
                                                             <h6> <?php
-                                                                    //sql to get number of jobs posted by this employer
-                                                                    $job_sql = "SELECT * FROM jobs WHERE userId = ?";
-                                                                    $job_stmt = $pdo->prepare($job_sql);
-                                                                    if ($job_stmt) {
-                                                                        $job_stmt->execute([$details['id']]);
-                                                                        $job_count = $job_stmt->rowCount();
-                                                                        echo $job_count;
+                                                                    if (($employer_info['country']) && ($employer_info['state'])) {
+                                                                        echo $employer_info['state'] . ' , ' . $employer_info['country'];
                                                                     } else {
                                                                         echo "Error: Unable to prepare Statement";
                                                                     }
                                                                     ?></h6>
                                                         </td>
                                                         <td class="border-bottom-0 text-center">
-                                                            <h6> <?= $details['updated'] ?></h6>
+                                                            <h6> <?= $job_type; ?></h6>
+                                                            <small><?= $careerLevel ?></small>
                                                         </td>
-                                                        <td class="border-bottom-0">
-                                                            <form action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post">
-                                                                <input type="hidden" name="id" value="<?= $details['id'] ?>">
-
-                                                                <?php if ($details['disabled'] === 1) { ?>
-                                                                    <button class="btn btn-sm btn-primary" name="enable">Enable</button>
-                                                                <?php  } else { ?>
-                                                                    <button class="btn btn-sm btn-danger" name="disable">Disable</button>
-                                                                <?php } ?>
-                                                            </form>
-                                                        </td>
-                                                    </tr>
-                                            <?php endforeach;
-                                            } else {
-                                                echo '<div class="alert alert-danger text-center" role="alert">
-                    Oops! No employers yet!
+                                                <?php endforeach;
+                                                } else {
+                                                    echo '<div class="alert alert-danger text-center" role="alert">
+                    Oops! No applications yet!
                   </div>';
-                                            }
-                                            ?>
+                                                }
+                                                ?>
+                                            </tr>
+
 
                                         </tbody>
                                     </table>
@@ -395,7 +403,7 @@ if (isset($_POST['remove'])) {
                                                 <?php }
                                                 ?>
                                                 <ul class="info-list">
-                                                    <li class="d-inline-block"><a href="notes.php?id=<?= $note->id ?>"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
+                                                    <li class="d-inline-block"><a href="admin-notes.php?id=<?= $note->id ?>"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
                                                     <li class="d-inline-block">
                                                         <form method="post" action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>"> <button name="remove" class="border-0"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></button>
                                                             <input type="hidden" name="id" value="<?= $note->id ?>">
@@ -422,7 +430,7 @@ if (isset($_POST['remove'])) {
                             </div><!-- end mess__body -->
                         </div>
                         <div class="mess__item border-bottom-0 text-center">
-                            <a href="notes.php" class="theme-btn border-0 w-100" style="text-decoration:none;">Add Note</a>
+                            <a href="admin-notes.php" class="theme-btn border-0 w-100" style="text-decoration:none;">Add Note</a>
 
                         </div><!-- end mess__item -->
                     </div><!-- end mess-dropdown -->

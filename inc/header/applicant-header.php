@@ -44,7 +44,7 @@ if (isset($_POST['view_all'])) {
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Job crest || Find the best job openings</title>
+
     <meta content="" name="description">
     <meta content="" name="keywords">
 

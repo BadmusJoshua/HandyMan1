@@ -12,6 +12,12 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute([$userId]);
 $applicationCount = $stmt->rowCount();
 
+//sql to check number of call for interview
+$sql = "SELECT * FROM applications WHERE applicantId  = ? and status = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute(['2', $userId]);
+$interviewCount = $stmt->rowCount();
+
 //sql to delete note
 if (isset($_POST['remove'])) {
   $note_id = $_POST['id'];
@@ -46,18 +52,18 @@ if (isset($_POST['remove'])) {
     </li><!-- End Profile Page Nav -->
 
     <li class="nav-item">
-      <a class="nav-link collapsed" href="meetings.php">
-        <i class="ri-building-4-line"></i>
-        <span>Meetings</span>
-      </a>
-    </li><!-- End Meeting Page Nav -->
-
-    <li class="nav-item">
       <a class="nav-link collapsed" href="jobs.php">
         <i class="bi bi-briefcase-fill"></i>
         <span>Jobs</span>
       </a>
     </li><!-- End Jobs Page Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" href="applicant-applications.php">
+        <i class="bi bi-briefcase-fill"></i>
+        <span>Applications</span>
+      </a>
+    </li><!-- End Applications Page Nav -->
 
     <li class="nav-item">
       <div class="dropdown-center nav-link collapsed" style=" margin:0; padding:0; ">
@@ -92,7 +98,7 @@ if (isset($_POST['remove'])) {
         <i class="bi bi-box-arrow-in-right"></i>
         <span>Sign Out</span>
       </a>
-    </li><!-- End suggestionin Page Nav -->
+    </li><!-- End sign out Page Nav -->
   </ul>
 
 </aside><!-- End Sidebar-->
@@ -109,7 +115,7 @@ if (isset($_POST['remove'])) {
   </div><!-- End Page Title -->
 
   <section class="section dashboard">
-    <div class="row mt-5">
+    <div class="row mt-5 align-items-stretch">
       <div class="col-lg-3 column-lg-half responsive-column">
         <div class="overview-item">
           <div class="icon-box bg-1 mb-0 d-flex align-items-center">
@@ -156,7 +162,7 @@ if (isset($_POST['remove'])) {
               <i class="la la-phone"></i>
             </div><!-- end icon-element-->
             <div class="info-content">
-              <span class="info__count">10</span>
+              <span class="info__count"><?= $interviewCount ?></span>
               <h4 class="info__title font-size-16 mt-2">Call for interview</h4>
             </div><!-- end info-content -->
           </div>
@@ -165,23 +171,124 @@ if (isset($_POST['remove'])) {
     </div><!-- end row -->
     <div class="row mt-2">
       <div class="col-lg-7 column-lg-full">
-        <div class="chart-box chart-item">
-          <div class="chart-headline d-flex align-items-center justify-content-between mb-4">
-            <h3 class="widget-title font-size-16 pb-0"><i class="font-size-20 la la-bar-chart mr-1"></i>Profile Views</h3>
-            <div class="user-chosen-select-container">
-              <select class="user-chosen-select">
-                <option value="this-week">This Week</option>
-                <option value="this-month">This Month</option>
-                <option value="last-months">Last 6 Months</option>
-                <option value="this-year">This Year</option>
-              </select>
-            </div><!-- end  -->
-          </div>
-          <canvas id="line-chart"></canvas>
-          <div class="chart-legend mt-4">
-            <ul>
-              <li><span class="legend__item legend__one"></span>Green</li>
-            </ul>
+        <div class="recommended-jobs">
+          <div class="chart-headline d-flex flex-column align-items-center justify-content-between mb-4">
+
+            <?php
+            $sql = "SELECT * FROM jobs WHERE skill LIKE ?";
+            $stmt = $pdo->prepare($sql);
+            if ($stmt) {
+              if (!empty($detail->skill)) {
+                $stmt->execute([$detail->skill]);
+                $jobs = $stmt->fetchAll();
+              } else {
+                $skill = 1;
+              }
+            } else {
+              echo "Error: Unable to Prepare Statement";
+            }
+
+            ?>
+            <div class="card w-100">
+              <div class="card-body w-100">
+                <div class="d-sm-flex d-block align-items-center justify-content-between mb-9 w-100">
+                  <div class="table-responsive w-100">
+                    <h3 class="widget-title font-size-16 pb-0"><i class="font-size-20 la la-bar-chart mr-1"></i>Recommended Jobs</h3>
+
+                    <table class="table text-wrap mb-0 align-middle w-100">
+                      <thead class="text-dark fs-4">
+                        <tr>
+                          <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Id</h6>
+                          </th>
+                          <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0 text-center">Job Title</h6>
+                          </th>
+                          <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0 text-center">Company</h6>
+                          </th>
+
+                          <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Applications</h6>
+                          </th>
+                          <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Actions</h6>
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <?php
+                        if ($jobs) {
+                          foreach ($jobs as $details) :
+                        ?>
+                            <tr>
+                              <td class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0"><?= $details['id'] ?></h6>
+                              </td>
+                              <td class="border-bottom-0 text-center">
+                                <h6 class="fw-semibold mb-1"><?= $details['jobTitle'] ?></h6>
+
+                                <small><?= $details['jobType'] ?></small>
+                                <small class="text-center"><?php echo '$' . $details['minOffer'] . ' -, $' . $details['maxOffer']; ?>
+                                </small>
+                              </td>
+                              <td class="border-bottom-0 text-center">
+                                <h6 class="fw-semibold mb-1"><?php
+                                                              $employer_sql = "SELECT * FROM employers WHERE id= ?";
+                                                              $employer_stmt = $pdo->prepare($employer_sql);
+                                                              if ($employer_stmt) {
+                                                                $employer_stmt->execute([$details['userId']]);
+                                                                $employer_details = $employer_stmt->fetch();
+                                                                echo $employer_details->name;
+                                                              } else {
+                                                                echo "Error: Unable to prepare statement";
+                                                              }
+
+                                                              ?>
+                                </h6>
+
+                                <small class="text-center"><?= $details['industry']; ?>
+                                </small>
+
+                              </td>
+
+                              <td class="border-bottom-0 text-center">
+                                <h6> <?php
+                                      //sql to get count of applications for each job opening
+                                      $sql = "SELECT * FROM applications WHERE jobId = ?";
+                                      $stmt = $pdo->prepare($sql);
+                                      if ($stmt) {
+                                        $stmt->execute([$details['userId']]);
+                                        $applications = $stmt->rowCount();
+                                        echo $applications;
+                                      } else {
+                                        echo "Error: Unable to prepare Statement";
+                                      }
+                                      $details['created_at'] ?></h6>
+                              </td>
+                              <td class="border-bottom-0">
+                                <form action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post">
+                                  <input type="hidden" name="id" value="<?= $details['id'] ?>">
+                                  <button class="btn btn-sm btn-primary" name="apply">Apply</button>
+
+                                </form>
+                              </td>
+                            </tr>
+                        <?php endforeach;
+                        } else {
+                          echo '<div class="alert alert-danger text-center" role="alert">
+                    Oops! No job suit your current skill yet!
+                  </div>';
+                        }
+                        ?>
+                      </tbody>
+                    </table>
+
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div><!-- end chart-box -->
       </div><!-- end col-lg-7 -->
@@ -219,7 +326,7 @@ if (isset($_POST['remove'])) {
                         <?php }
                         ?>
                         <ul class="info-list">
-                          <li class="d-inline-block"><a href="notes.php?id=<?= $note->id ?>"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
+                          <li class="d-inline-block"><a href="applicant-notes.php?id=<?= $note->id ?>"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
                           <li class="d-inline-block">
                             <form method="post" action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>"> <button name="remove" class="border-0"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></button>
                               <input type="hidden" name="id" value="<?= $note->id ?>">
@@ -246,7 +353,7 @@ if (isset($_POST['remove'])) {
               </div><!-- end mess__body -->
             </div>
             <div class="mess__item border-bottom-0 text-center">
-              <a href="notes.php" class="theme-btn border-0 w-100" style="text-decoration:none;">Add Note</a>
+              <a href="applicant-notes.php" class="theme-btn border-0 w-100" style="text-decoration:none;">Add Note</a>
 
             </div><!-- end mess__item -->
           </div><!-- end mess-dropdown -->

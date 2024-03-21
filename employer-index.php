@@ -11,6 +11,12 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute([$userId]);
 $applicationCount = $stmt->rowCount();
 
+//sql to check number of calls for interview
+$sql = "SELECT * FROM applications WHERE employerId  = ? and status = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$userId, '2']);
+$interviewCount = $stmt->rowCount();
+
 //sql to delete note
 if (isset($_POST['remove'])) {
     $note_id = $_POST['id'];
@@ -39,7 +45,7 @@ if (isset($_POST['remove'])) {
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="employer-applicant-profile.php">
+            <a class="nav-link collapsed" href="employer-profile.php">
                 <i class="bi bi-person"></i>
                 <span>Profile</span>
             </a>
@@ -137,7 +143,7 @@ if (isset($_POST['remove'])) {
                             <i class="la la-phone"></i>
                         </div><!-- end icon-element-->
                         <div class="info-content">
-                            <span class="info__count">10</span>
+                            <span class="info__count"><?= $interviewCount ?></span>
                             <h4 class="info__title font-size-16 mt-2">Call for interview</h4>
                         </div><!-- end info-content -->
                     </div>
@@ -147,23 +153,133 @@ if (isset($_POST['remove'])) {
         <div class="row mt-2">
             <div class="col-lg-7 column-lg-full">
                 <div class="chart-box chart-item">
-                    <div class="chart-headline d-flex align-items-center justify-content-between mb-4">
-                        <h3 class="widget-title font-size-16 pb-0"><i class="font-size-20 la la-bar-chart mr-1"></i>Profile Views</h3>
-                        <div class="user-chosen-select-container">
-                            <select class="user-chosen-select">
-                                <option value="this-week">This Week</option>
-                                <option value="this-month">This Month</option>
-                                <option value="last-months">Last 6 Months</option>
-                                <option value="this-year">This Year</option>
-                            </select>
-                        </div><!-- end  -->
+                    <div class="chart-headline d-flex flex-column align-items-center justify-content-between mb-4">
+                        <h3 class="widget-title font-size-16 pb-0"><i class="font-size-20 la la-bar-chart mr-1"></i>Applications</h3>
+                        <?php
+                        //sql to get applications for jobs by this employer
+                        $sql = "SELECT * FROM applications WHERE employerId = ? and status = ?";
+                        $stmt = $pdo->prepare($sql);
+                        if ($stmt) {
+                            $stmt->execute([$userId, '0']);
+                            $applications = $stmt->fetchAll();
+                        } else {
+                            echo "Error: Unable to Prepare Statement";
+                        } ?>
+                        <div class="card w-100">
+                            <div class="card-body w-100">
+                                <div class="d-sm-flex d-block align-items-center justify-content-between mb-9 w-100">
+                                    <div class="table-responsive w-100">
+                                        <table class="table text-wrap mb-0 align-middle w-100">
+                                            <thead class="text-dark fs-4">
+                                                <tr>
+                                                    <th class="border-bottom-0">
+                                                        <h6 class="fw-semibold mb-0">Id</h6>
+                                                    </th>
+                                                    <th class="border-bottom-0">
+                                                        <h6 class="fw-semibold mb-0 text-center">Name</h6>
+                                                    </th>
+                                                    <th class="border-bottom-0">
+                                                        <h6 class="fw-semibold mb-0 text-center">Job Title</h6>
+                                                    </th>
+                                                    <th class="border-bottom-0">
+                                                        <h6 class="fw-semibold mb-0 text-center">Job Type</h6>
+                                                    </th>
+                                                    <th class="border-bottom-0">
+                                                        <h6 class="fw-semibold mb-0">Applications</h6>
+                                                    </th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+
+
+                                                if ($applications) {
+                                                    foreach ($applications as $details) :
+                                                ?>
+                                                        <tr>
+                                                            <td class="border-bottom-0">
+                                                                <h6 class="fw-semibold mb-0"><?= $details['id'] ?></h6>
+                                                            </td>
+                                                            <td class="border-bottom-0 text-center">
+                                                                <h6 class="fw-semibold mb-1"><?= $details['jobTitle'] ?></h6>
+
+                                                                <small><?= $details['jobDescription'] ?></small>
+
+                                                            </td>
+                                                            <td class="border-bottom-0 text-center">
+                                                                <h6 class="fw-semibold mb-1"><?php
+                                                                                                $employer_sql = "SELECT * FROM employers WHERE id= ?";
+                                                                                                $employer_stmt = $pdo->prepare($employer_sql);
+                                                                                                if ($employer_stmt) {
+                                                                                                    $employer_stmt->execute([$details['userId']]);
+                                                                                                    $employer_details = $employer_stmt->fetch();
+                                                                                                    echo $employer_details->name;
+                                                                                                } else {
+                                                                                                    echo "Error: Unable to prepare statement";
+                                                                                                }
+
+                                                                                                ?>
+                                                                </h6>
+
+                                                                <small class="text-center"><?= $details['industry']; ?>
+                                                                </small>
+
+                                                            </td>
+                                                            <td class="border-bottom-0">
+                                                                <p class="mb-0 fw-normal"><?php if ($details['status'] === 1) { ?>
+                                                                <h6 class="fw-semibold mb-1 text-success">Open</h6>
+                                                            <?php  } else {
+                                                                                                echo '<h6 class="fw-semibold mb-1 text-danger">Closed</h6>';
+                                                                                            } ?></p>
+                                                            </td>
+
+                                                            <td class="border-bottom-0 text-center">
+                                                                <h6> <?= $details['jobType'] ?></h6>
+                                                                <small class="text-center"><?php echo '$' . $details['minOffer'] . ' -, $' . $details['maxOffer']; ?>
+                                                                </small>
+                                                            </td>
+                                                            <td class="border-bottom-0 text-center">
+                                                                <h6> <?php
+                                                                        //sql to get count of applications for each job opening
+                                                                        $sql = "SELECT * FROM applications WHERE jobId = ?";
+                                                                        $stmt = $pdo->prepare($sql);
+                                                                        if ($stmt) {
+                                                                            $stmt->execute([$details['userId']]);
+                                                                            $applications = $stmt->rowCount();
+                                                                            echo $applications;
+                                                                        } else {
+                                                                            echo "Error: Unable to prepare Statement";
+                                                                        }
+                                                                        $details['created_at'] ?></h6>
+                                                            </td>
+                                                            <td class="border-bottom-0">
+                                                                <form action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post">
+                                                                    <input type="hidden" name="id" value="<?= $details['id'] ?>">
+                                                                    <button class="btn btn-sm btn-primary" name="apply">Apply</button>
+
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                <?php endforeach;
+                                                } else {
+                                                    echo '<div class="alert alert-danger text-center" role="alert">
+                    No Applications Yet !
+                  </div>';
+                                                }
+                                                ?>
+
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        ?>
+
                     </div>
-                    <canvas id="line-chart"></canvas>
-                    <div class="chart-legend mt-4">
-                        <ul>
-                            <li><span class="legend__item legend__one"></span>Green</li>
-                        </ul>
-                    </div>
+
                 </div><!-- end chart-box -->
             </div><!-- end col-lg-7 -->
 
@@ -201,7 +317,7 @@ if (isset($_POST['remove'])) {
                                                 <?php }
                                                 ?>
                                                 <ul class="info-list">
-                                                    <li class="d-inline-block"><a href="notes.php?id=<?= $note->id ?>"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
+                                                    <li class="d-inline-block"><a href="employer-notes.php?id=<?= $note->id ?>"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a></li>
                                                     <li class="d-inline-block">
                                                         <form method="post" action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>"> <button name="remove" class="border-0"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></button>
                                                             <input type="hidden" name="id" value="<?= $note->id ?>">
@@ -226,28 +342,12 @@ if (isset($_POST['remove'])) {
                                 <?php }
                                 ?>
                                 <div class="mess__item border-bottom-0 text-center">
-                                    <a href="notes.php" class="theme-btn border-0 w-100" style="text-decoration:none;">Add Note</a>
+                                    <a href="employer-notes.php" class="theme-btn border-0 w-100" style="text-decoration:none;">Add Note</a>
                                 </div><!-- end mess__item -->
                             </div><!-- end mess-dropdown -->
                         </div><!-- end dashboard-shared -->
                     </div><!-- end col-lg-5 -->
-                    <!-- <div class="row margin-top-30px">
-                        <div class="col-lg-6">
-                            <div class="chart-box">
-                                <div class="chart-headline margin-bottom-40px">
-                                    <h3 class="widget-title font-size-16 pb-0"><i class="font-size-20 la la-chart-line mr-1"></i>Static Analytics</h3>
-                                </div>
-                                <canvas id="doughnut-chart"></canvas>
-                                <div class="chart-legend margin-top-40px">
-                                    <ul>
-                                        <li><span class="legend__item"></span>Applied Jobs</li>
-                                        <li><span class="legend__item legend__bg-1"></span>Posted Jobs</li>
-                                        <li><span class="legend__item legend__bg-2"></span>Active Bids</li>
-                                    </ul>
-                                </div>
-                            </div>< end chart-box
-                        </div><end col-lg-6 
-                    </div>end row -->
+
     </section>
 
 </main><!-- End #main -->

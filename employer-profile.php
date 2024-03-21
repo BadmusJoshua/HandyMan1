@@ -15,11 +15,43 @@ $address = $detail->address;
 $id = $detail->id;
 $country = $detail->country;
 $state = $detail->state;
+$rating = $detail->rating;
 $imagePath = "$detail->image"; // path to previous image
 
 
 $user = $passwordErr = $password_change = $userUpdate = $imageErr = '';
 $profileImage = $detail->image;
+
+//fetch sum of ratings
+$sql = "SELECT SUM(rating) AS TOTAL_RATING FROM reviews WHERE employer_id = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$userId]);
+// $totalRating = $stmt->fetch();
+$totalRating = $stmt->fetch(PDO::FETCH_NUM);
+$ratingSum = $totalRating[0];
+echo $ratingSum;
+
+//fetch count of ratings
+$sql = "SELECT * FROM reviews WHERE employer_id = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$userId]);
+$totalCount = $stmt->rowCount();
+if ($totalCount == 0) {
+    $rates = 0;
+} else {
+    //fetch average rate
+    $rates = ($ratingSum / $totalCount);
+}
+$sql = "UPDATE employers SET rating = ? WHERE id=?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$rates, $userId]);
+
+//sql to check number of jobs posted
+$sql = "SELECT * FROM jobs WHERE userId = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$userId]);
+$jobCount = $stmt->rowCount();
+
 if (isset($_POST['updateProfile'])) {
     if (!empty($_FILES['profileImage']['tmp_name'])) {
         $fileExt = strtolower(pathinfo($_FILES['profileImage']['name'], PATHINFO_EXTENSION));
@@ -75,7 +107,7 @@ if (isset($_POST['updateProfile'])) {
 }
 //Update Password
 if (isset($_POST['changePassword'])) {
-    $sql = "SELECT * FROM technicians WHERE id = ?";
+    $sql = "SELECT * FROM employers WHERE id = ?";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$userId]);
     $detail = $stmt->fetch();
@@ -90,7 +122,7 @@ if (isset($_POST['changePassword'])) {
             $passwordErr = "your password does not match";
         } else {
             $hashed_password = password_hash($input_new_password, PASSWORD_DEFAULT);
-            $sql = "UPDATE technicians SET password = ? WHERE id = ?";
+            $sql = "UPDATE employers SET password = ? WHERE id = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$hashed_password, $userId]);
             $password_change = 1;
@@ -116,7 +148,7 @@ if (isset($_POST['changePassword'])) {
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link" href="employer-applicant-profile.php">
+            <a class="nav-link" href="employer-profile.php">
                 <i class="bi bi-person"></i>
                 <span>Profile</span>
             </a>
@@ -156,7 +188,7 @@ if (isset($_POST['changePassword'])) {
 </aside><!-- End Sidebar-->
 <main id="main" class="main">
 
-    <div class="pagetitle">
+    <div class="pagetitle " style="margin-top:-55px;">
         <h1>Profile</h1>
         <nav>
             <ol class="breadcrumb">
@@ -188,8 +220,8 @@ if (isset($_POST['changePassword'])) {
                 <div class="card">
                     <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
                         <img src="<?= $image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="Profile" class="" style="height:130px; width:130px;border-radius:50%;">
-                        <h2><?= $name ?></h2>
-                        <h3><?= $job ?></h3>
+                        <h2 class="text-center"><?= $name ?></h2>
+                        <h3 class="text-center"><?= $job ?></h3>
                         <div class="social-links mt-2">
                             <a href="" class="twitter"><i class="bi bi-twitter"></i><?= $twitter ?></a>
                             <a href="" class="facebook"><i class="bi bi-facebook"><?= $facebook ?></i></a>
@@ -236,6 +268,11 @@ if (isset($_POST['changePassword'])) {
                                 </div>
 
                                 <div class="row">
+                                    <div class="col-lg-3 col-md-4 label">Rating</div>
+                                    <div class="col-lg-9 col-md-8"><?= $rating ?></div>
+                                </div>
+
+                                <div class="row">
                                     <div class="col-lg-3 col-md-4 label">About</div>
                                     <div class="col-lg-9 col-md-8">
                                         <p class="small fst-italic"><?= $about ?></p>
@@ -253,6 +290,8 @@ if (isset($_POST['changePassword'])) {
                                     <div class="col-lg-9 col-md-8"><?= $address ?></div>
                                 </div>
 
+
+
                                 <div class="row">
                                     <div class="col-lg-3 col-md-4 label">Industry</div>
                                     <div class="col-lg-9 col-md-8"><?= $job ?></div>
@@ -266,7 +305,7 @@ if (isset($_POST['changePassword'])) {
 
                                 <div class="row">
                                     <div class="col-lg-3 col-md-4 label">Posted Jobs</div>
-                                    <div class="col-lg-9 col-md-8"></div>
+                                    <div class="col-lg-9 col-md-8"><?= $jobCount ?></div>
                                 </div>
 
                                 <div class="row">

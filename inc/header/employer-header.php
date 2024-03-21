@@ -3,6 +3,8 @@ session_start();
 if (isset($_SESSION['id'])) {
     $userId = $_SESSION['id'];
 }
+// if ($sessionFlag == 1) {
+
 
 $sql = "SELECT * FROM employers WHERE id = ?";
 $stmt = $pdo->prepare($sql);

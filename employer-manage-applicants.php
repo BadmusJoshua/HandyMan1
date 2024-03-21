@@ -1,5 +1,92 @@
 <?php include 'inc/header/employer-header.php';
 
+require 'inc/config/mailer-config.php';
+
+//Decline Application
+if (isset($_POST['Decline'])) {
+    $applicationId = $_POST['applicationId'];
+    $email = $_POST['applicantEmail'];
+    $sql = "UPDATE applications SET status =? WHERE id=?";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute(['1', $applicationId]);
+
+        $subject = 'Application Declined';
+        $message = "<div style='width:80%;border:1px solid black; margin:auto;padding:10px;'>Your application for the role of a $jobTitle with $name has been declined. We wish you best of luck '</div>";
+        sendMail($email, $subject, $message);
+    } else {
+        echo "Error: Unable to Prepare Statement";
+    }
+}
+
+//Accept Application
+if (isset($_POST['Accept'])) {
+    $applicationId = $_POST['applicationId'];
+    $sql = "UPDATE applications SET status =? WHERE id= ?";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute(['2', $applicationId]);
+
+        sendMail($email, $subject, $response);
+        if (!$mail->send()) {
+            $unsent = 1;
+        } else {
+            $subject = 'Application Approved';
+            $message = "<div style='width:80%;border:1px solid black; margin:auto;padding:10px;'>Your application for the role of a $jobTitle with $name has been approved. We wish you best of luck '</div>";
+            sendMail($email, $subject, $message);
+
+            $sent = 1;
+        }
+    } else {
+        echo "Error: Unable to Prepare Statement";
+    }
+}
+
+//Hire Applicant
+if (isset($_POST['Hire'])) {
+    $applicationId = $_POST['applicationId'];
+    $sql = "UPDATE applications SET status =? WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute(['3', $applicationId]);
+
+        sendMail($email, $subject, $response);
+        if (!$mail->send()) {
+            $unsent = 1;
+        } else {
+            $subject = 'You have been Hired!';
+            $message = "<div style='width:80%;border:1px solid black; margin:auto;padding:10px;'>You have been hired based on your application for the role of a $jobTitle with $name. Congratulations! We wish you best of luck. '</div>";
+            sendMail($email, $subject, $message);
+            $sent = 1;
+        }
+    } else {
+        echo "Error: Unable to Prepare Statement";
+    }
+}
+
+//view job applications
+if (isset($_GET['employerId'])) {
+    $employerId = $_GET['employerId'];
+
+    if (isset($_GET['jobId'])) {
+        $jobId = $_GET['jobId'];
+    }
+
+    //check if this user posted this job
+    if ($employerId == $userId) {
+        $sql = "SELECT * FROM applications WHERE jobId = ? AND employerId = ?";
+        $stmt = $pdo->prepare($sql);
+        if ($stmt) {
+            $stmt->execute([$jobId, $employerId]);
+            $jobApplications = $stmt->fetchAll();
+        } else {
+            echo "Error:Unable to Prepare Statement";
+        }
+    } else {
+        // return to manage jobs page
+        // ("Location: employer-manage-jobs.php");
+    };
+}
 
 //sql to fetch count of applicants for jobs posted by this employee
 $sql = "SELECT * FROM applications WHERE employerId = ?";
@@ -8,7 +95,7 @@ $stmt = $pdo->prepare($sql);
 if ($stmt) {
     $stmt->execute([$userId]);
     $applicantCount = $stmt->rowCount();
-    $applicantDetail = $stmt->fetchAll();
+    $applicationDetail = $stmt->fetchAll();
 } else {
     echo "Error: Unable to prepare statement.";
 }
@@ -75,95 +162,109 @@ if ($stmt) {
         </nav>
     </div><!-- End Page Title -->
 
-    <section class="section dashboard">
 
-        <div class="row mt-5">
-            <div class="col-lg-12">
-                <div class="billing-form-item">
-                    <div class="billing-title-wrap">
-                        <h3 class="widget-title pb-0"><?= $applicantCount ?> Candidates</h3>
-                        <div class="title-shape margin-top-10px"></div>
-                    </div><!-- billing-title-wrap -->
-                    <div class="billing-content pb-0">
-                        <?php
-                        if ($applicantDetail) {
-                            foreach ($applicantDetail as $applicantInfo) {
+    <div class="row mt-5">
+        <div class="col-lg-12">
+            <div class="billing-form-item">
+                <div class="billing-title-wrap">
+                    <h3 class="widget-title pb-0"><?= $applicantCount ?> Candidates</h3>
+                    <div class="title-shape margin-top-10px"></div>
+                </div><!-- billing-title-wrap -->
+                <div class="billing-content pb-0">
+                    <?php
+                    if ($applicationDetail) {
+                        foreach ($applicationDetail as $applicationInfo) {
 
-                        ?>
+                    ?>
 
-                                <div class="manage-candidate-wrap d-flex align-items-center justify-content-between pb-4">
-                                    <div class="bread-details d-flex">
-                                        <div class="bread-img flex-shrink-0">
-                                            <a href="candidate-details.html" class="d-block">
-                                                <img src="<?= $image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="">
-                                            </a>
+                            <div class="manage-candidate-wrap d-flex align-items-center justify-content-between pb-4">
+                                <div class="bread-details d-flex">
+                                    <div class="bread-img flex-shrink-0">
+
+                                        <?php
+                                        //sql to get applicant details
+                                        $sql = "SELECT * FROM applicants WHERE id= ?";
+                                        $stmt = $pdo->prepare($sql);
+                                        if ($stmt) {
+                                            $stmt->execute([$applicationInfo->applicantId]);
+                                            $details = $stmt->fetch();
+                                        } else {
+                                            echo "Error: Unable to Prepare Statement";
+                                        }
+                                        ?>
+
+                                        <a href="view_applicant_profile.php?applicantId=<?= $applicationInfo->applicantId ?>" class="d-block">
+                                            <img src="<?= $details->image ?>" onerror="this.src='assets/img/profile-img.jpg'" alt="">
+                                        </a>
+                                    </div>
+                                    <div class="manage-candidate-content">
+                                        <h2 class="widget-title pb-2"><a href="view_applicant_profile.php?applicantId=<?= $applicationInfo->applicantId ?>" class="color-text-2"><?= $details->name ?></a></h2>
+                                        <p class="font-size-15">
+                                            <span class="mr-2"><i class="la la-envelope-o mr-1"></i><a href="mailto:<?= $details->email ?>" class="color-text-3"><?= $details->email ?></a></span>
+                                            <span class="mr-2"><i class="la la-phone mr-1"></i><?= $details->phone ?></span>
+                                        </p>
+                                        <p class="mt-1 font-size-15">
+                                            <span class="mr-2"><i class="la la-map mr-1"></i><?= $details->address ?></span>
+                                        <div class="w-100 d-flex justify-content-between ">
+                                            <span class="font-size-15">Applied for: <?= $applicationInfo->jobTitle ?> </span>
+                                            <span class="font-size-14">Status: <?php
+                                                                                if ($applicationInfo->status == 0) { ?>
+                                                    <span class="pill bg-info font-size-14 rounded-pill text-white p-2">Pending</span>
+
+                                                <?php } elseif ($applicationInfo->status == 1) { ?>
+                                                    <span class="pill bg-danger font-size-14 rounded-pill text-white p-2">Declined</span>
+
+                                                <?php } elseif ($applicationInfo->status == 2) { ?>
+                                                    <span class="pill bg-primary font-size-14 rounded-pill text-white p-2">Accepted</span>
+
+                                                <?php } else { ?>
+                                                    <span class="pill bg-success font-size-14 rounded-pill text-white p-2">Hired</span>
+
+                                                <?php }
+                                                ?> </span>
+
                                         </div>
-                                        <div class="manage-candidate-content">
-                                            <h2 class="widget-title pb-2"><a href="candidate-details.html" class="color-text-2"><?= $applicantInfo->applicantName ?></a></h2>
-                                            <p class="font-size-15">
-                                                <span class="mr-2"><i class="la la-envelope-o mr-1"></i><a href="mailto:<?= $applicantInfo->applicantEmail ?>" class="color-text-3"><?= $applicantInfo->applicantEmail ?></a></span>
-                                                <span class="mr-2"><i class="la la-phone mr-1"></i><?= $applicantInfo->applicantPhone ?></span>
-                                            </p>
-                                            <p class="mt-1 font-size-15">
-                                                <span class="mr-2"><i class="la la-map mr-1"></i><?= $applicantInfo->address ?></span>
-                                                <!-- <span class="rating-rating">
-                                                    <span class="rating-count">4.5</span>
-                                                    <span class="la la-star"></span>
-                                                    <span class="la la-star"></span>
-                                                    <span class="la la-star"></span>
-                                                    <span class="la la-star"></span>
-                                                    <span class="la la-star-half-alt"></span>
-                                                </span> -->
-                                            <div>
-                                                <span class="mr-2">Applied for <?= $applicantInfo->jobTitle ?> </span>
+                                        </p>
+                                    </div><!-- end manage-candidate-content -->
+                                </div>
+                                <div class="bread-action">
 
-                                            </div>
-                                            </p>
-                                        </div><!-- end manage-candidate-content -->
-                                    </div>
-                                    <div class="bread-action">
-                                        <ul class="info-list">
-                                            <li class="d-inline-block mb-0"><a href="#"><i class="la la-cloud-download" data-toggle="tooltip" data-placement="top" title="Download CV"></i></a></li>
-                                            <!-- <li class="d-inline-block mb-0"><a href="#"><i class="la la-envelope-o" data-toggle="tooltip" data-placement="top" title="Send Message"></i></a></li> -->
-                                            <li class="d-inline-block mb-0"><a href="#"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></a></li>
-                                        </ul>
-                                    </div>
-                                </div><!-- end manage-candidate-wrap -->
-                                <div class="section-block"></div>
-                            <?php  }
-                        } else { ?>
-                            <div class="alert alert-danger text-center alert-dismissible fade show w-80 align-self-center" role="alert">
-                                There are no applicants yet!
-                            </div>
+                                    <ul class="info-list">
+
+                                        <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="POST">
+                                            <input type="hidden" name="applicationId" value="<?= $applicationInfo->id ?>">
+                                            <input type="hidden" name="applicantEmail" value="<?= $details->email ?>">
+                                            <input type="hidden" name="applicantEmail" value="<?= $application->jobTitle ?>">
+                                            <input type="hidden" name="applicantEmail" value="<?= $details->email ?>">
+
+                                            <li class="d-inline-block mb-0"> <button class="outline-0 border-0 btn-light" style="border-radius:50%;"><a href="employer-manage-applicants.php?applicationStatus=1"><i class="la la-cloud-download" data-toggle="tooltip" data-placement="top" title="Download CV"></i></a></button> </li>
+
+                                            <li class="d-inline-block mb-0"><button class="outline-0 border-0 btn-light" name="Decline" style="border-radius:50%;"><i class="la la-remove" data-toggle="tooltip" data-placement="top" title="Decline"></i></button></li>
+
+                                            <li class="d-inline-block mb-0"><button class="outline-0 border-0 btn-light" name="Accept" style="border-radius:50%;"><i class="la la-check" data-toggle="tooltip" data-placement="top" title="Accept"></i></button></li>
+
+                                            <li class="d-inline-block mb-0"><button class="outline-0 border-0 btn-light" style="border-radius:50%;" data-toggle="tooltip" data-placement="top" title="Send Email"><a href="mailto:<?= $details->email ?>"><i class="la la-envelope-o"></i></a></button></li>
+
+                                            <li class="d-inline-block mb-0"><button class="outline-0 border-0 btn-light" name="Hire" style="border-radius:50%;"><i class="la la-briefcase" data-toggle="tooltip" data-placement="top" title="Hire"></i></button></li>
+                                        </form>
+
+                                    </ul>
+                                </div>
+                            </div><!-- end manage-candidate-wrap -->
+                            <div class="section-block"></div>
                         <?php  }
-                        ?>
+                    } else { ?>
+                        <div class="alert alert-danger text-center alert-dismissible fade show w-80 align-self-center" role="alert">
+                            There are no applicants yet!
+                        </div>
+                    <?php  }
+                    ?>
 
-                    </div><!-- end billing-content -->
-                </div><!-- end billing-form-item -->
-            </div><!-- end col-lg-12 -->
-        </div><!-- end row -->
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="page-navigation-wrap mt-4">
-                    <div class="page-navigation mx-auto">
-                        <a href="#" class="page-go page-prev">
-                            <i class="la la-arrow-left"></i>
-                        </a>
-                        <ul class="page-navigation-nav">
-                            <li><a href="#" class="page-go-link">1</a></li>
-                            <li class="active"><a href="#" class="page-go-link">2</a></li>
-                            <li><a href="#" class="page-go-link">3</a></li>
-                            <li><a href="#" class="page-go-link">4</a></li>
-                            <li><a href="#" class="page-go-link">5</a></li>
-                        </ul>
-                        <a href="#" class="page-go page-next">
-                            <i class="la la-arrow-right"></i>
-                        </a>
-                    </div>
-                </div><!-- end page-navigation-wrap -->
-            </div><!-- end col-lg-12 -->
-        </div><!-- end row -->
-        <div class="row">
-    </section>
+                </div><!-- end billing-content -->
+            </div><!-- end billing-form-item -->
+        </div><!-- end col-lg-12 -->
+    </div><!-- end row -->
+
+    <div class="row">
 </main>
 <?php include 'inc/footer/footer.php'; ?>

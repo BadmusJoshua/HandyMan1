@@ -1,6 +1,6 @@
 <?php
 include 'inc/config/database.php';
-$passwordErr = $userNotFound = $invalidToken = $tokenExpired = $tokenLost = $expiredToken = $disabled = "";
+$passwordErr = $userNotFound = $invalidToken = $tokenExpired = $tokenLost = $expiredToken = $disabled = $session = "";
 
 //checking if cookie exists
 if (isset($_COOKIE['remember_me'])) {
@@ -19,7 +19,7 @@ if (isset($_COOKIE['remember_me'])) {
   if ($details) {
     $expire_date = $details->expires_at;
   }
-  if ($row === '1') {
+  if ($row == 1) {
     //if token is not yet expired
     if (time() < strtotime($expire_date)) {
       if ($userCategory === '1') {
@@ -29,26 +29,27 @@ if (isset($_COOKIE['remember_me'])) {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$userId]);
         $auth = $stmt->fetch();
-        if ($auth->disabled === 0) {
+        if ($auth->disabled == 0) {
           session_start();
           $_SESSION['id'] = $userId;
           $_SESSION['category'] = $userCategory;
+          $_SESSION['session_flag'] = 1;
           header("Location: applicant-index.php");
         } else {
           $disabled = 1;
         }
-      } elseif ($userCategory === 2) {
+      } elseif ($userCategory === '2') {
 
         //sql to fetch the value for the disabled flag
         $sql = "SELECT * FROM employers WHERE  id = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$userId]);
         $auth = $stmt->fetch();
-        if ($auth->disabled === 0) {
+        if ($auth->disabled == 0) {
           session_start();
           $_SESSION['id'] = $userId;
           $_SESSION['category'] = $userCategory;
-
+          $_SESSION['session_flag'] = 1;
           header("Location: employer-index.php");
         } else {
           $disabled = 1;
@@ -68,8 +69,8 @@ if (isset($_COOKIE['remember_me'])) {
 
     // If a token was found and deleted, delete the cookie
     setcookie('remember_me', '', time() - 86400);
+    $tokenLost = 1;
   }
-  $tokenLost = 1;
   // echo $token;
 
 }
@@ -97,12 +98,11 @@ if (isset($_POST['login'])) {
       $stmt = $pdo->prepare($sql);
       $stmt->execute([$userId]);
       $auth = $stmt->fetch();
-      if ($auth->disabled === 0) {
+      if ($auth->disabled == 0) {
         session_start();
         $_SESSION['id'] = $userId;
         $_SESSION['category'] = $userCategory;
-
-
+        $_SESSION['session_flag'] = 1;
         //if user choses to be remembered
         if (isset($_POST['remember'])) {
           $token = bin2hex(random_bytes(16)); // Generate a random 16-byte token
@@ -138,17 +138,19 @@ if (isset($_POST['login'])) {
       $hashed_password = $detail->password;
       $userId = $detail->id;
       $userCategory = $detail->category;
+      $auth = $detail->disabled;
       //confirming password
       $confirm_password = password_verify($input_password, $hashed_password);
 
       //if password match
       if ($confirm_password) {
 
-        if ($disabled === 0) {
+        if ($auth == 0) {
+
           session_start();
           $_SESSION['id'] = $userId;
           $_SESSION['category'] = $userCategory;
-
+          $_SESSION['session_flag'] = 1;
           //if user choses to be remembered
           if (isset($_POST['remember'])) {
             $token = bin2hex(random_bytes(16)); // Generate a random 16-byte token

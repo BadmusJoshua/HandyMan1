@@ -133,6 +133,13 @@ if (isset($_POST['changePassword'])) {
     </li><!-- End Jobs Page Nav -->
 
     <li class="nav-item">
+      <a class="nav-link collapsed" href="applicant-applications.php">
+        <i class="bi bi-briefcase-fill"></i>
+        <span>Applications</span>
+      </a>
+    </li><!-- End Applications Page Nav -->
+
+    <li class="nav-item">
       <div class="dropdown-center nav-link collapsed" style=" margin:0; padding:0; ">
         <button class="btn dropdown-toggle nav-link collapsed" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="outline: none;
       box-shadow: none;" onfocus="this.blur()">

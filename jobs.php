@@ -40,26 +40,20 @@ function timeAgo($date)
 
 //process application
 if (isset($_POST['apply'])) {
-    echo "applied";
 
-    // $applicantId = $_POST['applicantId'];
-    $applicantId = filter_input(INPUT_POST, 'applicantId', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $applicantId = $userId;
     $employerId = filter_input(INPUT_POST, 'employerId', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $jobId = filter_input(INPUT_POST, 'jobId', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $jobTitle = filter_input(INPUT_POST, 'jobTitle', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-
-
-    echo $applicantId . '-' . $employerId . '-' . $jobId;
-
-    // $sql = "INSERT INTO applications (applicantId, employerId, jobId ) VALUES (?,?,?) ";
-    // $stmt = $pdo->prepare($sql);
-    // if ($stmt) {
-    //     $stmt->execute([$applicantId, $employerId, $jobId]);
-    //     $applied = 1;
-    // } else {
-    //     echo "Error: Unable to prepare statement.";
-    // }
-
+    $sql = "INSERT INTO applications (applicantId, employerId, jobId, jobTitle ) VALUES (?,?,?,?) ";
+    $stmt = $pdo->prepare($sql);
+    if ($stmt) {
+        $stmt->execute([$applicantId, $employerId, $jobId, $jobTitle]);
+        $applied = 1;
+    } else {
+        echo "Error: Unable to prepare statement.";
+    }
 }
 
 //SQL to filter jobs
@@ -220,8 +214,8 @@ if (isset($_GET['jobTitle'])) {
         echo "Error: Unable to prepare statement.";
     };
 } else {
-    //SQL to get job count
-    $sql = "SELECT * FROM jobs ORDER BY created_at ASC";
+    //SQL to get jobs without filtering
+    $sql = "SELECT * FROM jobs ORDER BY created_at DESC";
     $stmt = $pdo->prepare($sql);
     if ($stmt) {
         $stmt->execute([]);
@@ -253,12 +247,7 @@ if (isset($_GET['jobTitle'])) {
             </a>
         </li><!-- End Profile Page Nav -->
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="meetings.php">
-                <i class="ri-building-4-line"></i>
-                <span>Meetings</span>
-            </a>
-        </li><!-- End Meetings Page Nav -->
+
 
         <li class="nav-item">
             <a class="nav-link" href="jobs.php">
@@ -326,7 +315,7 @@ if (isset($_GET['jobTitle'])) {
                 <div class="row">
 
                     <!-- Right content -->
-                    <div class="col-xl-9 col-lg-9 col-md-8">
+                    <div class="col">
                         <!-- Featured_job_start -->
                         <section class="featured-job-area">
                             <div class="container">
@@ -356,10 +345,10 @@ if (isset($_GET['jobTitle'])) {
                                 <div class="row">
                                     <?php if ($queryJobs) {
                                         foreach ($queryJobs as $job) { ?>
-                                            <div class="single-job-items mb-4 col-lg-4 col-md-3 col-sm-1">
+                                            <div class="single-job-items mb-4 col">
                                                 <div class="job-items">
                                                     <div class="company-img">
-                                                        <a href="#"><img src="assets/img/icon/job-list1.png" alt=""></a>
+                                                        <a href="#"><img src="<?= $job->logo ?>" onerror="this.src='assets/img/icon/job-list1.png'" alt=""></a>
                                                     </div>
                                                     <div class="job-tittle job-tittle2">
                                                         <a href="jobs.php?jobTitle=<?= $job->jobTitle ?>">
@@ -420,7 +409,7 @@ if (isset($_GET['jobTitle'])) {
                                                             }
                                                             ?>
 
-                                                            <li><a href="view_employer_profile.php?id=<?= $job->userId ?>"><?= $employer_details->name ?></a></li>
+                                                            <li><a href="view_employer_profile.php?employer_id=<?= $job->userId ?>"><?= $employer_details->name ?></a></li>
 
                                                             <li><a href="jobs.php?industry=<?= $job->industry ?>"><?= $job->industry ?></a></li>
 
@@ -432,29 +421,54 @@ if (isset($_GET['jobTitle'])) {
                                                 </div>
                                                 <div class="items-link items-link2 f-right">
                                                     <?php
-                                                    // sql to get current application count for this job
-                                                    $count_sql = "SELECT * FROM applications WHERE employerId = ?";
-                                                    $stmt = $pdo->prepare($sql);
-                                                    if ($stmt) {
-                                                        $stmt->execute([$job->userId]);
-                                                        $count = $stmt->rowCount();
-                                                    }
                                                     if ($job->status == '1') { ?>
-                                                        <a href="jobs.php?status=<?= $job->status ?>"><span class="badge bg-primary rounded-3 fw-semibold">Open</span></a>
+                                                        <div class="d-flex justify-content-between w-50"> <a href="jobs.php?status=<?= $job->status ?>"><span class="badge bg-primary rounded-3 fw-semibold">Open</span></a>
 
-                                                        <form action="post" method="<?php echo htmlspecialchars($_SERVER['PHP_SELF']) ?>">
-                                                            <!-- <input type="hidden" name="applicantId" value="<?= $userId ?>">
-                                                            <input type="hidden" name="jobId" value="<?= $job->id ?>">
-                                                            <input type="hidden" name="employerId" value="<?= $job->userId ?>"> -->
-                                                            <button class="badge bg-primary rounded-3 p-2 border-0 " name="apply">Apply To</button>
-                                                        </form>
+                                                            <?php
+                                                            //sql to check if user already applied for this job
+                                                            $sql = "SELECT * FROM applications WHERE applicantId = ? and jobId = ?";
+                                                            $stmt = $pdo->prepare($sql);
+                                                            if ($stmt) {
+                                                                $stmt->execute([$userId, $job->id]);
+                                                                //the user can only apply once
+                                                                $application_count = $stmt->rowCount();
+                                                                if ($application_count < '1') { ?>
+                                                                    <form class="row g-3 needs-validation" action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" novalidate>
+                                                                        <input type="hidden" name="jobTitle" value="<?= $job->jobTitle ?>">
+                                                                        <input type="hidden" name="jobId" value="<?= $job->id ?>">
+                                                                        <input type="hidden" name="employerId" value="<?= $job->userId ?>">
+                                                                        <button class="btn btn-primary rounded-3 p-2 border-0 " name="apply">Apply</button>
+                                                                    </form>
+
+
+                                                                <?php    } else { ?>
+                                                                    <span class="badge badge-dark rounded-3 p-2 border-0 disabled">Applied</span>
+                                                            <?php   }
+                                                            } else {
+                                                                echo "Error: Unable to Prepare Statement";
+                                                            }
+
+                                                            // sql to get application count for each job
+
+                                                            $job_sql = "SELECT * FROM applications WHERE jobId  = ?";
+                                                            $job_stmt = $pdo->prepare($job_sql);
+                                                            if ($job_stmt) {
+                                                                $job_stmt->execute([$job->id]);
+                                                                $count = $job_stmt->rowCount();
+                                                            } else {
+                                                                echo "Error: unable to prepare stmt";
+                                                            }
+                                                            ?>
+
+                                                        </div>
 
                                                     <?php } else { ?>
                                                         <span class="badge bg-secondary rounded-3 fw-semibold">Closed</span>
                                                     <?php } ?>
+
                                                     <div class="d-flex justify-content-between">
 
-                                                        <div class="align-right"> <?= $count ?> applications </div>
+                                                        <div class="align-right"> <?= $count ?> application(s) </div>
                                                     </div>
 
                                                     <span class="w-50 font-size-11">
@@ -472,10 +486,10 @@ if (isset($_GET['jobTitle'])) {
                                         <?php  }
                                     } elseif ($job) {
                                         foreach ($jobs as $job) { ?>
-                                            <div class="single-job-items mb-4 col-md-6 col-sm-1">
+                                            <div class="single-job-items mb-4 col">
                                                 <div class="job-items">
                                                     <div class="company-img">
-                                                        <a href="#"><img src="assets/img/icon/job-list1.png" alt=""></a>
+                                                        <a href="#"><img src="<?= $job->logo ?>" class="  " onerror="this.src='assets/img/icon/job-list1.png'" alt="" style="height:100px; width:100px; outline:1px solid blue; border-radius: 3px;"></a>
                                                     </div>
                                                     <div class="job-tittle job-tittle2">
                                                         <a href="jobs.php?jobTitle=<?= $job->jobTitle ?>">
@@ -534,7 +548,7 @@ if (isset($_GET['jobTitle'])) {
                                                             }
                                                             ?>
 
-                                                            <li><a href="view_employer_profile.php?id=<?= $job->userId ?>"><?= $employer_details->name ?></a></li>
+                                                            <li><a href="view_employer_profile.php?employerId=<?= $job->userId ?>"><?= $employer_details->name ?></a></li>
                                                             <li><a href="jobs.php?industry=<?= $job->industry ?>"><?= $job->industry ?></a></li>
                                                             <li><i class="fas fa-map-marker-alt"></i><a href="jobs.php?state=<?= $employer_details->state ?>"><?= $employer_details->state ?></a>, <a href="jobs.php?country=<?= $employer_details->country ?>"><?= $employer_details->country ?></a></li>
                                                             <li><a href="jobs.php?minOffer=<?= $job->minOffer ?>">$<?= $job->minOffer ?></a> - <a href="jobs.php?maxOffer=<?= $job->maxOffer ?>">$<?= $job->maxOffer ?></a></li>
@@ -546,16 +560,31 @@ if (isset($_GET['jobTitle'])) {
                                                     if ($job->status == '1') { ?>
                                                         <div class="d-flex justify-content-between w-50"> <a href="jobs.php?status=<?= $job->status ?>"><span class="badge bg-primary rounded-3 fw-semibold">Open</span></a>
 
-                                                            <form class="row g-3 needs-validation" action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" novalidate>
-                                                                <input type="hidden" name="applicantId" value="<?= $userId ?>">
-                                                                <input type="hidden" name="jobId" value="<?= $job->id ?>">
-                                                                <input type="hidden" name="employerId" value="<?= $job->userId ?>">
-                                                                <button class="btn btn-primary rounded-3 p-2 border-0 " type="submit" name="apply">Apply</button>
-                                                            </form>
-
-
-                                                            <!-- sql to fetch count of applications for each job opening -->
                                                             <?php
+                                                            //sql to check if user already applied for this job
+                                                            $sql = "SELECT * FROM applications WHERE applicantId = ? and jobId = ?";
+                                                            $stmt = $pdo->prepare($sql);
+                                                            if ($stmt) {
+                                                                $stmt->execute([$userId, $job->id]);
+                                                                //the user can only apply once
+                                                                $application_count = $stmt->rowCount();
+                                                                if ($application_count < '1') { ?>
+                                                                    <form class="row g-3 needs-validation" action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" novalidate>
+                                                                        <input type="hidden" name="jobTitle" value="<?= $job->jobTitle ?>">
+                                                                        <input type="hidden" name="jobId" value="<?= $job->id ?>">
+                                                                        <input type="hidden" name="employerId" value="<?= $job->userId ?>">
+                                                                        <button class="btn btn-primary rounded-3 p-2 border-0 " name="apply">Apply</button>
+                                                                    </form>
+
+
+                                                                <?php    } else { ?>
+                                                                    <span class="badge badge-dark rounded-3 p-2 border-0 disabled">Applied</span>
+                                                            <?php   }
+                                                            } else {
+                                                                echo "Error: Unable to Prepare Statement";
+                                                            }
+                                                            // sql to get application count for each job
+
                                                             $job_sql = "SELECT * FROM applications WHERE jobId  = ?";
                                                             $job_stmt = $pdo->prepare($job_sql);
                                                             if ($job_stmt) {

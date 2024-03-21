@@ -19,18 +19,18 @@
         </li><!-- End Profile Page Nav -->
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="meetings.php">
-                <i class="ri-building"></i>
-                <span>Meetings</span>
-            </a>
-        </li><!-- End Meeting Page Nav -->
-
-        <li class="nav-item">
             <a class="nav-link collapsed" href="jobs.php">
                 <i class="bi bi-briefcase"></i>
                 <span>Jobs</span>
             </a>
         </li><!-- End Jobs Page Nav -->
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="applicant-applications.php">
+                <i class="bi bi-briefcase-fill"></i>
+                <span>Applications</span>
+            </a>
+        </li><!-- End Applications Page Nav -->
 
         <li class="nav-item">
             <div class="dropdown-center nav-link collapsed" style=" margin:0; padding:0; ">

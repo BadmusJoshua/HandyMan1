@@ -1,5 +1,13 @@
 <?php include 'inc/header/employer-header.php';
 
+//deleting job post
+if (isset($_GET['jobId'])) {
+    $jobId = $_GET['jobId'];
+    $sql = "DELETE FROM jobs WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$jobId]);
+}
+
 //sql to fetch total number of applications
 $sql = "SELECT * FROM applications WHERE employerId  = ?";
 $stmt = $pdo->prepare($sql);
@@ -20,12 +28,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute([$userId, '1']);
 $activeJobCount = $stmt->rowCount();
 
-if (isset($_POST['delete'])) {
-    $jobId = $_POST['jid'];
-    $sql = "DELETE FROM jobs WHERE id = ?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$jobId]);
-}
+
 
 ?>
 <!-- ======= Sidebar ======= -->
@@ -172,16 +175,12 @@ if (isset($_POST['delete'])) {
                                                     <td class="text-center">
                                                         <div class="manage-candidate-wrap">
                                                             <div class="bread-action pt-0">
-                                                                <ul class="info-list d-flex flex-center-start">
+                                                                <ul class="info-list d-flex flex-center-start justify-content-center">
                                                                     <li class="d-inline-block"><a href="middleware.php?id=<?= $details->id; ?>"><i class="la la-edit" data-toggle="tooltip" data-placement="top" title="Edit" data-bs-toggle="" data-bs-target=""></i></a></li>
 
-                                                                    <li class=" d-inline-block">
-                                                                        <form action="post" method="<?php echo htmlspecialchars($_SERVER['PHP_SELF']) ?>" class="p-0 m-0">
-                                                                            <input type="hidden" name="jid" value=<?= $details->id ?>>
+                                                                    <li class="d-inline-block"><a href="employer-manage-applicants.php?jobId=<?= $details->id; ?>?employerId = <?= $details->userId; ?>"><i class="la la-eye" data-toggle="tooltip" data-placement="top" title="View Applications" data-bs-toggle="" data-bs-target=""></i></a></li>
 
-                                                                            <button class="btn btn-sm" name="delete"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Remove"></i></button>
-                                                                        </form>
-                                                                    </li>
+                                                                    <li class="d-inline-block"><a href="employer-manage-jobs.php?jobId=<?= $details->id; ?>"><i class="la la-trash" data-toggle="tooltip" data-placement="top" title="Delete" data-bs-toggle="" data-bs-target=""></i></a></li>
 
                                                                 </ul>
 
@@ -192,12 +191,12 @@ if (isset($_POST['delete'])) {
                             </div>
                             </td>
                             </tr>
-                    <?php endforeach;
-                                        } else {
-                                            echo '<div class="alert alert-danger text-center" role="alert">
-                    You haven\t posted any job yet
-                  </div>';
-                                        }
+                        <?php endforeach;
+                                        } else { ?>
+                        <div class="alert alert-danger text-center" role="alert">
+                            You haven't posted any job yet
+                        </div>
+                    <?php   }
                     ?>
 
                     </tbody>
